@@ -8,7 +8,19 @@ class LoadingButton extends StatefulWidget {
   String title;
   bool? disable;
   Color? buttonColor;
-  LoadingButton({this.onPressed,this.loading = false,this.title = 'Done',this.disable = false,this.buttonColor = Colors.amber});
+  Widget? icon;
+  BorderRadiusGeometry? borderRadius;
+  double? height;
+  LoadingButton({
+    this.onPressed,
+    this.loading = false,
+    this.title = 'Done',
+    this.disable = false,
+    this.buttonColor = Colors.amber,
+    this.icon,
+    this.borderRadius,
+    this.height,
+  });
   @override
   LoadingButtonState createState() => LoadingButtonState();
 }
@@ -30,7 +42,13 @@ class LoadingButtonState extends State<LoadingButton> {
         child: Container(
           // ignore: sort_child_properties_last
           child: ElevatedButton(
-        style:  ElevatedButton.styleFrom(backgroundColor: widget.buttonColor,elevation: 2,shadowColor: widget.buttonColor,shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10))),
+        style:  ElevatedButton.styleFrom(
+            backgroundColor: widget.buttonColor,
+            elevation: 2,
+            shadowColor: widget.buttonColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(10),
+            )),
         onPressed: widget.disable! ? null : (){
           if(!widget.loading) widget.onPressed!();
         },
@@ -38,13 +56,23 @@ class LoadingButtonState extends State<LoadingButton> {
             child: const Center(child: CircularProgressIndicator( color: Colors.white,strokeWidth: 3,)),width: 25,height: 25,
           ):Container(
                   width: double.maxFinite,
-                  child: Text(
-                    widget.title.tr,
-                    style: const TextStyle(fontSize: 16, color: Colors.white,fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.title.tr,
+                        style: const TextStyle(fontSize: 18, color: Colors.white,fontWeight: FontWeight.w700),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (widget.icon != null) ...[
+                        const SizedBox(width: 8),
+                        widget.icon!,
+                      ]
+                    ],
                   ),
                 ),
-        ),height:45,width: Get.width,
+        ),height: widget.height ?? 45,width: Get.width,
       ));
   }
 }

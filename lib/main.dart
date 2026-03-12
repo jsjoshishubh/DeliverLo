@@ -42,7 +42,8 @@ class _MyAppState extends State<MyApp> {
       getPages: AppPages.pages,
       initialRoute: renderInitialRoute(),
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: 'Inter',
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const OnBoardingMainPage(),
     );
