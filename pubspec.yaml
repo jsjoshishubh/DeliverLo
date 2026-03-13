@@ -66,7 +66,7 @@ flutter:
   assets:
     - Assets/onBoardingAndAuthFlow/
     - Assets/Extras/
-    - Assets/Logs/
+    - Assets/Logos/
     - Assets/Fonts/
   #   - images/a_dot_ham.jpeg
 
@@ -99,21 +99,21 @@ flutter:
   fonts:
     - family: Inter
       fonts:
-        - asset: Assets/Fonts/Inter-Thin.ttf
+        - asset: Assets/Fonts/Inter_24pt-Thin.ttf
           weight: 100
-        - asset: Assets/Fonts/Inter-ExtraLight.ttf
+        - asset: Assets/Fonts/Inter_24pt-ExtraLight.ttf
           weight: 200
-        - asset: Assets/Fonts/Inter-Light.ttf
+        - asset: Assets/Fonts/Inter_24pt-Light.ttf
           weight: 300
-        - asset: Assets/Fonts/Inter-Regular.ttf
+        - asset: Assets/Fonts/Inter_24pt-Regular.ttf
           weight: 400
-        - asset: Assets/Fonts/Inter-Medium.ttf
+        - asset: Assets/Fonts/Inter_24pt-Medium.ttf
           weight: 500
-        - asset: Assets/Fonts/Inter-SemiBold.ttf
+        - asset: Assets/Fonts/Inter_24pt-SemiBold.ttf
           weight: 600
-        - asset: Assets/Fonts/Inter-Bold.ttf
+        - asset: Assets/Fonts/Inter_24pt-Bold.ttf
           weight: 700
-        - asset: Assets/Fonts/Inter-ExtraBold.ttf
+        - asset: Assets/Fonts/Inter_24pt-ExtraBold.ttf
           weight: 800
-        - asset: Assets/Fonts/Inter-Black.ttf
+        - asset: Assets/Fonts/Inter_24pt-Black.ttf
           weight: 900

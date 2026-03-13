@@ -123,7 +123,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: commonTextStyle(
-                                          fontSize: 28,
+                                          fontSize: 34,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -138,7 +138,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
                                         style: commonTextStyle(
-                                          fontSize: 28,
+                                          fontSize: 34,
                                           fontWeight: FontWeight.w700,
                                           fontColor: contents[i].color,
                                         ),
@@ -157,7 +157,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                         style: commonTextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
-                                          fontColor: Colors.grey.shade400,
+                                          fontColor: HexColor.fromHex('#1D1D1D').withOpacity(0.6),
                                         ),
                                       ),
                                     ),
