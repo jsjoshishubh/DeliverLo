@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
       //  return Routes.MAIN_HOME_PAGE;
    }else{
       // return  shownOnboard ? Routes.LOGINPAGE : Routes.ONBOARDING;
-      return  Routes.ONBOARDING;
+      return  Routes.MAIN_DASHBOARD;
       // return Routes.LOGINPAGE;ç
     }
   }
