@@ -24,6 +24,7 @@ class TextFormFieldWidget extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   String? textFieldTitle;
   String? textFIeldHint;
+  EdgeInsetsGeometry? contentPadding;
 
   TextFormFieldWidget({
     Key? key,
@@ -46,7 +47,8 @@ class TextFormFieldWidget extends StatefulWidget {
     this.maxLines = 1,
     this.inputFormatters,
     this.textFIeldHint,
-    this.textFieldTitle
+    this.textFieldTitle,
+    this.contentPadding,
   }) : super(key: key);
 
   @override
@@ -102,7 +104,7 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
               floatingLabelBehavior: FloatingLabelBehavior.never,
               prefixIcon: widget.prefixIcon != null ? widget.prefixIcon : null,
               suffixIcon: widget.suffixIcon != null ? widget.suffixIcon : null,
-              contentPadding: EdgeInsets.fromLTRB(12.0, 23.0, 20.0, 13.0),
+              contentPadding: widget.contentPadding ?? EdgeInsets.fromLTRB(12.0, 23.0, 20.0, 13.0),
               hintText: widget.labelText,
               filled: true,
               fillColor: Colors.grey.shade50,

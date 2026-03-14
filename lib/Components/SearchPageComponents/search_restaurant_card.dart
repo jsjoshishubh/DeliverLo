@@ -1,0 +1,242 @@
+import 'dart:math';
+
+import 'package:deliverylo/Styles/app_colors.dart';
+import 'package:deliverylo/Utils/utils.dart';
+import 'package:flutter/material.dart';
+
+class SearchRestaurantCard extends StatelessWidget {
+  const SearchRestaurantCard({
+    super.key,
+    required this.item,
+    this.onTap,
+  });
+
+  final Map<String, dynamic> item;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final rating = (item['rating'] as num?)?.toDouble() ?? 4.0;
+    final offerBadge = item['offerBadge'] as String? ?? '';
+    final offerText = item['offerText'] as String? ?? '';
+
+    return GestureDetector(
+      onTap: onTap ?? () {},
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              clipBehavior: Clip.antiAlias,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left:10.0,top: 10.0,bottom: 10.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      item['imageUrl'] as String,
+                      width: 110,
+                      height: 110,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 120,
+                        height: 120,
+                        color: greyFontColor.shade50.withValues(alpha: 0.2),
+                        child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 40),
+                      ),
+                    ),
+                  ),
+                ),
+                if (offerBadge.isNotEmpty)
+                  Positioned(
+                    bottom: 0,
+                    left: 35,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: HexColor.fromHex('#FFFFFF'),
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        offerBadge,
+                        style: commonTextStyle(
+                          fontSize: 12,
+                          fontColor: HexColor.fromHex('#FF5200'),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  top: 16,
+                  right: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.favorite_border, color: Colors.white, size: 14),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * .3,
+                          child: Text(
+                            item['name'] as String,
+                            style: commonTextStyle(
+                              fontSize: 18,
+                              fontColor: HexColor.fromHex('#111827'),
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: HexColor.fromHex('#16A34A'),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.star, size: 12, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                '$rating',
+                                style: commonTextStyle(
+                                  fontSize: 12,
+                                  fontColor: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item['cuisine'] as String? ?? '',
+                      style: commonTextStyle(
+                        fontSize: 12,
+                        fontColor: HexColor.fromHex('#6B7280'),
+                        fontWeight: FontWeight.w400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item['priceForTwo'] as String? ?? '',
+                          style: commonTextStyle(
+                            fontSize: 12,
+                            fontColor: HexColor.fromHex('#6B7280'),
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Container(
+                          child: Row(
+                            children: [
+                              Icon(Icons.timer_outlined, size: 13, color: HexColor.fromHex('#16A34A')),
+                              const SizedBox(width: 4),
+                              Text(
+                                item['deliveryTime'] as String? ?? '25 mins',
+                                style: commonTextStyle(
+                                  fontSize: 12,
+                                  fontColor: HexColor.fromHex('#374151'),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Transform.rotate(
+                                angle: pi/3,
+                                child: Icon(Icons.navigation_outlined, size: 14, color: HexColor.fromHex('#002A80'))),
+                              const SizedBox(width: 4),
+                              Text(
+                                item['distance'] as String? ?? '2.5 km',
+                                style: commonTextStyle(
+                                  fontSize: 12,
+                                  fontColor: HexColor.fromHex('#374151'),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.only(left:8.0,right: 8.0),
+                      child: Divider(color: HexColor.fromHex('#E5E7EB'), height: 1, thickness: 1),
+                    ),
+                    const SizedBox(height: 15),
+                    
+                    if (offerText.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.local_offer_outlined, size: 14, color: HexColor.fromHex('#A855F7')),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              offerText,
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor: HexColor.fromHex('#4B5563'),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

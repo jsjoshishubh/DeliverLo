@@ -88,7 +88,6 @@ class _WhatsOnYourMindComponentState extends State<WhatsOnYourMindComponent> {
               ),
             ),
             ),
-            const SizedBox(height: 16),
           ],
         ],
       ),

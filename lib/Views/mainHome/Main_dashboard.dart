@@ -1,6 +1,7 @@
 import 'package:deliverylo/Commons and Reusables/common_bottom_bar.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Views/mainHome/Food_home_page.dart';
+import 'package:deliverylo/Views/mainHome/Search_Deligate_page.dart';
 import 'package:flutter/material.dart';
 
 class MainDashboard extends StatefulWidget {
@@ -41,7 +42,7 @@ class _MainDashboardState extends State<MainDashboard> {
       case 1:
         return const Center(child: Text('Dining'));
       case 2:
-        return const Center(child: Text('Search'));
+        return const SearchDeligatePage();
       case 3:
         return const Center(child: Text('Profile'));
       default:
