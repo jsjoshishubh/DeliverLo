@@ -1,5 +1,6 @@
 import 'package:deliverylo/Commons%20and%20Reusables/commonButton.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/commonTextFormField.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,14 @@ class LoginSignUpPage extends StatefulWidget {
 }
 
 class _LoginSignUpPageState extends State<LoginSignUpPage> {
+  final _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,13 +94,17 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal:22.0,vertical: 0),
                       child: TextFormFieldWidget(
+                        controller: _phoneController,
                         prefixIcon: Icon(Icons.phone_outlined,color: Colors.grey,),
                         labelText: '(+91) 00000000000',
                       ),
                     ),
                     LoadingButton(
                       buttonColor:HexColor.fromHex('#F48C25'),
-                      onPressed: (){},
+                      onPressed: (){
+                        final mobile = _phoneController.text.trim();
+                        Get.toNamed(Routes.OTP, arguments: mobile);
+                      },
                       title: 'Continue with Phone',
                       icon: Icon(Icons.arrow_forward,color: Colors.white,),
                       borderRadius: BorderRadius.circular(14),
