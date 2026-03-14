@@ -3,6 +3,7 @@ import 'package:deliverylo/Components/FoodHomePageComponents/Food_home_page_addr
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_home_page_catagory_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_TabBar_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Khana_Khajana_component.dart';
+import 'package:deliverylo/Components/FoodHomePageComponents/whats_on_your_mind_component.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -54,14 +55,20 @@ class _HomePageViewState extends State<HomePageView> {
           bottomChild: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 10),
               Container(
                 height: 296,
                 child: FoodTabBarComponent(),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
               Container(
                 child: KhanaKhajanaComponent(),
               ),
+              SizedBox(height: 5),
+              Container(
+                child: WhatsOnYourMindComponent(),
+              ),
+
             ],
           ),
         ),
