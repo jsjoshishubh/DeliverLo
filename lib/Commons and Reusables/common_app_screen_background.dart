@@ -10,6 +10,7 @@ class CommonAppScreenBackground extends StatelessWidget {
     this.topHeight,
     this.topHeightFraction = 0.4,
     this.curveHeight = 28,
+    this.scrollable = false,
   });
 
   final Widget? topChild;
@@ -19,34 +20,48 @@ class CommonAppScreenBackground extends StatelessWidget {
   final double? topHeight;
   final double topHeightFraction;
   final double curveHeight;
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final effectiveTopHeight = topHeight ?? (screenHeight * topHeightFraction.clamp(0.0, 1.0));
 
+    final topSection = Container(
+      height: effectiveTopHeight + curveHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: topColor,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+      ),
+      child: topChild,
+    );
+
+    final bottomSection = Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: bottomColor,
+      ),
+      child: bottomChild ?? const SizedBox.shrink(),
+    );
+
+    if (scrollable) {
+      return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [topSection, bottomSection],
+        ),
+      );
+    }
+
     return Column(
       children: [
-        // Top section (red) with rounded bottom corners
-        Container(
-          height: effectiveTopHeight + curveHeight,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: topColor,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40),
-            ),
-          ),
-          child: topChild,
-        ),
-        // Bottom section (white)
-        Container(
-          decoration: BoxDecoration(
-            color: bottomColor,
-          ),
-          child: bottomChild ?? const SizedBox.shrink(),
-        ),
+        topSection,
+        Expanded(child: bottomSection),
       ],
     );
   }
