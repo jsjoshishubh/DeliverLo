@@ -35,7 +35,7 @@ class SearchResultsListComponent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 5),
+        SizedBox(height: 5),
         SearchResultsHeaderComponent(
           resultCount: resultCount ?? list.length,
           onSortTap: onSortTap,

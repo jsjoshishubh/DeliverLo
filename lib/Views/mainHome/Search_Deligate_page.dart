@@ -1,8 +1,10 @@
 import 'package:deliverylo/Commons%20and%20Reusables/common_app_screen_background.dart';
 import 'package:deliverylo/Components/SearchPageComponents/search_header_component.dart';
 import 'package:deliverylo/Components/SearchPageComponents/search_results_list_component.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SearchDeligatePage extends StatefulWidget {
   const SearchDeligatePage({
@@ -40,7 +42,7 @@ class _SearchDeligatePageState extends State<SearchDeligatePage> {
           showViewCart: _showViewCart,
           itemCount: 1,
           totalAmount: '₹210',
-          onRestaurantTap: (item) {},
+          onRestaurantTap: (item) => Get.toNamed(Routes.SEARCHDETAILSPAGE, arguments: item),
           onViewCartTap: () {},
           onSortTap: () {},
         ),

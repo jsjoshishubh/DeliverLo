@@ -11,6 +11,7 @@ class CommonAppScreenBackground extends StatelessWidget {
     this.topHeightFraction = 0.4,
     this.curveHeight = 28,
     this.scrollable = false,
+    this.topImageUrl,
   });
 
   final Widget? topChild;
@@ -21,23 +22,41 @@ class CommonAppScreenBackground extends StatelessWidget {
   final double topHeightFraction;
   final double curveHeight;
   final bool scrollable;
+  /// Optional image for the top section. When set, the image is shown as background with [topChild] stacked on top.
+  final String? topImageUrl;
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final effectiveTopHeight = topHeight ?? (screenHeight * topHeightFraction.clamp(0.0, 1.0));
 
+    final topRadius = const BorderRadius.only(
+      bottomLeft: Radius.circular(40),
+      bottomRight: Radius.circular(40),
+    );
     final topSection = Container(
       height: effectiveTopHeight + curveHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         color: topColor,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
+        borderRadius: topRadius,
       ),
-      child: topChild,
+      child: ClipRRect(
+        borderRadius: topRadius,
+        child: topImageUrl != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    topImageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                  if (topChild != null) topChild!,
+                ],
+              )
+            : topChild,
+      ),
     );
 
     final bottomSection = Container(

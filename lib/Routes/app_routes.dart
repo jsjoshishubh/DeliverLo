@@ -1,6 +1,7 @@
 import 'package:deliverylo/Views/Login%20and%20Signup/login_signup_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/otp_page.dart';
 import 'package:deliverylo/Views/mainHome/Main_dashboard.dart';
+import 'package:deliverylo/Views/mainHome/Search_Details_Page.dart';
 import 'package:deliverylo/Views/onBoarding/onBoarding_main_page.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +12,7 @@ abstract class Routes{
  static const OTP = '/otp'; 
  static const MAIN_DASHBOARD = '/main_dashboard'; 
  static const MAINHOMEPAGE = '/main_home_page'; 
+ static const SEARCHDETAILSPAGE = '/search_details_page'; 
 }
 
 
@@ -20,5 +22,6 @@ abstract class AppPages{
      GetPage(name: Routes.SIGNUPAMDLOGIN, page: () => LoginSignUpPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.OTP, page: () => OtpPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.MAIN_DASHBOARD, page: () => MainDashboard(),transition: Transition.fadeIn),
+     GetPage(name: Routes.SEARCHDETAILSPAGE, page: () => SearchDetailsPage(),transition: Transition.fadeIn),
   ];
 }
