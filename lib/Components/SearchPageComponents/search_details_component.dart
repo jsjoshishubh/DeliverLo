@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'package:deliverylo/Commons%20and%20Reusables/common_app_screen_background.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/common_filter_chip.dart';
 import 'package:deliverylo/Components/SearchPageComponents/search_details_tab_bar.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:get/get.dart';
 
 class SearchDetailsComponent extends StatefulWidget {
   final Map<String, dynamic> restaurantDetails;
@@ -422,10 +424,12 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
 
   Widget _buildViewCartBar() {
     return GestureDetector(
-      onTap: _cartItemCount > 0 ? () {} : null,
+      onTap: _cartItemCount > 0 ? () {
+        Get.toNamed(Routes.CHECKOUT);
+      } : null,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(220, 0, 14, 30),
+        margin: const EdgeInsets.fromLTRB(212, 0, 14, 30),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: _cartItemCount > 0 ? HexColor.fromHex('#E88A2D') : HexColor.fromHex('#9CA3AF'),

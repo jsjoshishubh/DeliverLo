@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:deliverylo/Routes/app_routes.dart';
+import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -108,3 +109,62 @@ int parsePrice(String? priceStr) {
   final cleaned = priceStr.replaceAll(RegExp(r'[^\d]'), '');
   return int.tryParse(cleaned) ?? 0;
 }
+
+
+  Widget buildAddOnCard({required String title,required String subtitle,required IconData icon,required Color iconColor,required Widget trailing,required Color iconBackground}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(16),border: Border.all(color: HexColor.fromHex('#E5E7EB')),),
+      child: Row(
+        children: [
+          Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(shape: BoxShape.circle,color: iconBackground,),
+            child: Icon(icon,size: 20,color: iconColor,),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,style: commonTextStyle(fontColor: HexColor.fromHex('#1F2937'),fontSize: 14,fontWeight: FontWeight.w400,),),
+                const SizedBox(height: 4),
+                Text(subtitle,style: commonTextStyle(fontColor: HexColor.fromHex('#6B7280'),fontSize: 12,fontWeight: FontWeight.w400,),),
+              ],
+            ),
+          ),
+          trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget buildPortionChip({required String label,required String value,required Function onTap,required Color activeColor,required  String selectedPortion}) {
+    final bool isSelected = selectedPortion == value;
+    final Color activeColor = HexColor.fromHex('#FF5200');
+
+    return GestureDetector(
+      onTap: () => onTap(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? activeColor : HexColor.fromHex('#E5E7EB'),
+            width: 1.2,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: commonTextStyle(
+            fontColor: isSelected ? activeColor : HexColor.fromHex('#4B5563'),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
