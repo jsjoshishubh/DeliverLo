@@ -44,7 +44,7 @@ Future<T?> showCommonBottomSheet<T>({
      enableDrag: enableDrag,
      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top),
      shape: shape != null ? shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(
-              top: const Radius.circular(20),
+              top: const Radius.circular(30),
             )),
      builder: (BuildContext context) {
        return  Container(child: child, 

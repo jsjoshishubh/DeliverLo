@@ -3,8 +3,6 @@ import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Sample restaurant and menu data for Search Details Page.
-/// Can be overridden by [Get.arguments] when navigating from search results.
 final Map<String, dynamic> _defaultRestaurantDetails = {
   'name': 'The Burger Joint',
   'cuisine': 'American • Fast Food • Burgers',
@@ -56,13 +54,9 @@ class SearchDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = Get.arguments as Map<String, dynamic>?;
-    final restaurantDetails = args != null
-        ? _restaurantDetailsFromSearch(args)
-        : _defaultRestaurantDetails;
+    final restaurantDetails = args != null ? _restaurantDetailsFromSearch(args) : _defaultRestaurantDetails;
     final menuTabs = _defaultMenuTabs;
-    final menuItems = args != null && args['menuItems'] != null
-        ? List<Map<String, dynamic>>.from(args['menuItems'] as List)
-        : _defaultMenuItems;
+    final menuItems = args != null && args['menuItems'] != null ? List<Map<String, dynamic>>.from(args['menuItems'] as List) : _defaultMenuItems;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,7 +66,7 @@ class SearchDetailsPage extends StatelessWidget {
         menuItems: menuItems,
         topImageUrl: restaurantDetails['heroImageUrl'] as String?,
         topColor: HexColor.fromHex('#1A1A1A'),
-        topHeight: 360,
+        topHeight: 340,
       ),
     );
   }

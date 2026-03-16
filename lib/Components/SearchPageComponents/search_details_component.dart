@@ -8,14 +8,14 @@ import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
-/// Parses price string like "₹150" to integer value.
-int _parsePrice(String? priceStr) {
-  if (priceStr == null || priceStr.isEmpty) return 0;
-  final cleaned = priceStr.replaceAll(RegExp(r'[^\d]'), '');
-  return int.tryParse(cleaned) ?? 0;
-}
-
 class SearchDetailsComponent extends StatefulWidget {
+  final Map<String, dynamic> restaurantDetails;
+  final List<String> menuTabs;
+  final List<Map<String, dynamic>> menuItems;
+  final String? topImageUrl;
+  final Color? topColor;
+  final double? topHeight;
+
   const SearchDetailsComponent({
     super.key,
     required this.restaurantDetails,
@@ -26,12 +26,7 @@ class SearchDetailsComponent extends StatefulWidget {
     this.topHeight,
   });
 
-  final Map<String, dynamic> restaurantDetails;
-  final List<String> menuTabs;
-  final List<Map<String, dynamic>> menuItems;
-  final String? topImageUrl;
-  final Color? topColor;
-  final double? topHeight;
+
 
   @override
   State<SearchDetailsComponent> createState() => _SearchDetailsComponentState();
@@ -40,7 +35,6 @@ class SearchDetailsComponent extends StatefulWidget {
 class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   bool _pureVeg = false;
   int _selectedTabIndex = 0;
-  /// 0 = Bestseller, 1 = Top R
   int _selectedFilterIndex = 0;
   final List<Map<String, dynamic>> _cartItems = [];
 
@@ -51,15 +45,12 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   }
 
   int get _cartItemCount => _cartItems.length;
-  int get _cartTotalAmount =>
-      _cartItems.fold(0, (sum, item) => sum + _parsePrice(item['price'] as String?));
+  int get _cartTotalAmount => _cartItems.fold(0, (sum, item) => sum + parsePrice(item['price'] as String?));
   String get _cartTotalFormatted => '₹$_cartTotalAmount';
 
   @override
   Widget build(BuildContext context) {
-    return widget.topImageUrl != null
-        ? _buildWithBackground()
-        : _buildContentOnly();
+    return widget.topImageUrl != null ? _buildWithBackground() : _buildContentOnly();
   }
 
   Widget _buildWithBackground() {
@@ -434,18 +425,16 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
       onTap: _cartItemCount > 0 ? () {} : null,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(200, 0, 20, 30),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.fromLTRB(220, 0, 14, 30),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: _cartItemCount > 0
-              ? HexColor.fromHex('#E88A2E')
-              : HexColor.fromHex('#9CA3AF'),
-          borderRadius: BorderRadius.circular(16),
+          color: _cartItemCount > 0 ? HexColor.fromHex('#E88A2D') : HexColor.fromHex('#9CA3AF'),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -456,9 +445,9 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '$_cartItemCount ITEM${_cartItemCount != 1 ? 'S' : ''}',
+                  '$_cartItemCount  ITEM${_cartItemCount != 1 ? 'S' : ''}',
                   style: commonTextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontColor: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
@@ -467,7 +456,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
                 Text(
                   _cartItemCount > 0 ? _cartTotalFormatted : '₹0',
                   style: commonTextStyle(
-                    fontSize: 18,
+                    fontSize: 14,
                     fontColor: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
@@ -476,23 +465,24 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
             ),
             Container(
               width: 1,
-              height: 26,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
+              height: 30,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               color: Colors.white.withValues(alpha: 0.6),
             ),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     'VIEW CART',
                     style: commonTextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontColor: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Icon(
                     Icons.shopping_bag_outlined,
                     color: Colors.white,
@@ -507,3 +497,6 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
     );
   }
 }
+
+
+

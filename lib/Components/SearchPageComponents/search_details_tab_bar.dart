@@ -1,10 +1,16 @@
+import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
+import 'package:deliverylo/Commons%20and%20Reusables/common_doted_divider.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
-/// Tab bar with a full-width grey bottom divider and an orange underline
-/// for the selected tab. Shows menu item cards below according to [selectedIndex].
 class SearchDetailsTabBar extends StatefulWidget {
+  final List<String> tabs;
+  final int selectedIndex;
+  final ValueChanged<int> onTabChanged;
+  final List<List<Map<String, dynamic>>> menuItemsByTab;
+  final void Function(Map<String, dynamic> item) onAddToCart;
+
   const SearchDetailsTabBar({
     super.key,
     required this.tabs,
@@ -14,21 +20,13 @@ class SearchDetailsTabBar extends StatefulWidget {
     required this.onAddToCart,
   });
 
-  final List<String> tabs;
-  final int selectedIndex;
-  final ValueChanged<int> onTabChanged;
-  /// One list of menu items per tab; [selectedIndex] determines which list is shown.
-  final List<List<Map<String, dynamic>>> menuItemsByTab;
-  final void Function(Map<String, dynamic> item) onAddToCart;
-
+  
   @override
   State<SearchDetailsTabBar> createState() => _SearchDetailsTabBarState();
 }
 
-class _SearchDetailsTabBarState extends State<SearchDetailsTabBar>
-    with SingleTickerProviderStateMixin {
+class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTickerProviderStateMixin {
   late TabController _controller;
-
   static const double _dividerHeight = 1;
   static const double _indicatorHeight = 3;
   static const Color _dividerColor = Color(0xFFE5E7EB);
@@ -54,9 +52,7 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar>
         vsync: this,
         initialIndex: widget.selectedIndex.clamp(0, widget.tabs.length - 1),
       );
-    } else if (_controller.index != widget.selectedIndex &&
-        widget.selectedIndex >= 0 &&
-        widget.selectedIndex < widget.tabs.length) {
+    } else if (_controller.index != widget.selectedIndex && widget.selectedIndex >= 0 && widget.selectedIndex < widget.tabs.length) {
       _controller.animateTo(widget.selectedIndex);
     }
   }
@@ -103,38 +99,17 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar>
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
                 indicator: UnderlineTabIndicator(
-                  borderSide: BorderSide(
-                    color: HexColor.fromHex('#E88A2E'),
-                    width: _indicatorHeight,
-                  ),
-                ),
+                borderSide: BorderSide(color: HexColor.fromHex('#E88A2E'),width: _indicatorHeight,),),
                 indicatorSize: TabBarIndicatorSize.label,
                 indicatorPadding: EdgeInsets.zero,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 dividerColor: Colors.transparent,
                 labelColor: HexColor.fromHex('#E88A2E'),
                 unselectedLabelColor: _unselectedColor,
-                labelStyle: commonTextStyle(
-                  fontSize: 16,
-                  fontColor: HexColor.fromHex('#E88A2E'),
-                  fontWeight: FontWeight.w700,
-                ),
-                unselectedLabelStyle: commonTextStyle(
-                  fontSize: 14,
-                  fontColor: _unselectedColor,
-                  fontWeight: FontWeight.w500,
-                ),
+                labelStyle: commonTextStyle(fontSize: 15,fontColor: HexColor.fromHex('#F48C25'),fontWeight: FontWeight.w700,),
+                unselectedLabelStyle: commonTextStyle(fontSize: 14,fontColor: HexColor.fromHex('#64748B'),fontWeight: FontWeight.w500,),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                tabs: widget.tabs
-                    .map(
-                      (label) => Tab(
-                        child: Text(
-                          label,
-                          overflow: TextOverflow.visible,
-                        ),
-                      ),
-                    )
-                    .toList(),
+                tabs: widget.tabs.map((label) => Tab(child: Text(label,overflow: TextOverflow.visible,),),).toList(),
               ),
             ],
           ),
@@ -154,6 +129,10 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar>
 
 
 class SearchDetailsMenuItemCard extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final VoidCallback onAddTap;
+  final double? topPadding;
+  final bool showBottomDivider;
   const SearchDetailsMenuItemCard({
     super.key,
     required this.item,
@@ -162,151 +141,159 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
     this.showBottomDivider = true,
   });
 
-  final Map<String, dynamic> item;
-  final VoidCallback onAddTap;
-  final double? topPadding;
-  final bool showBottomDivider;
+
+
+  getItemDetailsBottomSheet(context){
+    return showCommonBottomSheet(
+      context: context, 
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.72,
+        child: SearchedItemDetailedBottomBarComponent(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final isVeg = item['isVeg'] as bool? ?? true;
     final isBestseller = item['isBestseller'] as bool? ?? false;
-    final top = topPadding ?? 20.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Veg icon first, then BESTSELLER tag (per image)
-                    Row(
-                      children: [
-                        if (isVeg)
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              border: Border.all(color: HexColor.fromHex('#22C55E'), width: 1.5),
+        InkWell(
+          onTap: () => getItemDetailsBottomSheet(context),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          if (isVeg)
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(2),
+                                border: Border.all(color: HexColor.fromHex('#16A34A'), width: 1.5),
+                              ),
+                              child: Icon(Icons.circle, size: 8, color: HexColor.fromHex('#16A34A')),
                             ),
-                            child: Icon(Icons.circle, size: 8, color: HexColor.fromHex('#22C55E')),
-                          ),
-                        if (isVeg && isBestseller) const SizedBox(width: 8),
-                        if (isBestseller)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: HexColor.fromHex('#FED7AA'),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'BESTSELLER',
-                              style: commonTextStyle(
-                                fontSize: 10,
-                                fontColor: HexColor.fromHex('#C2410C'),
-                                fontWeight: FontWeight.w700,
+                          if (isVeg && isBestseller) const SizedBox(width: 8),
+                          if (isBestseller)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4.5),
+                              decoration: BoxDecoration(
+                                color: HexColor.fromHex('#F48C25').withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'BESTSELLER',
+                                style: commonTextStyle(
+                                  fontSize: 11,
+                                  fontColor: HexColor.fromHex('#F48C25'),
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        item['name'] as String,
+                        style: commonTextStyle(
+                          fontSize: 18,
+                          fontColor: HexColor.fromHex('#1E293B'),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['price'] as String,
+                        style: commonTextStyle(
+                          fontSize: 14,
+                          fontColor: HexColor.fromHex('#0F172A'),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['description'] as String,
+                        style: commonTextStyle(
+                          fontSize: 14,
+                          fontColor: HexColor.fromHex('#64748B'),
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Image.asset(
+                        item['imageUrl'] as String,
+                        width: 130,
+                        height: 130,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 120,
+                          height: 120,
+                          color: greyFontColor.shade50,
+                          child: Icon(Icons.fastfood, color: greyFontColor.shade50),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 24,
+                      bottom: -12,
+                      child: GestureDetector(
+                        onTap: onAddTap,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:Colors.grey.shade300.withValues(alpha: 1),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade300,
+                                blurRadius: 6,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      item['name'] as String,
-                      style: commonTextStyle(
-                        fontSize: 18,
-                        fontColor: HexColor.fromHex('#1E293B'),
-                        fontWeight: FontWeight.w600,
+                          child: Text(
+                            'ADD',
+                            style: commonTextStyle(
+                              fontSize: 14,
+                              fontColor: HexColor.fromHex('#F48C25'),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item['price'] as String,
-                      style: commonTextStyle(
-                        fontSize: 14,
-                        fontColor: HexColor.fromHex('#0F172A'),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item['description'] as String,
-                      style: commonTextStyle(
-                        fontSize: 14,
-                        fontColor: HexColor.fromHex('#64748B'),
-                        fontWeight: FontWeight.w400,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.bottomRight,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: Image.asset(
-                      item['imageUrl'] as String,
-                      width: 130,
-                      height: 130,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 120,
-                        height: 120,
-                        color: greyFontColor.shade50,
-                        child: Icon(Icons.fastfood, color: greyFontColor.shade50),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 24,
-                    bottom: -12,
-                    child: GestureDetector(
-                      onTap: onAddTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color:Colors.grey.shade300.withValues(alpha: 0.1),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade300,
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'ADD',
-                          style: commonTextStyle(
-                            fontSize: 14,
-                            fontColor: HexColor.fromHex('#111827'),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (showBottomDivider)
@@ -314,7 +301,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
             child: CustomPaint(
               size: const Size(double.infinity, 1),
-              painter: _DottedLinePainter(color: HexColor.fromHex('#E5E7EB')),
+              painter: DottedLinePainter(color: HexColor.fromHex('#E5E7EB')),
             ),
           ),
       ],
@@ -322,26 +309,84 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
   }
 }
 
-class _DottedLinePainter extends CustomPainter {
-  _DottedLinePainter({required this.color});
-  final Color color;
+
+
+class SearchedItemDetailedBottomBarComponent extends StatefulWidget {
+  const SearchedItemDetailedBottomBarComponent({super.key});
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-    const dashWidth = 4.0;
-    const gap = 4.0;
-    double x = 0;
-    while (x < size.width) {
-      canvas.drawLine(Offset(x, 0), Offset(x + dashWidth, 0), paint);
-      x += dashWidth + gap;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  State<SearchedItemDetailedBottomBarComponent> createState() => _SearchedItemDetailedBottomBarComponentState();
 }
 
+class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDetailedBottomBarComponent> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 20,bottom: 20),
+          height: 8,
+          width: 60,
+          decoration: BoxDecoration(color: HexColor.fromHex('#D1D5DB'),borderRadius: BorderRadius.circular(20)),
+        ),
+        Text('Hyderabadi Biryani',style: commonTextStyle(fontColor: HexColor.fromHex('#111827'),fontSize:24,fontWeight: FontWeight.w700),),
+        SizedBox(height: 10,),
+        Container(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                child: Row(
+                  children: [
+                    Icon(Icons.star_border,color: HexColor.fromHex('#16A34A'),size: 18,),
+                    SizedBox(width: 5,),
+                    Text('4.8',style: commonTextStyle(fontColor: HexColor.fromHex('#16A34A'),fontSize: 14,fontWeight: FontWeight.w700)),
+                  ],
+                ),
+              ),
+              SizedBox(width: 10,),
+              Container(
+                height: 6,
+                width: 6,
+                decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.grey.shade400),
+              ),
+              SizedBox(width: 10,),
+              Text('1.2k Reviews',style: commonTextStyle(fontColor: HexColor.fromHex('#A6A6A6'),fontSize: 14, fontWeight: FontWeight.w500),),
+              SizedBox(width: 10,),
+              Container(
+                height: 6,
+                width: 6,
+                decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.grey.shade400),
+              ),
+              SizedBox(width: 10,),
+              Text('Spicy',style: commonTextStyle(fontColor: HexColor.fromHex('#F48C25'),fontSize: 14, fontWeight: FontWeight.w500),),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 54.0,vertical: 10),
+          child: Text(
+            'Authentic Basmati rice cooked with marinated chicken pieces, fresh herbs, and traditional spices. Served with Mirchi ka Salan and Raita.',
+            maxLines: 3,
+            textAlign: TextAlign.center,
+            style: commonTextStyle(fontSize: 14,fontWeight: FontWeight.w400,fontColor: HexColor.fromHex('#4B5563')),
+          ),
+        ),
+        
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal:16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Customize Order',style: commonTextStyle(fontColor: HexColor.fromHex('#111827'),fontSize: 18,fontWeight: FontWeight.w700),),
+                SizedBox(height: 10,),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

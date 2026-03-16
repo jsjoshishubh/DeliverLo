@@ -102,3 +102,9 @@ commonTextStyle({Color? fontColor, double? fontSize,String? fontType,FontWeight?
     fontWeight: fontWeight == null ? FontWeight.w800 : fontWeight,
   );
 }
+
+int parsePrice(String? priceStr) {
+  if (priceStr == null || priceStr.isEmpty) return 0;
+  final cleaned = priceStr.replaceAll(RegExp(r'[^\d]'), '');
+  return int.tryParse(cleaned) ?? 0;
+}
