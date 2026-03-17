@@ -1,3 +1,4 @@
+import 'package:deliverylo/Views/Google%20Map%20/google_map_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/login_signup_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/otp_page.dart';
 import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20Tracking/checkout_page.dart';
@@ -19,6 +20,7 @@ abstract class Routes{
  static const CHECKOUT = '/checkout_page'; 
  static const ORDERCONFIRMATION = '/order_confirmation'; 
  static const ORDERTRACKING = '/order_TRACKING'; 
+ static const GOOGLEMAP = '/google_map_page'; 
 }
 
 
@@ -32,5 +34,6 @@ abstract class AppPages{
      GetPage(name: Routes.CHECKOUT, page: () => CheckoutPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.ORDERCONFIRMATION, page: () => OrderConfimationPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.ORDERTRACKING, page: () => OrdertrackingPage(),transition: Transition.fadeIn),
+     GetPage(name: Routes.GOOGLEMAP, page: () => GoogleMapPage(),transition: Transition.fadeIn),
   ];
 }

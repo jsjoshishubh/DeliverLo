@@ -1,5 +1,6 @@
 import 'package:deliverylo/Components/checkout%20and%20orderSuccess%20componenets/checkout_order_confirmation_map_component.dart';
 import 'package:deliverylo/Components/checkout%20and%20orderSuccess%20componenets/order_confirmation_order_summery_component.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -117,21 +118,24 @@ class _OrderConfimationPageState extends State<OrderConfimationPage> {
                     
                         const SizedBox(height: 20),
                     
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            "Invite Friends",
-                            style: TextStyle(
-                              color: HexColor.fromHex('#F27F0D'),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                        InkWell(
+                          onTap: ()=> Get.toNamed(Routes.ORDERTRACKING),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "Invite Friends",
+                              style: TextStyle(
+                                color: HexColor.fromHex('#F27F0D'),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         )
