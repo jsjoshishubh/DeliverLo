@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 String isLOGGEDIN = "isLOGGEDIN";
-String googleMpaKey = 'AIzaSyCr2bGeCuuWXEIDQIrtRjfdkb5-zrwNQ5w';
+String googleMpaKey = 'AIzaSyD3lX02gdxFt6W3qFPfr0HGqQvAH9-m79M';
 
 void onLocalSetup({data,startup,callback}) async {
   try {

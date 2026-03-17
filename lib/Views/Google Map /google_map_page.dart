@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:deliverylo/Views/checkout and orderSuccess and Order Tracking/order_success_deliver_page.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Components/googleMapComponents/google_map_on_the_way_card.dart';
 import 'package:deliverylo/Components/googleMapComponents/google_map_order_tracking_bottom_sheet.dart';
 import 'package:deliverylo/Commons and Reusables/common_bottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:get/get.dart';
 
 class GoogleMapPage extends StatefulWidget {
   const GoogleMapPage({super.key});
@@ -15,6 +19,7 @@ class GoogleMapPage extends StatefulWidget {
 class _GoogleMapPageState extends State<GoogleMapPage> {
   GoogleMapController? _mapController;
   bool _showOnTheWayCard = false;
+  Timer? _redirectTimer;
 
   @override
   void initState() {
@@ -22,6 +27,17 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _openOrderTrackingBottomSheet();
     });
+    _redirectTimer = Timer(const Duration(seconds: 10), () {
+      if (!mounted) return;
+      Get.offAll(() => const OrderSuccessDeliverPage());
+    });
+  }
+
+  @override
+  void dispose() {
+    _redirectTimer?.cancel();
+    _mapController?.dispose();
+    super.dispose();
   }
 
   Future<void> _openOrderTrackingBottomSheet() async {
