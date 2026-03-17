@@ -11,6 +11,7 @@ class LoadingButton extends StatefulWidget {
   Widget? icon;
   BorderRadiusGeometry? borderRadius;
   double? height;
+  Color? titleColor;
   LoadingButton({
     this.onPressed,
     this.loading = false,
@@ -20,6 +21,7 @@ class LoadingButton extends StatefulWidget {
     this.icon,
     this.borderRadius,
     this.height,
+    this.titleColor,
   });
   @override
   LoadingButtonState createState() => LoadingButtonState();
@@ -62,7 +64,7 @@ class LoadingButtonState extends State<LoadingButton> {
                     children: [
                       Text(
                         widget.title.tr,
-                        style: const TextStyle(fontSize: 18, color: Colors.white,fontWeight: FontWeight.w700),
+                        style: TextStyle(fontSize: 18, color: widget.titleColor ?? Colors.white,fontWeight: FontWeight.w700),
                         textAlign: TextAlign.center,
                       ),
                       if (widget.icon != null) ...[

@@ -1,4 +1,6 @@
 import 'package:deliverylo/Styles/app_colors.dart';
+import 'package:deliverylo/Commons and Reusables/commonButton.dart';
+import 'package:deliverylo/Commons and Reusables/common_doted_divider.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -23,12 +25,12 @@ class _PastOrdersTabComponentState extends State<PastOrdersTabComponent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 22),
             child: Text(
               'PAST ORDERS',
               style: commonTextStyle(
+                fontSize: 14,
                 fontColor: HexColor.fromHex('#6B7280'),
-                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -37,8 +39,8 @@ class _PastOrdersTabComponentState extends State<PastOrdersTabComponent> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: HexColor.fromHex('#E5E7EB'),
-              borderRadius: BorderRadius.circular(24),
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(40),
             ),
             child: TabBar(
               isScrollable: false,
@@ -52,33 +54,43 @@ class _PastOrdersTabComponentState extends State<PastOrdersTabComponent> {
               indicatorSize: TabBarIndicatorSize.tab,
               indicatorPadding: const EdgeInsets.all(4),
               padding: EdgeInsets.zero,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.60),
               labelColor: Colors.white,
-              unselectedLabelColor: HexColor.fromHex('#4B5563'),
+              unselectedLabelColor: HexColor.fromHex('#6B7280'),
               labelStyle: commonTextStyle(
-                fontSize: 13,
+                fontSize: 14,
+                fontColor: HexColor.fromHex('#FFFFFF'),
                 fontWeight: FontWeight.w700,
               ),
               unselectedLabelStyle: commonTextStyle(
-                fontSize: 13,
+                fontSize: 14,
+                fontColor: HexColor.fromHex('#6B7280'),
                 fontWeight: FontWeight.w600,
               ),
-              tabs: _tabs
-                  .map(
-                    (e) => Tab(text: e['tab_title'] ?? ''),
-                  )
-                  .toList(),
+              tabs: _tabs.map((e) => Tab(text: e['tab_title'] ?? ''),).toList(),
             ),
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            height: 380,
-            child: TabBarView(
-              children: [
-                const _PastOrdersList(),
-                const _PastOrdersList(),
-              ],
-            ),
+          Builder(
+            builder: (context) {
+              final tabController = DefaultTabController.of(context);
+              if (tabController == null) {
+                return  _PastOrdersList();
+              }
+              return AnimatedBuilder(
+                animation: tabController,
+                builder: (context, _) {
+                  final index = tabController.index;
+                  return IndexedStack(
+                    index: index,
+                    children: const [
+                      _PastOrdersList(),
+                      _PastOrdersList(),
+                    ],
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
@@ -154,7 +166,8 @@ class _PastOrdersListState extends State<_PastOrdersList> {
     }
 
     return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       itemCount: _orders.length,
       itemBuilder: (context, index) {
@@ -192,6 +205,7 @@ class _PastOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(vertical: 9),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -240,8 +254,8 @@ class _PastOrderCard extends StatelessWidget {
                             child: Text(
                               order.title,
                               style: commonTextStyle(
-                                fontColor: HexColor.fromHex('#111827'),
-                                fontSize: 15,
+                                fontColor: HexColor.fromHex('#1F2937'),
+                                fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
                               maxLines: 1,
@@ -262,8 +276,8 @@ class _PastOrderCard extends StatelessWidget {
                                   order.status,
                                   style: commonTextStyle(
                                     fontColor: HexColor.fromHex('#15803D'),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
@@ -277,7 +291,7 @@ class _PastOrderCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         order.subtitle,
                         style: commonTextStyle(
@@ -292,68 +306,68 @@ class _PastOrderCard extends StatelessWidget {
               ],
             ),
           ),
-          Divider(
-            height: 1,
-            color: HexColor.fromHex('#E5E7EB'),
-          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Text(
-              order.itemsSummary,
-              style: commonTextStyle(
-                fontColor: HexColor.fromHex('#4B5563'),
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
+            padding: const EdgeInsets.symmetric(horizontal:18.0),
+            child: SizedBox(
+              height: 1,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: DottedLinePainter(
+                  color: HexColor.fromHex('#E5E7EB'),
+                ),
               ),
             ),
           ),
-          Divider(
-            height: 1,
-            color: HexColor.fromHex('#E5E7EB'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: _buildItemsSummary(order),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal:18.0),
+            child: Divider(
+              height: 1,
+              color: HexColor.fromHex('#E5E7EB'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 19),
             child: Row(
               children: [
                 _buildRatingColumn(
                   title: 'Food Rating',
-                  color: HexColor.fromHex('#111827'),
+                  
+                  color: HexColor.fromHex('#1F2937'),
                 ),
                 Container(
                   width: 1,
                   height: 32,
-                  margin: const EdgeInsets.symmetric(horizontal: 18),
+                  margin: const EdgeInsets.symmetric(horizontal: 40),
                   color: HexColor.fromHex('#E5E7EB'),
                 ),
                 _buildRatingColumn(
                   title: 'Delivery Rating',
-                  color: HexColor.fromHex('#111827'),
+                  color: HexColor.fromHex('#1F2937'),
                 ),
               ],
             ),
           ),
+           Padding(
+            padding: const EdgeInsets.symmetric(horizontal:18.0),
+            child: Divider(
+              height: 1,
+              color: HexColor.fromHex('#E5E7EB'),
+            ),
+          ),
           const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: HexColor.fromHex('#FEF3C7'),
-                foregroundColor: HexColor.fromHex('#92400E'),
-                minimumSize: const Size.fromHeight(44),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+            child: LoadingButton(
+              title: 'Reorder',
+              titleColor: HexColor.fromHex('#F15700'),
+              buttonColor: HexColor.fromHex('#F15700').withValues( alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              height: 44,
               onPressed: () {},
-              child: Text(
-                'Reorder',
-                style: commonTextStyle(
-                  fontColor: HexColor.fromHex('#92400E'),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -382,16 +396,16 @@ class _PastOrderCard extends StatelessWidget {
             title,
             style: commonTextStyle(
               fontColor: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 9),
           Row(
             children: List.generate(
               5,
               (index) => Container(
-                margin: EdgeInsets.only(right: index == 4 ? 0 : 4),
+                margin: EdgeInsets.only(right: index == 4 ? 0 : 8),
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
@@ -408,5 +422,67 @@ class _PastOrderCard extends StatelessWidget {
       ),
     );
   }
-}
 
+  Widget _buildItemsSummary(_PastOrder order) {
+    final lines = order.itemsSummary.split('\n');
+
+    final itemLines = <String>[];
+    String? moreLine;
+
+    for (final line in lines) {
+      if (line.trim().startsWith('&')) {
+        moreLine = line.trim();
+      } else if (line.trim().isNotEmpty) {
+        itemLines.add(line.trim());
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...itemLines.map((line) {
+          final parts = line.split('×');
+          String qty = '';
+          String name = line;
+          if (parts.length == 2) {
+            qty = parts[0].trim();
+            name = parts[1].trim();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  decoration: BoxDecoration(color: HexColor.fromHex('#F3F4F6'),borderRadius: BorderRadius.circular(8),),
+                  child: Text(
+                    '${qty.isEmpty ? '' : qty} x',
+                    style: commonTextStyle(fontColor: HexColor.fromHex('#6B7280'),fontSize: 12,fontWeight: FontWeight.w600,),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    name,
+                    style: commonTextStyle(fontColor: HexColor.fromHex('#6B7280'),fontSize: 12,fontWeight: FontWeight.w500,),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        if (moreLine != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              moreLine,
+              style: commonTextStyle(fontColor: HexColor.fromHex('#6B7280'),fontSize: 12,fontWeight: FontWeight.w400,),
+            ),
+          ),
+      ],
+    );
+  }
+}
