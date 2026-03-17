@@ -1,6 +1,8 @@
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AccountOptionsCard extends StatelessWidget {
   const AccountOptionsCard({super.key});
@@ -23,6 +25,17 @@ class AccountOptionsCard extends StatelessWidget {
       },
     ];
 
+
+    getROutings(itemTitle){
+      switch(itemTitle){
+        case 'Favourites':
+          Get.toNamed(Routes.FAVOURITES);
+          break;
+        default:
+          break;
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 2),
       decoration: BoxDecoration(
@@ -44,46 +57,49 @@ class AccountOptionsCard extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           final item = items[index];
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Icon(
-                      item["icon"],
-                      size: 26,
-                      color: HexColor.fromHex('#6B7280'),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Text(
-                        item["title"],
-                        style: commonTextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontColor: HexColor.fromHex('#1F2937')
+          return InkWell(
+            onTap: () => getROutings(item["title"]),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Icon(
+                        item["icon"],
+                        size: 26,
+                        color: HexColor.fromHex('#6B7280'),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          item["title"],
+                          style: commonTextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontColor: HexColor.fromHex('#1F2937')
+                          ),
                         ),
                       ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      color: HexColor.fromHex('#6B7280'),
-                    )
-                  ],
+                      Icon(
+                        Icons.chevron_right,
+                        color: HexColor.fromHex('#6B7280'),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-
-              /// DIVIDER
-              if (index != items.length - 1)
-                const Divider(
-                  height: 1,
-                  thickness: 1,
-                  indent: 16,
-                  endIndent: 16,
-                  color: Color(0xffE5E7EB),
-                ),
-            ],
+            
+                /// DIVIDER
+                if (index != items.length - 1)
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Color(0xffE5E7EB),
+                  ),
+              ],
+            ),
           );
         },
       ),

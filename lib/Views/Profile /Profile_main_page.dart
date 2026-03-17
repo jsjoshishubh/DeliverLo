@@ -118,6 +118,7 @@ class _ProfileBottomChildState extends State<ProfileBottomChild>  {
         AccountOptionsCard(),
         SizedBox(height: 20),
         PastOrdersTabComponent(),
+        SizedBox(height: 60),
       ],
     );
   }
