@@ -65,9 +65,9 @@ onClearLocalSetup({callback})async {
  } catch (e) {}
 }
 
-commonContainerBoxDecoration({bool border = false,double borderRadios = 10,Color containerColor = Colors.amber}){
+commonContainerBoxDecoration({bool border = false,double borderRadios = 10,Color containerColor = Colors.amber,Color brderColor = Colors.grey}){
   return BoxDecoration(
-    border: border ? Border.all() : null,
+    border: border ? Border.all(color: brderColor) : null,
     borderRadius: BorderRadius.circular(borderRadios), 
     color: containerColor,
   );
@@ -168,3 +168,31 @@ int parsePrice(String? priceStr) {
       ),
     );
   }
+
+commonTextWithSufixAndPreFixIcon({Function? onTap, IconData? preFixicon, bool isPreFixIcon = false,String buttonTitle = 'Done', bool isSufixIcon = false, IconData? sufixIcon, EdgeInsets? padding,double buttonHeight = 55 }){
+  return InkWell(
+    onTap: (){
+      onTap!();
+    },
+    child: Container(
+      padding:const EdgeInsets.all(6),
+      margin: padding == null ? EdgeInsets.symmetric(horizontal: 20) : padding, 
+      height: buttonHeight,
+      decoration: commonContainerBoxDecoration(containerColor: HexColor.fromHex('#F27F0D'),borderRadios: 12,),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+         isPreFixIcon ? Icon(preFixicon == null ? Icons.map : preFixicon!,color: Colors.white,size: 20,) : SizedBox(),
+          const SizedBox(width: 5),
+          Text(
+            '${buttonTitle}',style: commonTextStyle(fontSize: 20,fontWeight:FontWeight.w700,fontColor: Colors.white),
+          ),
+          SizedBox(width: 5,),
+          isSufixIcon ? Icon(sufixIcon == null ? Icons.map : sufixIcon!,color: Colors.white,size: 20,) : SizedBox(),
+          
+        ],
+      ),
+    ),
+  );
+}

@@ -147,30 +147,39 @@ class _OrdertrackingPageState extends State<OrdertrackingPage> {
                   ),
                 ),
                 const SizedBox(height: 34),
-                InkWell(
-                  onTap: (){
-                    Get.toNamed(Routes.GOOGLEMAP);
-                  },
-                  child: Container(
-                    padding:const EdgeInsets.all(6),
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    height: 55,
-                    decoration: commonContainerBoxDecoration(containerColor: HexColor.fromHex('#F27F0D'),borderRadios: 12,),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.map,color: Colors.white,size: 17,),
-                        const SizedBox(width: 5),
-                        Text(
-                          'Track on Map',style: commonTextStyle(fontSize: 20,fontWeight:FontWeight.w700,fontColor: Colors.white),
-                        ),
-                       
-                       
-                      ],
-                    ),
-                  ),
+
+                commonTextWithSufixAndPreFixIcon(
+                  buttonHeight: 55,
+                  onTap: ()=> Get.toNamed(Routes.GOOGLEMAP),
+                  buttonTitle: 'Track on Map',
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  isPreFixIcon: true,
                 ),
+
+                // InkWell(
+                //   onTap: (){
+                //     Get.toNamed(Routes.GOOGLEMAP);
+                //   },
+                //   child: Container(
+                //     padding:const EdgeInsets.all(6),
+                //     margin: EdgeInsets.symmetric(horizontal: 20),
+                //     height: 55,
+                //     decoration: commonContainerBoxDecoration(containerColor: HexColor.fromHex('#F27F0D'),borderRadios: 12,),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       crossAxisAlignment: CrossAxisAlignment.center,
+                //       children: [
+                //         const Icon(Icons.map,color: Colors.white,size: 17,),
+                //         const SizedBox(width: 5),
+                //         Text(
+                //           'Track on Map',style: commonTextStyle(fontSize: 20,fontWeight:FontWeight.w700,fontColor: Colors.white),
+                //         ),
+                       
+                       
+                //       ],
+                //     ),
+                //   ),
+                // ),
                  const SizedBox(height: 54),
           ],
         ),

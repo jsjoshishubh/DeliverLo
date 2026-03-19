@@ -29,8 +29,9 @@ class AccountOptionsCard extends StatelessWidget {
     getROutings(itemTitle){
       switch(itemTitle){
         case 'Favourites':
-          Get.toNamed(Routes.FAVOURITES);
-          break;
+          return Get.toNamed(Routes.FAVOURITES);
+        case "My order’s":
+          return Get.toNamed(Routes.MYYORDER);
         default:
           break;
       }
