@@ -1,6 +1,10 @@
 import 'package:deliverylo/Commons and Reusables/common_bottom_bar.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Food_Main_dashboard.dart';
+import 'package:deliverylo/Views/Main%20Home/main_home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../Routes/app_routes.dart';
 
 class MainDashBoardPage extends StatefulWidget {
   const MainDashBoardPage({super.key});
@@ -28,10 +32,8 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
 
   void _onItemTapped(int index) {
     if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FoodMainDashboard()),
-      );
+      Get.toNamed(Routes.FOOD_MAIN_DASHBOARD,);
+      // Navigator.push(context,MaterialPageRoute(builder: (context) => const FoodMainDashboard()),);
       return;
     }
 
@@ -44,7 +46,7 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
   Widget _forGetPage(int index) {
     switch (index) {
       case 0:
-        return const Center(child: Text('Home'));
+        return const MainHomePage();
       case 1:
         return const Center(child: Text('Food'));
       case 2:

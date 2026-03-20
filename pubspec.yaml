@@ -102,23 +102,20 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
   fonts:
-    - family: Inter
+    - family: PlusJakartaSans
       fonts:
-        - asset: Assets/Fonts/Inter_24pt-Thin.ttf
-          weight: 100
-        - asset: Assets/Fonts/Inter_24pt-ExtraLight.ttf
-          weight: 200
-        - asset: Assets/Fonts/Inter_24pt-Light.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-Light.ttf
           weight: 300
-        - asset: Assets/Fonts/Inter_24pt-Regular.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-Regular.ttf
           weight: 400
-        - asset: Assets/Fonts/Inter_24pt-Medium.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: Assets/Fonts/PlusJakartaSans-Medium.ttf
           weight: 500
-        - asset: Assets/Fonts/Inter_24pt-SemiBold.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-SemiBold.ttf
           weight: 600
-        - asset: Assets/Fonts/Inter_24pt-Bold.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-Bold.ttf
           weight: 700
-        - asset: Assets/Fonts/Inter_24pt-ExtraBold.ttf
+        - asset: Assets/Fonts/PlusJakartaSans-ExtraBold.ttf
           weight: 800
-        - asset: Assets/Fonts/Inter_24pt-Black.ttf
-          weight: 900

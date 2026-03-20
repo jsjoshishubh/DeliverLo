@@ -82,31 +82,6 @@ class _BottomBarTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: CommonBottomBar._iconSize,
-          color: isSelected
-              ? CommonBottomBar._selectedColor
-              : CommonBottomBar._unselectedColor,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          !isSelected ? label : label.toUpperCase(),
-          style: TextStyle(
-            fontSize: CommonBottomBar._fontSize,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected
-                ? CommonBottomBar._selectedColor
-                : CommonBottomBar._unselectedColor,
-          ),
-        ),
-      ],
-    );
-
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -116,20 +91,60 @@ class _BottomBarTile extends StatelessWidget {
           highlightColor: Colors.transparent,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 0),
-            child: isSelected
-                ? Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 12,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final horizontalMargin = isSelected
+                    ? (constraints.maxWidth * 3.2).clamp(4.0, 10.0)
+                    : 0.0;
+
+                final content = Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: CommonBottomBar._iconSize,
+                      color: isSelected
+                          ? CommonBottomBar._selectedColor
+                          : CommonBottomBar._unselectedColor,
                     ),
-                    decoration: BoxDecoration(
-                      color: CommonBottomBar._selectedBackgroundColor,
-                      borderRadius: BorderRadius.circular(16),
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          !isSelected ? label : label.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: CommonBottomBar._fontSize,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected
+                                ? CommonBottomBar._selectedColor
+                                : CommonBottomBar._unselectedColor,
+                          ),
+                        ),
+                      ),
                     ),
-                    child: content,
-                  )
-                : content,
+                  ],
+                );
+
+                return isSelected
+                    ? Container(
+                        margin:EdgeInsets.symmetric(horizontal: horizontalMargin),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: CommonBottomBar._selectedBackgroundColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: content,
+                      )
+                    : content;
+              },
+            ),
           ),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:deliverylo/Views/Login%20and%20Signup/Signup_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/login_signup_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/otp_page.dart';
 import 'package:deliverylo/Views/Main%20Home/main_DashBoard_page.dart';
+import 'package:deliverylo/Views/Main%20Home/main_home_page.dart';
 import 'package:deliverylo/Views/Profile%20/Favourites_page.dart';
 import 'package:deliverylo/Views/Profile%20/Profile_main_page.dart';
 import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20Tracking/My_Order_page.dart';
@@ -22,8 +23,8 @@ abstract class Routes{
  static const OTP = '/otp'; 
  static const SIGNUP = '/signUP'; 
  static const MAIN_DASHBOARD = '/main_dashboard'; 
- static const FOOD_MAIN_DASHBOARD = '/food_main_dashboard'; 
  static const MAINHOMEPAGE = '/main_home_page'; 
+ static const FOOD_MAIN_DASHBOARD = '/food_main_dashboard'; 
  static const SEARCHDETAILSPAGE = '/search_details_page'; 
  static const CHECKOUT = '/checkout_page'; 
  static const ORDERCONFIRMATION = '/order_confirmation'; 
@@ -43,7 +44,8 @@ abstract class AppPages{
      GetPage(name: Routes.OTP, page: () => OtpPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.SIGNUP, page: () => SignUpPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.MAIN_DASHBOARD, page: () => MainDashBoardPage(),transition: Transition.fadeIn),
-     GetPage(name: Routes.FOOD_MAIN_DASHBOARD, page: () => FoodMainDashboard(),transition: Transition.fadeIn),
+     GetPage(name: Routes.MAINHOMEPAGE, page: () => MainHomePage(),transition: Transition.fadeIn),
+     GetPage(name: Routes.FOOD_MAIN_DASHBOARD, page: () => FoodMainDashboard(),transition: Transition.cupertino),
      GetPage(name: Routes.SEARCHDETAILSPAGE, page: () => SearchDetailsPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.CHECKOUT, page: () => CheckoutPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.ORDERCONFIRMATION, page: () => OrderConfimationPage(),transition: Transition.fadeIn),

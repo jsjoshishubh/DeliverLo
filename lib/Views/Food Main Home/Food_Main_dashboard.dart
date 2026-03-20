@@ -20,7 +20,7 @@ class _FoodMainDashboardState extends State<FoodMainDashboard> {
   int _currentIndex = 1;
 
   static const List<CommonBottomBarItem> _bottomBarItems = [
-    CommonBottomBarItem(icon: Icons.arrow_back_ios_new, label: 'Dashboard'),
+    CommonBottomBarItem(icon: Icons.dashboard_outlined, label: 'Dashboard'),
     CommonBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
     CommonBottomBarItem(icon: Icons.receipt, label: 'Dining'),
     CommonBottomBarItem(icon: Icons.search, label: 'Search'),

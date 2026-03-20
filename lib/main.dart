@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
       getPages: AppPages.pages,
       initialRoute: renderInitialRoute(),
       theme: ThemeData(
-        fontFamily: 'Inter',
+        fontFamily: 'PlusJakartaSans',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const OnBoardingMainPage(),
