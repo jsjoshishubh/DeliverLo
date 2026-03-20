@@ -76,24 +76,12 @@ class DioClient {
 
   Future<Response> postRequest(String url, {dynamic data, bool? showLoading = false,BuildContext? context}) async {
     try {
-      if (showLoading!) {
-      Loader.getInstance().showOverlay(context!);
-    }
       await checkNetworkConnetion();
       final baseRequest = addInterceptors(dio);
       log('post url -- ${url} -- ${data}');
-      
       Response response = await baseRequest.post(url, data: data);
-       if (showLoading) {
-        Loader.getInstance().dismissOverlay();
-        //showLoader(context, false);
-      }
       return response;
     } on DioError catch (e) {
-      if (showLoading!) {
-        Loader.getInstance().dismissOverlay();
-        //showLoader(context, false);
-      }
       log('eee -- ${e.message}');
       // Handle error
       return Future.error(e is CustomResponse ? e.message : getFormattedResponse(e.message));

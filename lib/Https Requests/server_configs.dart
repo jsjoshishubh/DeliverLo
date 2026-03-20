@@ -8,9 +8,9 @@ class Config {
       case Flavor.PROD:
         return '';
       case Flavor.DEV:
-        return 'http://35.154.9.155/api/';
+        return 'https://devdeliveryapi.samarpanconsultech.com/api/v1/';
       default:
-        return 'http://35.154.9.155/api/';
+        return 'https://devdeliveryapi.samarpanconsultech.com/api/v1/';
     }
   }
 }

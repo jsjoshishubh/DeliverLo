@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:deliverylo/Commons and Reusables/commonButton.dart';
+import 'package:deliverylo/Controllers/Auth_Controller.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
@@ -16,6 +16,7 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
+  final AuthController authController = Get.find<AuthController>();
   final _formKey = GlobalKey<FormState>();
   final _otpController = PinInputController();
   static const int _resendSeconds = 30;
@@ -64,51 +65,42 @@ class _OtpPageState extends State<OtpPage> {
   @override
   Widget build(BuildContext context) {
         return Scaffold(
-      backgroundColor: HexColor.fromHex('#F8F8F8'),
-      body: Column(
-        children: [
-         Center(
-            child: Container(
-              margin: EdgeInsets.only(top: 90),
-              child: Image.asset("Assets/onBoardingAndAuthFlow/login_otp.png", scale: 4.5,),
-            ),
-          ),
-          SizedBox(height: 20,),
-           ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  HexColor.fromHex('#000000'),
-                  HexColor.fromHex('#969696'),
+          backgroundColor: HexColor.fromHex('#F8F8F8'),
+          body: GetBuilder(
+            init: authController,
+            builder: (controller) {
+              return  Column(
+                children: [
+                  Center(
+                    child: Container(
+                      margin: EdgeInsets.only(top: 90),
+                      child: Image.asset("Assets/onBoardingAndAuthFlow/login_otp.png", scale: 4.5,),
+                    ),
+                  ),
+                  SizedBox(height: 20,),
+                  ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [HexColor.fromHex('#000000'),HexColor.fromHex('#969696'),],
+                        ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                      );
+                    },
+                    blendMode: BlendMode.srcIn,
+                    child: Text('One app for food,\ngrocery, dining\nand more in mins!',textAlign: TextAlign.center,style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25,),),
+                  ),
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildVerificationCard(),
+                    ),
+                  ),
                 ],
-              ).createShader(
-                Rect.fromLTWH(0, 0, bounds.width, bounds.height),
               );
-            },
-            blendMode: BlendMode.srcIn,
-            child: Text(
-              'One app for food,\ngrocery, dining\nand more in mins!',
-              textAlign: TextAlign.center,
-              style: commonTextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w600,
-                fontColor: Colors.white,
-              ).copyWith(
-                height: 1.25,
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _buildVerificationCard(),
-            ),
-          ),
-        ],
-      ),
+        },
+      )
     );
   }
 
@@ -238,6 +230,7 @@ class _OtpPageState extends State<OtpPage> {
               buttonColor: HexColor.fromHex('#F48C25'),
               borderRadius: BorderRadius.circular(12),
               height: 50,
+              loading: authController.isLoading.value,
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? true) {
                   final otp = _otpController.text;

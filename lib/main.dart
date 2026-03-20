@@ -28,12 +28,9 @@ class _MyAppState extends State<MyApp> {
     bool isLoggedIn = storage.read(isLOGGEDIN) ?? false;
     bool shownOnboard = storage.read('onBorderDone') ?? false;
     if (isLoggedIn){
-      //  return Routes.MAIN_HOME_PAGE;
+       return Routes.MAIN_DASHBOARD;
    }else{
-      // return  shownOnboard ? Routes.LOGINPAGE : Routes.ONBOARDING;
-      return  Routes.MAIN_DASHBOARD;
-      // return  Routes.ONBOARDING;
-      // return Routes.LOGINPAGE;ç
+      return  shownOnboard ? Routes.SIGNUPAMDLOGIN : Routes.ONBOARDING;
     }
   }
   @override

@@ -2,7 +2,9 @@ import 'dart:developer';
 
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
+import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 String isLOGGEDIN = "isLOGGEDIN";
@@ -64,6 +66,46 @@ onClearLocalSetup({callback})async {
 //   Get.offAllNamed(Routes.LOGINPAGE);
  } catch (e) {}
 }
+
+toastWidget(msg,[hasError]) {
+   return showSnackNotification(message: msg,hasError: hasError ?? false);
+}
+
+showSnackBar({title = null,message = 'Something went wrong, please try again.',isDismissible = true,duration = const Duration(seconds: 2),icon = const Icon(Icons.info_outline,color: Colors.red,),isError = false }){
+  return showSnackNotification(title:title,message: message,toastDuration:duration,hasError:isError);
+}
+
+showSnackNotification({title = null,message = null,action,onActionPressed,toastDuration = const Duration(seconds: 2),hasError = false}){
+    final isError = (['Something went wrong,please try again later','No internet available'].contains(message) || hasError) ? true:false;
+    return showFlash(
+      context: Get.context!,
+      duration: toastDuration,
+      builder: (_, controller) { 
+       return Align(
+          alignment: Alignment.center,
+          child: Flash(
+            controller: controller,
+            position: FlashPosition.top,
+            dismissDirections: FlashDismissDirection.values,
+            child: FlashBar(
+            behavior: FlashBehavior.floating,
+            elevation: 3,
+            useSafeArea: true,
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10))),
+            backgroundColor:Colors.black.withValues(alpha: 0.8),
+            shouldIconPulse: true,
+            icon: isError ? const Icon(Icons.error,color: Colors.red,):const Icon(Icons.check_circle,color:Colors.green),
+            indicatorColor: isError ? Colors.red:Colors.green,
+            title: !['',null].contains(title) ? Text(title,style: const TextStyle(color: Colors.white,fontSize: 17,fontWeight: FontWeight.bold),):null,
+            content: Text(message ?? '',style: const TextStyle(color: Colors.white),),
+            primaryAction: IconButton(onPressed: (){controller.dismiss();}, icon: const Icon(Icons.close,color: Colors.white,)), controller: controller,
+          )
+          ),
+        );
+      },
+    );
+  }
 
 commonContainerBoxDecoration({bool border = false,double borderRadios = 10,Color containerColor = Colors.amber,Color brderColor = Colors.grey}){
   return BoxDecoration(
