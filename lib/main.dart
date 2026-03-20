@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     if (isLoggedIn){
        return Routes.MAIN_DASHBOARD;
    }else{
-      return  shownOnboard ? Routes.SIGNUPAMDLOGIN : Routes.ONBOARDING;
+      return  shownOnboard ? Routes.MAIN_DASHBOARD : Routes.ONBOARDING;
     }
   }
   @override

@@ -40,4 +40,15 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+
+  # CocoaPods script can break when project path contains apostrophe.
+  frameworks_script_path = File.join(__dir__, 'Pods', 'Target Support Files', 'Pods-Runner', 'Pods-Runner-frameworks.sh')
+  if File.exist?(frameworks_script_path)
+    content = File.read(frameworks_script_path)
+    patched = content.gsub(
+      "--preserve-metadata=identifier,entitlements '$1'",
+      '--preserve-metadata=identifier,entitlements \"$1\"',
+    )
+    File.write(frameworks_script_path, patched) if patched != content
+  end
 end

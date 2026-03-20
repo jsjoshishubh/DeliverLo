@@ -235,7 +235,7 @@ class _OtpPageState extends State<OtpPage> {
                 if (_formKey.currentState?.validate() ?? true) {
                   final otp = _otpController.text;
                   if (otp.length == 4) {
-                    Get.offAllNamed(Routes.MAIN_DASHBOARD);
+                    Get.offAllNamed(Routes.SIGNUP);
                     // Verify OTP - add your verification logic here
                   }
                 }
@@ -245,5 +245,5 @@ class _OtpPageState extends State<OtpPage> {
         ),
       ),
     );
-  }
+  } 
 }

@@ -51,7 +51,7 @@ class _OrderSuccessDeliverPageState extends State<OrderSuccessDeliverPage> {
               SizedBox(height: 26,),
                InkWell(
               onTap: (){
-                Get.offAllNamed(Routes.MAIN_DASHBOARD);
+                Get.offAllNamed(Routes.FOOD_MAIN_DASHBOARD);
               },
               child: Container(
                 padding:const EdgeInsets.all(6),

@@ -3,11 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 const int _backgroundColorValue = 0xFF4D4D4D;
 const int _darkBackgroundColorValue = 0xFF202826;
-const int _blackFontColorValue = 0xFF1E2826;
-const int _greyFontColorValue = 0xFF909090;
+const int _blackFontColorValue = 0xFF111827;
+const int _greyFontColorValue = 0xFF64748B;
 const int _yellowColorValues = 0xFFFEC42E;
 const int _greenColorValues = 0xFF0E8345;
 const int _redColorValues = 0xFFDE1135;
+const int _orangeColorValues = 0xFFF48C25;
 
 
 
@@ -25,6 +26,22 @@ const MaterialColor backgroundColor = MaterialColor(
     700: Color(0xFFF0F0F0),
     800: Color(0xFFF0F0F0),
     900: Color(0xFFF0F0F0),
+  },
+);
+
+const MaterialColor orangeColor = MaterialColor(
+  _orangeColorValues,
+  <int, Color>{
+    50: Color(0xFFF48C25),
+    100: Color(0xFFF48C25),
+    200: Color(0xFFF48C25),
+    300: Color(0xFFF48C25),
+    400: Color(0xFFF48C25),
+    500: Color(0xFFF48C25),
+    600: Color(0xFFF48C25),
+    700: Color(0xFFF48C25),
+    800: Color(0xFFF48C25),
+    900: Color(0xFFF48C25),
   },
 );
 
@@ -47,32 +64,32 @@ const MaterialColor darkbackgroundColor = MaterialColor(
 const MaterialColor blackFontColor = MaterialColor(
   _blackFontColorValue,
   <int, Color>{
-    50: Color(0xFF1E2826),
-    100: Color(0xFF1E2826),
-    200: Color(0xFF1E2826),
-    300: Color(0xFF1E2826),
-    400: Color(0xFF1E2826),
-    500: Color(0xFF1E2826),
-    600: Color(0xFF1E2826),
-    700: Color(0xFF1E2826),
-    800: Color(0xFF1E2826),
-    900: Color(0xFF1E2826),
+    50: Color(0xFF111827),
+    100: Color(0xFF111827),
+    200: Color(0xFF111827),
+    300: Color(0xFF111827),
+    400: Color(0xFF111827),
+    500: Color(0xFF111827),
+    600: Color(0xFF111827),
+    700: Color(0xFF111827),
+    800: Color(0xFF111827),
+    900: Color(0xFF111827),
   },
 );
 
 const MaterialColor greyFontColor = MaterialColor(
   _greyFontColorValue,
   <int, Color>{
-    50: Color(0xFF909090),
-    100: Color(0xFF909090),
-    200: Color(0xFF909090),
-    300: Color(0xFF909090),
-    400: Color(0xFF909090),
-    500: Color(0xFF909090),
-    600: Color(0xFF909090),
-    700: Color(0xFF909090),
-    800: Color(0xFF909090),
-    900: Color(0xFF909090),
+    50: Color(0xFF64748B),
+    100: Color(0xFF64748B),
+    200: Color(0xFF64748B),
+    300: Color(0xFF64748B),
+    400: Color(0xFF64748B),
+    500: Color(0xFF64748B),
+    600: Color(0xFF64748B),
+    700: Color(0xFF64748B),
+    800: Color(0xFF64748B),
+    900: Color(0xFF64748B),
   },
 );
 

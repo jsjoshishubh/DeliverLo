@@ -1,14 +1,67 @@
 import 'dart:developer';
 
-import 'package:deliverylo/Routes/app_routes.dart';
+import 'package:dio/dio.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:geolocator/geolocator.dart';
 
 String isLOGGEDIN = "isLOGGEDIN";
 String googleMpaKey = 'AIzaSyD3lX02gdxFt6W3qFPfr0HGqQvAH9-m79M';
+
+Future<Map<String, dynamic>> fetchCurrentFormattedAddress() async {
+  final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!isServiceEnabled) {
+    throw Exception('Please enable location services.');
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+
+  if (permission == LocationPermission.denied) {
+    throw Exception('Location permission denied.');
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    throw Exception(
+      'Location permission permanently denied. Please enable it from settings.',
+    );
+  }
+
+  final Position position = await Geolocator.getCurrentPosition(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+    ),
+  );
+
+  final response = await Dio().get(
+    'https://maps.googleapis.com/maps/api/geocode/json',
+    queryParameters: {
+      'latlng': '${position.latitude},${position.longitude}',
+      'key': googleMpaKey,
+    },
+  );
+
+  final data = response.data;
+  if (data == null || data['status'] != 'OK') {
+    throw Exception('Unable to fetch address from coordinates.');
+  }
+
+  final List results = data['results'] ?? [];
+  if (results.isEmpty) {
+    throw Exception('No address found for current location.');
+  }
+
+  return {
+    'formatted_address': results.first['formatted_address'] ?? '',
+    'latitude': position.latitude,
+    'longitude': position.longitude,
+  };
+}
 
 void onLocalSetup({data,startup,callback}) async {
   try {
@@ -45,7 +98,6 @@ void onLocalSetup({data,startup,callback}) async {
 onClearLocalSetup({callback})async {
  try {
   final storage = GetStorage();
-  final userId = storage.read('_id');
   await storage.remove('_id');
   await storage.remove('token');
   await storage.remove('full_name'); 
@@ -140,7 +192,7 @@ getFontSizeForCommonTextSTyle(fontType){
 
 commonTextStyle({Color? fontColor, double? fontSize,String? fontType,FontWeight? fontWeight }){
   return TextStyle(
-    color: fontColor == null ?  Colors.black : fontColor,
+    color: fontColor == null ?  blackFontColor : fontColor,
     fontSize: fontType != null ? getFontSizeForCommonTextSTyle(fontType) : fontSize == null ? 12 : fontSize,
     fontWeight: fontWeight == null ? FontWeight.w800 : fontWeight,
   );

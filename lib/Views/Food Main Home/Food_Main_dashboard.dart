@@ -1,22 +1,26 @@
 import 'package:deliverylo/Commons and Reusables/common_bottom_bar.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Views/Profile%20/Profile_main_page.dart';
-import 'package:deliverylo/Views/mainHome/Food_home_page.dart';
-import 'package:deliverylo/Views/mainHome/Search_Deligate_page.dart';
+import 'package:deliverylo/Views/Food%20Main%20Home/Food_home_page.dart';
+import 'package:deliverylo/Views/Food%20Main%20Home/Search_Deligate_page.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class MainDashboard extends StatefulWidget {
-  const MainDashboard({super.key});
+import '../../Routes/app_routes.dart';
+
+class FoodMainDashboard extends StatefulWidget {
+  const FoodMainDashboard({super.key});
 
   @override
-  State<MainDashboard> createState() => _MainDashboardState();
+  State<FoodMainDashboard> createState() => _FoodMainDashboardState();
 }
 
-class _MainDashboardState extends State<MainDashboard> {
+class _FoodMainDashboardState extends State<FoodMainDashboard> {
   final PageController _pageController = PageController();
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   static const List<CommonBottomBarItem> _bottomBarItems = [
+    CommonBottomBarItem(icon: Icons.arrow_back_ios_new, label: 'Dashboard'),
     CommonBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
     CommonBottomBarItem(icon: Icons.receipt, label: 'Dining'),
     CommonBottomBarItem(icon: Icons.search, label: 'Search'),
@@ -30,10 +34,15 @@ class _MainDashboardState extends State<MainDashboard> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
+    if(index == 0){
+      Get.offAllNamed(Routes.MAIN_DASHBOARD);
+    }else{
+      setState(() {
       _currentIndex = index;
     });
     _pageController.jumpToPage(index);
+    }
+    
   }
 
   Widget _getPage(int index) {
@@ -41,10 +50,12 @@ class _MainDashboardState extends State<MainDashboard> {
       case 0:
         return const HomePageView();
       case 1:
-        return const Center(child: Text('Dining'));
+        return const HomePageView();
       case 2:
-        return const SearchDeligatePage();
+        return const Center(child: Text('Dining'));
       case 3:
+        return const SearchDeligatePage();
+      case 4:
         return const ProfileMainPage();
       default:
         return const SizedBox.shrink();
