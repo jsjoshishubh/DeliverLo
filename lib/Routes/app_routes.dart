@@ -13,6 +13,8 @@ import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20T
 import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20Tracking/order_tracking_page.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Food_Main_dashboard.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Search_Details_Page.dart';
+import 'package:deliverylo/Views/Grocery mainHome/Grocery_home_page.dart';
+import 'package:deliverylo/Views/Grocery mainHome/Grocery_main_dashboard.dart';
 import 'package:deliverylo/Views/onBoarding/onBoarding_main_page.dart';
 import 'package:get/get.dart';
 
@@ -25,6 +27,8 @@ abstract class Routes{
  static const MAIN_DASHBOARD = '/main_dashboard'; 
  static const MAINHOMEPAGE = '/main_home_page'; 
  static const FOOD_MAIN_DASHBOARD = '/food_main_dashboard'; 
+ static const GROCERY_MAIN_DASHBOARD = '/grocery_main_dashboard'; 
+ static const GROCERY_HOME_PAGE = '/grocery_home_page'; 
  static const SEARCHDETAILSPAGE = '/search_details_page'; 
  static const CHECKOUT = '/checkout_page'; 
  static const ORDERCONFIRMATION = '/order_confirmation'; 
@@ -46,6 +50,8 @@ abstract class AppPages{
      GetPage(name: Routes.MAIN_DASHBOARD, page: () => MainDashBoardPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.MAINHOMEPAGE, page: () => MainHomePage(),transition: Transition.fadeIn),
      GetPage(name: Routes.FOOD_MAIN_DASHBOARD, page: () => FoodMainDashboard(),transition: Transition.cupertino),
+     GetPage(name: Routes.GROCERY_MAIN_DASHBOARD, page: () => GroceryMainDashboard(),transition: Transition.cupertino),
+     GetPage(name: Routes.GROCERY_HOME_PAGE, page: () => GroceryHomePage(),transition: Transition.cupertino),
      GetPage(name: Routes.SEARCHDETAILSPAGE, page: () => SearchDetailsPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.CHECKOUT, page: () => CheckoutPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.ORDERCONFIRMATION, page: () => OrderConfimationPage(),transition: Transition.fadeIn),

@@ -6,34 +6,71 @@ import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
+/// Tab entry shape:
+/// - Food (default): `{ 'tab_title': String, 'tab_type': String }` — loads from [fetchFoodDataByTab].
+/// - Custom list: `{ 'tab_title': String, 'items': List<FoodItemModel> }` — shows items without API.
 class FoodTabBarComponent extends StatefulWidget {
-  final List? tabss;
+  final List<Map<String, dynamic>>? tabss;
+  /// Selected tab label color (and loading accent). Defaults to food red.
+  final Color? accentColor;
+  final bool showFavoriteOnCards;
+  final IconData itemCardErrorIcon;
 
-  const FoodTabBarComponent({super.key, this.tabss});
+  const FoodTabBarComponent({
+    super.key,
+    this.tabss,
+    this.accentColor,
+    this.showFavoriteOnCards = true,
+    this.itemCardErrorIcon = Icons.restaurant,
+  });
 
   @override
   State<FoodTabBarComponent> createState() => _FoodTabBarComponentState();
 }
 
 class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
-  List newTabs = [];
-  List tabs = [
+  late List<Map<String, dynamic>> _tabs;
+
+  static final List<Map<String, dynamic>> _defaultTabs = [
     {'tab_title': 'Min Rs 100 OFF', 'tab_type': '0'},
     {'tab_title': 'Fast Delivery', 'tab_type': '1'},
   ];
 
+  Color get _accent => widget.accentColor ?? HexColor.fromHex('#BD0D0E');
+
   @override
   void initState() {
     super.initState();
-    setState(() {
-      newTabs = widget.tabss ?? tabs;
-    });
+    _tabs = List<Map<String, dynamic>>.from(widget.tabss ?? _defaultTabs);
+  }
+
+  @override
+  void didUpdateWidget(covariant FoodTabBarComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tabss != widget.tabss) {
+      setState(() {
+        _tabs = List<Map<String, dynamic>>.from(widget.tabss ?? _defaultTabs);
+      });
+    }
+  }
+
+  List<FoodItemModel>? _parseStaticItems(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is List<FoodItemModel>) return raw;
+    if (raw is List) {
+      final out = <FoodItemModel>[];
+      for (final e in raw) {
+        if (e is FoodItemModel) out.add(e);
+      }
+      return out.isEmpty ? null : out;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: newTabs.length,
+      length: _tabs.length,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +93,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
               indicatorPadding: const EdgeInsets.all(4),
               padding: EdgeInsets.zero,
               labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-              labelColor: HexColor.fromHex('#BD0D0E'),
+              labelColor: _accent,
               unselectedLabelColor: HexColor.fromHex('#3D4152'),
               labelStyle: commonTextStyle(
                 fontColor: HexColor.fromHex('#3D4152'),
@@ -68,10 +105,12 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
-              tabs: newTabs
+              tabs: _tabs
                   .map<Widget>(
                     (e) => Tab(
-                      text: e['tab_title'] != null ? e['tab_title'] : e['tab_type'].toString(),
+                      text: e['tab_title'] != null
+                          ? e['tab_title'] as String
+                          : e['tab_type'].toString(),
                     ),
                   )
                   .toList(),
@@ -79,10 +118,16 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
           ),
           Expanded(
             child: TabBarView(
-              children: newTabs
+              children: _tabs
                   .map(
                     (e) => FoodTabList(
-                      tabType: e['tab_type'] != null ? e['tab_type'].toString() : e['tab_title'].toString(),
+                      tabType: e['tab_type'] != null
+                          ? e['tab_type'].toString()
+                          : e['tab_title']?.toString(),
+                      initialItems: _parseStaticItems(e['items']),
+                      accentColor: _accent,
+                      showFavoriteOnCard: widget.showFavoriteOnCards,
+                      itemCardErrorIcon: widget.itemCardErrorIcon,
                     ),
                   )
                   .toList(),
@@ -96,8 +141,20 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
 
 class FoodTabList extends StatefulWidget {
   final String? tabType;
+  /// When set, these items are shown immediately (no fetch by [tabType]).
+  final List<FoodItemModel>? initialItems;
+  final Color accentColor;
+  final bool showFavoriteOnCard;
+  final IconData itemCardErrorIcon;
 
-  const FoodTabList({super.key, this.tabType});
+  const FoodTabList({
+    super.key,
+    this.tabType,
+    this.initialItems,
+    this.accentColor = const Color(0xFFBD0D0E),
+    this.showFavoriteOnCard = true,
+    this.itemCardErrorIcon = Icons.restaurant,
+  });
 
   @override
   State<FoodTabList> createState() => _FoodTabListState();
@@ -110,10 +167,30 @@ class _FoodTabListState extends State<FoodTabList> {
   @override
   void initState() {
     super.initState();
-    getFoodByTabType();
+    final preset = widget.initialItems;
+    if (preset != null && preset.isNotEmpty) {
+      tabsDetails = List<FoodItemModel>.from(preset);
+    } else {
+      getFoodByTabType();
+    }
   }
 
-  getFoodByTabType() async {
+  @override
+  void didUpdateWidget(covariant FoodTabList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final preset = widget.initialItems;
+    if (preset != null && preset.isNotEmpty) {
+      if (oldWidget.initialItems != widget.initialItems) {
+        setState(() {
+          tabsDetails = List<FoodItemModel>.from(preset);
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> getFoodByTabType() async {
+    if (widget.initialItems != null && widget.initialItems!.isNotEmpty) return;
     try {
       setState(() {
         isLoading = true;
@@ -143,9 +220,12 @@ class _FoodTabListState extends State<FoodTabList> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(color: HexColor.fromHex('#BD0D0E'),),
+                CircularProgressIndicator(color: widget.accentColor),
                 const SizedBox(height: 12),
-                Text('Loading...', style: TextStyle(color: HexColor.fromHex('#BD0D0E'), fontSize: 14)),
+                Text(
+                  'Loading...',
+                  style: TextStyle(color: widget.accentColor, fontSize: 14),
+                ),
               ],
             ),
           )
@@ -158,7 +238,12 @@ class _FoodTabListState extends State<FoodTabList> {
               itemCount: tabsDetails.length,
               itemBuilder: (context, index) {
                 final item = tabsDetails[index];
-                return FoodItemCard(item: item);
+                return FoodItemCard(
+                  item: item,
+                  accentColor: widget.accentColor,
+                  showFavorite: widget.showFavoriteOnCard,
+                  errorIcon: widget.itemCardErrorIcon,
+                );
               },
             ),
           );
@@ -166,12 +251,23 @@ class _FoodTabListState extends State<FoodTabList> {
 }
 
 class FoodItemCard extends StatelessWidget {
-  const FoodItemCard({super.key, required this.item});
+  const FoodItemCard({
+    super.key,
+    required this.item,
+    this.accentColor,
+    this.showFavorite = true,
+    this.errorIcon = Icons.restaurant,
+  });
 
   final FoodItemModel item;
+  final Color? accentColor;
+  final bool showFavorite;
+  final IconData errorIcon;
 
   @override
   Widget build(BuildContext context) {
+    final starColor = accentColor ?? HexColor.fromHex('#15803D');
+    final isNetworkImage = item.imageUrl.startsWith('http');
     log('item: ${item.imageUrl}');
     return Container(
       width: 170,
@@ -194,18 +290,31 @@ class FoodItemCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
-                child: Image.asset(
-                  item.imageUrl,
-                  fit: BoxFit.cover,
-                  width: 180,
-                  height: 140,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 180,
-                    height: 130,
-                    color: Colors.grey.shade300,
-                    child: Icon(Icons.restaurant, color: Colors.grey.shade600),
-                  ),
-                ),
+                child: isNetworkImage
+                    ? Image.network(
+                        item.imageUrl,
+                        fit: BoxFit.cover,
+                        width: 180,
+                        height: 140,
+                        errorBuilder: (_, _, _) => Container(
+                          width: 180,
+                          height: 130,
+                          color: Colors.grey.shade300,
+                          child: Icon(errorIcon, color: Colors.grey.shade600),
+                        ),
+                      )
+                    : Image.asset(
+                        item.imageUrl,
+                        fit: BoxFit.cover,
+                        width: 180,
+                        height: 140,
+                        errorBuilder: (_, _, _) => Container(
+                          width: 180,
+                          height: 130,
+                          color: Colors.grey.shade300,
+                          child: Icon(errorIcon, color: Colors.grey.shade600),
+                        ),
+                      ),
               ),
               Positioned(
                 left: 1,
@@ -226,22 +335,23 @@ class FoodItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                right: 5,
-                top: 5,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: HexColor.fromHex('#FFFFFF').withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                    size: 20,
+              if (showFavorite)
+                Positioned(
+                  right: 5,
+                  top: 5,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: HexColor.fromHex('#FFFFFF').withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           Padding(
@@ -262,13 +372,13 @@ class FoodItemCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.star, size: 14, color: HexColor.fromHex('#15803D'),),
+                    Icon(Icons.star, size: 14, color: starColor),
                     const SizedBox(width: 4),
                     Text(
                       '${item.rating}',
                       style: commonTextStyle(
                         fontSize: 12,
-                        fontColor: HexColor.fromHex('#15803D'),
+                        fontColor: starColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

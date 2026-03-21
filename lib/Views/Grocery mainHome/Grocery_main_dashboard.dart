@@ -1,21 +1,21 @@
 import 'package:deliverylo/Commons and Reusables/common_bottom_bar.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
-import 'package:deliverylo/Views/Profile%20/Profile_main_page.dart';
-import 'package:deliverylo/Views/Food%20Main%20Home/Food_home_page.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Search_Deligate_page.dart';
+import 'package:deliverylo/Views/Grocery mainHome/Grocery_home_page.dart';
+import 'package:deliverylo/Views/Profile%20/Profile_main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../Routes/app_routes.dart';
 
-class FoodMainDashboard extends StatefulWidget {
-  const FoodMainDashboard({super.key});
+class GroceryMainDashboard extends StatefulWidget {
+  const GroceryMainDashboard({super.key});
 
   @override
-  State<FoodMainDashboard> createState() => _FoodMainDashboardState();
+  State<GroceryMainDashboard> createState() => _GroceryMainDashboardState();
 }
 
-class _FoodMainDashboardState extends State<FoodMainDashboard> {
+class _GroceryMainDashboardState extends State<GroceryMainDashboard> {
   final PageController _pageController = PageController();
   int _currentIndex = 1;
 
@@ -34,23 +34,22 @@ class _FoodMainDashboardState extends State<FoodMainDashboard> {
   }
 
   void _onItemTapped(int index) {
-    if(index == 0){
+    if (index == 0) {
       Get.offAllNamed(Routes.MAIN_DASHBOARD);
-    }else{
+    } else {
       setState(() {
-      _currentIndex = index;
-    });
-    _pageController.jumpToPage(index);
+        _currentIndex = index;
+      });
+      _pageController.jumpToPage(index);
     }
-    
   }
 
   Widget _getPage(int index) {
     switch (index) {
       case 0:
-        return const FoodHomePageView();
+        return const GroceryHomePage();
       case 1:
-        return const FoodHomePageView();
+        return const GroceryHomePage();
       case 2:
         return const Center(child: Text('Dining'));
       case 3:

@@ -35,6 +35,9 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
       Get.toNamed(Routes.FOOD_MAIN_DASHBOARD,);
       // Navigator.push(context,MaterialPageRoute(builder: (context) => const FoodMainDashboard()),);
       return;
+    }else if(index == 2){
+      Get.toNamed(Routes.GROCERY_MAIN_DASHBOARD,);
+      return;
     }
 
     setState(() {

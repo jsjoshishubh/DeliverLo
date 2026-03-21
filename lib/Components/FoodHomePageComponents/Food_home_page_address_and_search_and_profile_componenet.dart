@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:get/get.dart';
 
 class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
   final VoidCallback? onAddressTap;
@@ -15,6 +12,7 @@ class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
   final String addressLabel;
   final String searchPlaceholder;
   final bool vegMode;
+  final bool showVegMode;
 
   const HomePageAddressAndSearchAndProfileComponenet({
     super.key,
@@ -26,6 +24,7 @@ class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
     this.addressLabel = 'HOME - Savaliya Siddharth',
     this.searchPlaceholder = "Search 'Biryani'",  
     this.vegMode = true,
+    this.showVegMode = true,
   });
 
 
@@ -95,9 +94,9 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                Expanded(
+                  child: Container(
                   margin: EdgeInsets.only(top: 3),
-                  width: Get.width/1.4,
                   padding: EdgeInsets.symmetric(vertical:11),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -121,15 +120,18 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
                       ),
                     ],
                   ),
-                ),
-                _VegModeToggle(onChanged: (value) {
-                  setState(() {
-                    _vegMode = value;
-                  });
-                },
-                value: _vegMode,
-                
-                ),
+                ),),
+                if (widget.showVegMode) ...[
+                  SizedBox(width: 10),
+                  _VegModeToggle(onChanged: (value) {
+                    setState(() {
+                      _vegMode = value;
+                    });
+                  },
+                  value: _vegMode,
+                  
+                  ),
+                ],
               ],
             ),
           )

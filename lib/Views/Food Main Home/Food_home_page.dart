@@ -8,14 +8,14 @@ import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
-class HomePageView extends StatefulWidget {
-  const HomePageView({super.key});
+class FoodHomePageView extends StatefulWidget {
+  const FoodHomePageView({super.key});
 
   @override
-  State<HomePageView> createState() => _HomePageViewState();
+  State<FoodHomePageView> createState() => _FoodHomePageViewState();
 }
 
-class _HomePageViewState extends State<HomePageView> {
+class _FoodHomePageViewState extends State<FoodHomePageView> {
   Future<void> _onRefresh() async {
     // Simulate refresh - replace with actual data fetching
     await Future.delayed(const Duration(milliseconds: 1500));
