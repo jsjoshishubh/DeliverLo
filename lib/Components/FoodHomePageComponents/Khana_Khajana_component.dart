@@ -1,6 +1,9 @@
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:deliverylo/Models/grocery_detail_page_args.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
+import 'package:get/get.dart';
 
 /// Static JSON for Khana Khazana section
 List<Map<String, dynamic>> khanaKhazanaJson = [
@@ -164,11 +167,16 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
     final isVeg = item['isVegetarian'] as bool;
     final imagePath = item['image'] as String;
 
-    return SizedBox(
-      width: 140,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+            Routes.GROCERY_DETAIL_PAGE,
+            arguments: GroceryDetailPageArgs.fromKhanaMap(item),
+          ),
+      child: SizedBox(
+        width: 140,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Food image with add button overlay
           Expanded(
             flex: 3,
@@ -320,7 +328,8 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
               ),
             ],
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

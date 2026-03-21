@@ -1,6 +1,9 @@
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:deliverylo/Models/grocery_detail_page_args.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
+import 'package:get/get.dart';
 
 class WhatsOnYourMindFoodResultCard extends StatelessWidget {
   const WhatsOnYourMindFoodResultCard({
@@ -16,22 +19,27 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
     final rating = (item['rating'] as num?)?.toDouble() ?? 4.0;
     final offerText = item['offerText'] as String? ?? '';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.20),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+            Routes.GROCERY_DETAIL_PAGE,
+            arguments: GroceryDetailPageArgs.fromWhatsOnMindMap(item),
           ),
-        ],
-      ),
-      child: Stack(
-        clipBehavior: Clip.antiAlias,
-        children: [
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.20),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.antiAlias,
+          children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -233,7 +241,8 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

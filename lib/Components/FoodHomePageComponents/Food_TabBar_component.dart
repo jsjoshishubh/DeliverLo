@@ -2,9 +2,12 @@ import 'dart:developer';
 
 import 'package:deliverylo/Data/static_food_data.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
+import 'package:deliverylo/Models/grocery_detail_page_args.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// Tab entry shape:
 /// - Food (default): `{ 'tab_title': String, 'tab_type': String }` — loads from [fetchFoodDataByTab].
@@ -269,23 +272,28 @@ class FoodItemCard extends StatelessWidget {
     final starColor = accentColor ?? HexColor.fromHex('#15803D');
     final isNetworkImage = item.imageUrl.startsWith('http');
     log('item: ${item.imageUrl}');
-    return Container(
-      width: 170,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+            Routes.GROCERY_DETAIL_PAGE,
+            arguments: GroceryDetailPageArgs.fromFoodItem(item),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: Container(
+        width: 170,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Stack(
             children: [
               ClipRRect(
@@ -405,7 +413,8 @@ class FoodItemCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
