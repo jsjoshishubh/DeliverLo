@@ -124,6 +124,19 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
           });
         }
 
+        final List<Map<String, dynamic>> dynamicFoodTabs = [
+          {
+            'tab_title': 'Highly Ordered',
+            'tab_type': '0',
+            'api_type': 'highlight',
+          },
+          {
+            'tab_title': 'Fast Delivery',
+            'tab_type': '1',
+            'api_type': 'fast_delivery',
+          },
+        ];
+
         return Scaffold(
           body: RefreshIndicator(
             onRefresh: _onRefresh,
@@ -165,7 +178,10 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
                   
                   Container(
                     height: 296,
-                    child: FoodTabBarComponent(),
+                    child: FoodTabBarComponent(
+                      tabss: dynamicFoodTabs,
+                      accentColor: HexColor.fromHex(kFoodHomeAccentHex),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Container(

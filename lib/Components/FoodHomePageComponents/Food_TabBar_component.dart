@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:deliverylo/Data/static_food_data.dart';
+import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
 import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
@@ -9,12 +9,8 @@ import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Tab entry shape:
-/// - Food (default): `{ 'tab_title': String, 'tab_type': String }` — loads from [fetchFoodDataByTab].
-/// - Custom list: `{ 'tab_title': String, 'items': List<FoodItemModel> }` — shows items without API.
 class FoodTabBarComponent extends StatefulWidget {
   final List<Map<String, dynamic>>? tabss;
-  /// Selected tab label color (and loading accent). Defaults to food red.
   final Color? accentColor;
   final bool showFavoriteOnCards;
   final IconData itemCardErrorIcon;
@@ -33,10 +29,14 @@ class FoodTabBarComponent extends StatefulWidget {
 
 class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
   late List<Map<String, dynamic>> _tabs;
+  final FoodController _foodController =
+      Get.isRegistered<FoodController>()
+          ? Get.find<FoodController>()
+          : Get.put(FoodController());
 
   static final List<Map<String, dynamic>> _defaultTabs = [
-    {'tab_title': 'Min Rs 100 OFF', 'tab_type': '0'},
-    {'tab_title': 'Fast Delivery', 'tab_type': '1'},
+    {'tab_title': 'Highly Ordered', 'tab_type': '0', 'api_type': 'highlight'},
+    {'tab_title': 'Fast Delivery', 'tab_type': '1', 'api_type': 'fast_delivery'},
   ];
 
   Color get _accent => widget.accentColor ?? HexColor.fromHex('#BD0D0E');
@@ -45,6 +45,10 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
   void initState() {
     super.initState();
     _tabs = List<Map<String, dynamic>>.from(widget.tabss ?? _defaultTabs);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _prefetchSelectedTab(0);
+    });
   }
 
   @override
@@ -54,7 +58,18 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
       setState(() {
         _tabs = List<Map<String, dynamic>>.from(widget.tabss ?? _defaultTabs);
       });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _prefetchSelectedTab(0);
+      });
     }
+  }
+
+  void _prefetchSelectedTab(int index) {
+    if (_tabs.isEmpty || index < 0 || index >= _tabs.length) return;
+    final apiType = (_tabs[index]['api_type'] ?? '').toString().trim();
+    if (apiType.isEmpty) return;
+    _foodController.getFoodDataByTab(apiType);
   }
 
   List<FoodItemModel>? _parseStaticItems(dynamic raw) {
@@ -84,6 +99,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
               borderRadius: BorderRadius.circular(30),
             ),
             child: TabBar(
+              onTap: _prefetchSelectedTab,
               isScrollable: false,
               splashFactory: NoSplash.splashFactory,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -127,6 +143,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
                       tabType: e['tab_type'] != null
                           ? e['tab_type'].toString()
                           : e['tab_title']?.toString(),
+                      apiType: (e['api_type'] ?? '').toString(),
                       initialItems: _parseStaticItems(e['items']),
                       accentColor: _accent,
                       showFavoriteOnCard: widget.showFavoriteOnCards,
@@ -144,6 +161,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
 
 class FoodTabList extends StatefulWidget {
   final String? tabType;
+  final String? apiType;
   /// When set, these items are shown immediately (no fetch by [tabType]).
   final List<FoodItemModel>? initialItems;
   final Color accentColor;
@@ -153,6 +171,7 @@ class FoodTabList extends StatefulWidget {
   const FoodTabList({
     super.key,
     this.tabType,
+    this.apiType,
     this.initialItems,
     this.accentColor = const Color(0xFFBD0D0E),
     this.showFavoriteOnCard = true,
@@ -164,61 +183,77 @@ class FoodTabList extends StatefulWidget {
 }
 
 class _FoodTabListState extends State<FoodTabList> {
-  bool isLoading = false;
-  List<FoodItemModel> tabsDetails = <FoodItemModel>[];
+  final FoodController _foodController =
+      Get.isRegistered<FoodController>()
+          ? Get.find<FoodController>()
+          : Get.put(FoodController());
+  bool get _hasProvidedItems => widget.initialItems != null;
+  String get _apiType => (widget.apiType ?? '').trim();
 
   @override
   void initState() {
     super.initState();
-    final preset = widget.initialItems;
-    if (preset != null && preset.isNotEmpty) {
-      tabsDetails = List<FoodItemModel>.from(preset);
-    } else {
-      getFoodByTabType();
-    }
+    _loadData();
   }
 
   @override
   void didUpdateWidget(covariant FoodTabList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final preset = widget.initialItems;
-    if (preset != null && preset.isNotEmpty) {
-      if (oldWidget.initialItems != widget.initialItems) {
-        setState(() {
-          tabsDetails = List<FoodItemModel>.from(preset);
-          isLoading = false;
-        });
-      }
+    final didApiTypeChange = oldWidget.apiType != widget.apiType;
+    final didPresetChange = oldWidget.initialItems != widget.initialItems;
+    if (didApiTypeChange || didPresetChange) {
+      _loadData(forceRefresh: didApiTypeChange);
     }
   }
 
-  Future<void> getFoodByTabType() async {
-    if (widget.initialItems != null && widget.initialItems!.isNotEmpty) return;
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      final tabIndex = int.tryParse(widget.tabType ?? '0') ?? 0;
-      final data = await fetchFoodDataByTab(tabIndex);
-      if (mounted) {
-        setState(() {
-          tabsDetails = data;
-        });
-      }
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-    }
+  Future<void> _loadData({bool forceRefresh = false}) async {
+    if (_hasProvidedItems) return;
+    if (_apiType.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _foodController.getFoodDataByTab(_apiType, forceRefresh: forceRefresh);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? Center(
+    if (_hasProvidedItems) {
+      final tabsDetails = List<FoodItemModel>.from(widget.initialItems ?? const <FoodItemModel>[]);
+      if (tabsDetails.isEmpty) {
+        return Center(
+          child: Text(
+            'No items found',
+            style: TextStyle(color: widget.accentColor, fontSize: 14),
+          ),
+        );
+      }
+      return SizedBox(
+        height: 260,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          itemCount: tabsDetails.length,
+          itemBuilder: (context, index) {
+            final item = tabsDetails[index];
+            return FoodItemCard(
+              item: item,
+              accentColor: widget.accentColor,
+              showFavorite: widget.showFavoriteOnCard,
+              errorIcon: widget.itemCardErrorIcon,
+            );
+          },
+        ),
+      );
+    }
+
+    return GetBuilder<FoodController>(
+      init: _foodController,
+      builder: (controller) {
+        final isLoading = controller.isTabLoading(_apiType);
+        final tabsDetails = controller.foodItemsForTabType(_apiType);
+        if (isLoading) {
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -231,25 +266,36 @@ class _FoodTabListState extends State<FoodTabList> {
                 ),
               ],
             ),
-          )
-        : SizedBox(
-            height: 260,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical:4),
-              itemCount: tabsDetails.length,
-              itemBuilder: (context, index) {
-                final item = tabsDetails[index];
-                return FoodItemCard(
-                  item: item,
-                  accentColor: widget.accentColor,
-                  showFavorite: widget.showFavoriteOnCard,
-                  errorIcon: widget.itemCardErrorIcon,
-                );
-              },
+          );
+        }
+        if (tabsDetails.isEmpty) {
+          return Center(
+            child: Text(
+              'No items found',
+              style: TextStyle(color: widget.accentColor, fontSize: 14),
             ),
           );
+        }
+        return SizedBox(
+          height: 260,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            itemCount: tabsDetails.length,
+            itemBuilder: (context, index) {
+              final item = tabsDetails[index];
+              return FoodItemCard(
+                item: item,
+                accentColor: widget.accentColor,
+                showFavorite: widget.showFavoriteOnCard,
+                errorIcon: widget.itemCardErrorIcon,
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }
 
