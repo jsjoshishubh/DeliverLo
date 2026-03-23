@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../Routes/app_routes.dart';
 
 class MainHomeAddressAndProfileComponent extends StatefulWidget {
   const MainHomeAddressAndProfileComponent({super.key});
@@ -65,17 +68,20 @@ class MainHome_AddressAndProfileComponentState extends State<MainHomeAddressAndP
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE9A14B),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 30,
+                  InkWell(
+                    onTap: () => Get.toNamed(Routes.PROFILE),
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE9A14B),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ),
                 ],
