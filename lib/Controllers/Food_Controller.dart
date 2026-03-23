@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:deliverylo/Https%20Requests/dio_client.dart';
 import 'package:deliverylo/Model%20Classes/food_home_settings_model.dart';
 import 'package:deliverylo/Model%20Classes/food_tab_discovery_model.dart';
+import 'package:deliverylo/Model%20Classes/khana_khajana_model.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:get/get.dart';
@@ -23,10 +24,15 @@ class FoodController extends GetxController {
 
   final RxList<FoodCategoryModel> categories = <FoodCategoryModel>[].obs;
   final RxList<HomeOfferBannerModel> homeOfferBanners = <HomeOfferBannerModel>[].obs;
+  final Rxn<KhanaKhajanaResponseModel> _khanaKhajanaResponse =
+      Rxn<KhanaKhajanaResponseModel>();
   final Map<String, List<FoodItemModel>> _foodItemsByApiType = <String, List<FoodItemModel>>{};
   final Map<String, bool> _tabLoadingByApiType = <String, bool>{};
   final RxString _homeAccentHex = kFoodHomeAccentHex.obs;
   String get homeAccentHex => _homeAccentHex.value;
+  KhanaKhajanaResponseModel? get khanaKhajanaResponse => _khanaKhajanaResponse.value;
+  List<KhanaKhajanaVendorModel> get khanaKhajanaVendors =>
+      List<KhanaKhajanaVendorModel>.from(_khanaKhajanaResponse.value?.data ?? const <KhanaKhajanaVendorModel>[]);
   List<FoodItemModel> foodItemsForTabType(String apiType) =>
       List<FoodItemModel>.from(_foodItemsByApiType[apiType] ?? const <FoodItemModel>[]);
   bool isTabLoading(String apiType) => _tabLoadingByApiType[apiType] == true;
@@ -138,5 +144,28 @@ class FoodController extends GetxController {
   double? _toDouble(dynamic value) {
     if (value is num) return value.toDouble();
     return double.tryParse(value?.toString() ?? '');
+  }
+
+  Future<void> getKhanaKhajanaData() async {
+    changeLoading(true);
+    update();
+    try {
+      final url = 'users/featured-vendors';
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        _khanaKhajanaResponse.value = KhanaKhajanaResponseModel.fromJson(data);
+      } else {
+        _khanaKhajanaResponse.value = null;
+      }
+      update();
+    } catch (e) {
+      log(e.toString());
+      _khanaKhajanaResponse.value = null;
+      update();
+    } finally {
+      changeLoading(false);
+      update();
+    }
   }
 }

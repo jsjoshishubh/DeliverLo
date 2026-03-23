@@ -40,13 +40,23 @@ List<Map<String, dynamic>> khanaKhazanaJson = [
 ];
 
 class KhanaKhajanaComponent extends StatefulWidget {
-  const KhanaKhajanaComponent({super.key});
+  final List<Map<String, dynamic>>? items;
+  final bool isLoading;
+
+  const KhanaKhajanaComponent({
+    super.key,
+    this.items,
+    this.isLoading = false,
+  });
 
   @override
   State<KhanaKhajanaComponent> createState() => _KhanaKhajanaComponentState();
 }
 
 class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
+  List<Map<String, dynamic>> get _items =>
+      widget.items == null || widget.items!.isEmpty ? khanaKhazanaJson : widget.items!;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -145,18 +155,25 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
             ),
             const SizedBox(height: 16),
             // Horizontal food item list
-            SizedBox(
-              height: 200,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: khanaKhazanaJson.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 14),
-                itemBuilder: (context, index) {
-                  final item = khanaKhazanaJson[index];
-                  return _buildFoodItemCard(item);
-                },
-              ),
-            ),
+            widget.isLoading
+                ? SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(color: HexColor.fromHex('#324F98')),
+                    ),
+                  )
+                : SizedBox(
+                    height: 200,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _items.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 14),
+                      itemBuilder: (context, index) {
+                        final item = _items[index];
+                        return _buildFoodItemCard(item);
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
@@ -164,8 +181,9 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
   }
 
   Widget _buildFoodItemCard(Map<String, dynamic> item) {
-    final isVeg = item['isVegetarian'] as bool;
-    final imagePath = item['image'] as String;
+    final isVeg = item['isVegetarian'] == true;
+    final imagePath = (item['image'] ?? '').toString();
+    final isNetworkImage = imagePath.startsWith('http');
 
     return GestureDetector(
       onTap: () => Get.toNamed(
@@ -184,16 +202,27 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    imagePath,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: greyFontColor.shade50.withOpacity(0.2),
-                      child: Icon(Icons.restaurant, color: greyFontColor.shade50),
-                    ),
-                  ),
+                  child: isNetworkImage
+                      ? Image.network(
+                          imagePath,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: greyFontColor.shade50.withOpacity(0.2),
+                            child: Icon(Icons.restaurant, color: greyFontColor.shade50),
+                          ),
+                        )
+                      : Image.asset(
+                          imagePath,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: greyFontColor.shade50.withOpacity(0.2),
+                            child: Icon(Icons.restaurant, color: greyFontColor.shade50),
+                          ),
+                        ),
                 ),
                 Positioned(
                   bottom: 4,
@@ -251,7 +280,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  item['name'] as String,
+                  (item['name'] ?? '').toString(),
                   style: commonTextStyle(
                     fontSize: 14,
                     fontColor: HexColor.fromHex('#3D4152'),
@@ -265,7 +294,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
           ),
           const SizedBox(height: 2),
           Text(
-            item['description'] as String,
+            (item['description'] ?? '').toString(),
             style: commonTextStyle(
               fontSize: 11,
               fontColor: HexColor.fromHex('#686B78'),
@@ -283,7 +312,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '₹${item['originalPrice']}',
+                    '₹${item['originalPrice'] ?? 0}',
                     style: commonTextStyle(
                       fontSize: 12,
                       fontColor: HexColor.fromHex('#686B78'),
@@ -294,7 +323,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
                     ),
                   ),
                   Text(
-                    '₹${item['discountedPrice']}',
+                    '₹${item['discountedPrice'] ?? 0}',
                     style: commonTextStyle(
                       fontSize: 14,
                       fontColor: HexColor.fromHex('#3D4152'),
@@ -316,7 +345,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
                     Icon(Icons.star, size: 14, color: HexColor.fromHex('#15803D')),
                     const SizedBox(width: 2),
                     Text(
-                      '${item['rating']}',
+                      '${item['rating'] ?? 0}',
                       style: commonTextStyle(
                         fontSize: 12,
                         fontColor: HexColor.fromHex('#15803D'),

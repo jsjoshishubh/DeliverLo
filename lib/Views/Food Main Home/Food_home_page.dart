@@ -35,6 +35,7 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
     super.initState();
     _loadSelectedAddressFromStorage();
     _foodController.getCategoriesAndHomeOfferBanners();
+    _foodController.getKhanaKhajanaData();
   }
 
   Future<void> _onRefresh() async {
@@ -136,6 +137,27 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
             'api_type': 'fast_delivery',
           },
         ];
+        final List<Map<String, dynamic>> khanaKhajanaItems = controller.khanaKhajanaVendors
+            .expand((vendor) => (vendor.products ?? const [])
+                .map((product) {
+                  final variants = product.variants ?? const [];
+                  final firstVariant = variants.isNotEmpty ? variants.first : null;
+                  final salePrice = (firstVariant?.salePrice ?? 0).toDouble();
+                  final originalPrice = (firstVariant?.price ?? salePrice).toDouble();
+                  return <String, dynamic>{
+                    'id': product.id ?? '',
+                    'name': (product.name ?? '').trim().isEmpty ? (vendor.storeName ?? 'Item') : product.name!,
+                    'description': (product.description ?? '').trim().isEmpty
+                        ? (vendor.storeName ?? '')
+                        : product.description!,
+                    'image': product.thumbnail ?? '',
+                    'originalPrice': originalPrice.toStringAsFixed(0),
+                    'discountedPrice': salePrice.toStringAsFixed(0),
+                    'rating': (vendor.ratingAvg ?? 0).toStringAsFixed(1),
+                    'isVegetarian': true,
+                  };
+                }))
+            .toList();
 
         return Scaffold(
           body: RefreshIndicator(
@@ -185,7 +207,10 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    child: KhanaKhajanaComponent(),
+                    child: KhanaKhajanaComponent(
+                      items: khanaKhajanaItems,
+                      isLoading: controller.loading && khanaKhajanaItems.isEmpty,
+                    ),
                   ),
                   SizedBox(height: 5),
                   Container(
