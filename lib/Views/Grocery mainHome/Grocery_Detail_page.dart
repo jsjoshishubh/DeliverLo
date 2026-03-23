@@ -122,13 +122,13 @@ class _GroceryDetailPageState extends State<GroceryDetailPage> {
                 const SizedBox(height: 24),
                 GroceryWhyThisPick(),
                 const SizedBox(height: 24),
-                GroceryNutritionalInfo(),
-                const SizedBox(height: 24),
+                // GroceryNutritionalInfo(),
+                // const SizedBox(height: 24),
                 GroceryDescriptionSection(
                   text:
                       'Creamy, buttery, and rich in healthy fats, our organic avocados are hand-picked at peak ripeness. Perfect for guacamole, salads, or spreading on toast. Sourced directly from sustainable farms.',
                 ),
-                const SizedBox(height: 54),
+                const SizedBox(height: 24),
                 CommonAddToBasketCard(
                   priceLabel: 'TOTAL PRICE',
                   priceValue: '₹240',

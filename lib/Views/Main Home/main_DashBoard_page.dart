@@ -21,7 +21,7 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
     CommonBottomBarItem(icon: Icons.home, label: 'Home'),
     CommonBottomBarItem(icon: Icons.fastfood, label: 'Food'),
     CommonBottomBarItem(icon: Icons.shopping_basket, label: 'Grocery'),
-    CommonBottomBarItem(icon: Icons.headphones, label: 'Electronics'),
+    // CommonBottomBarItem(icon: Icons.headphones, label: 'Electronics'),
   ];
 
   @override

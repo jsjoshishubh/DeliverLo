@@ -22,7 +22,7 @@ class _GroceryMainDashboardState extends State<GroceryMainDashboard> {
   static const List<CommonBottomBarItem> _bottomBarItems = [
     CommonBottomBarItem(icon: Icons.dashboard_outlined, label: 'Dashboard'),
     CommonBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
-    CommonBottomBarItem(icon: Icons.receipt, label: 'Dining'),
+    // CommonBottomBarItem(icon: Icons.receipt, label: 'Dining'),
     CommonBottomBarItem(icon: Icons.search, label: 'Search'),
     CommonBottomBarItem(icon: Icons.person_outline, label: 'Profile'),
   ];
@@ -50,11 +50,11 @@ class _GroceryMainDashboardState extends State<GroceryMainDashboard> {
         return const GroceryHomePage();
       case 1:
         return const GroceryHomePage();
+      // case 2:
+      //   return const Center(child: Text('Dining'));
       case 2:
-        return const Center(child: Text('Dining'));
-      case 3:
         return const SearchDeligatePage();
-      case 4:
+      case 3:
         return const ProfileMainPage();
       default:
         return const SizedBox.shrink();
