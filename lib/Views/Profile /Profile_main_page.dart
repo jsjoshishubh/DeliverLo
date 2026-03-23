@@ -5,6 +5,7 @@ import 'package:deliverylo/Components/ProfilePageComponents/quick_action_card_co
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ProfileMainPage extends StatefulWidget {
   const ProfileMainPage({super.key});
@@ -47,6 +48,67 @@ class ProfileTopChild extends StatefulWidget {
 }
 
 class Profile_TopChildState extends State<ProfileTopChild> {
+  final GlobalKey<State> _keyLoader = GlobalKey<State>();
+
+  Future<void> _showLogoutConfirmation() async {
+    await Get.dialog(
+      AlertDialog(
+        title: Text(
+          'Logout',
+          style: commonTextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            fontColor: HexColor.fromHex('#1F2937'),
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: commonTextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontColor: HexColor.fromHex('#4B5563'),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'No',
+              style: commonTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                fontColor: HexColor.fromHex('#6B7280'),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await Future.delayed(Duration(milliseconds: 100));
+              Dialogs.showLoadingDialog(context, _keyLoader, 'Please wait'.tr);
+              await Future.delayed(Duration(milliseconds: 200));
+              await onClearLocalSetup(callback: () {
+                if (_keyLoader.currentContext != null) {
+                  Navigator.of(
+                    _keyLoader.currentContext!,
+                    rootNavigator: true,
+                  ).pop();
+                }
+              });
+            },
+            child: Text(
+              'Yes',
+              style: commonTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                fontColor: HexColor.fromHex('#F97316'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +118,7 @@ class Profile_TopChildState extends State<ProfileTopChild> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.arrow_back, size: 24, color: Color(0xFF223042)),
+                      InkWell(onTap: () => Get.back(), child: Icon(Icons.arrow_back, size: 24, color: Color(0xFF223042))),
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -74,7 +136,10 @@ class Profile_TopChildState extends State<ProfileTopChild> {
                       child: Text('Help',style: commonTextStyle(fontColor: HexColor.fromHex('#1F2937'),fontSize: 14,fontWeight: FontWeight.w600,),),
                     ),
                     const SizedBox(width: 18),
-                    const Icon(Icons.more_vert, size: 24, color: Color(0xFF223042)),
+                    InkWell(
+                      onTap: _showLogoutConfirmation,
+                      child: const Icon(Icons.more_vert, size: 24, color: Color(0xFF223042))
+                    ),
                   ],
                 ),
                 const Spacer(),
@@ -120,6 +185,43 @@ class _ProfileBottomChildState extends State<ProfileBottomChild>  {
         PastOrdersTabComponent(),
         SizedBox(height: 60),
       ],
+    );
+  }
+}
+
+class Dialogs {
+  static Future<void> showLoadingDialog(
+    BuildContext context,
+    GlobalKey key,
+    String text,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            key: key,
+            content: Row(
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: commonTextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontColor: HexColor.fromHex('#1F2937'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -58,10 +58,37 @@ Future<Map<String, dynamic>> fetchCurrentFormattedAddress() async {
     throw Exception('No address found for current location.');
   }
 
+  final Map<String, dynamic> firstResult =
+      (results.first is Map<String, dynamic>) ? results.first as Map<String, dynamic> : <String, dynamic>{};
+  final List<dynamic> components =
+      (firstResult['address_components'] is List) ? firstResult['address_components'] as List<dynamic> : <dynamic>[];
+
+  String _componentValue(List<dynamic> list, List<String> targetTypes) {
+    for (final item in list) {
+      if (item is! Map<String, dynamic>) continue;
+      final types = (item['types'] is List) ? List<dynamic>.from(item['types']) : <dynamic>[];
+      final hasType = targetTypes.any((type) => types.contains(type));
+      if (hasType) {
+        return (item['long_name'] ?? '').toString().trim();
+      }
+    }
+    return '';
+  }
+
+  final city = _componentValue(
+    components,
+    ['locality', 'sublocality', 'administrative_area_level_2'],
+  );
+  final state = _componentValue(components, ['administrative_area_level_1']);
+  final pincode = _componentValue(components, ['postal_code']);
+
   return {
-    'formatted_address': results.first['formatted_address'] ?? '',
+    'formatted_address': firstResult['formatted_address'] ?? '',
     'latitude': position.latitude,
     'longitude': position.longitude,
+    'city': city,
+    'state': state,
+    'pincode': pincode,
   };
 }
 
@@ -118,8 +145,8 @@ onClearLocalSetup({callback})async {
 
   // await storage.remove('notification_count');
 //  await CustomCacheManager().clearCache();
-//  if(callback is Function) callback();
-//   Get.offAllNamed(Routes.LOGINPAGE);
+ if(callback is Function) callback();
+  Get.offAllNamed(Routes.SIGNUPAMDLOGIN);
  } catch (e) {}
 }
 

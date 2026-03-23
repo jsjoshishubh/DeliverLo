@@ -1,8 +1,10 @@
+import 'package:deliverylo/Commons%20and%20Reusables/commonButton.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../Controllers/Profile_Controller.dart';
 import '../../Routes/app_routes.dart';
 
 class SelectAddressComponent extends StatefulWidget {
@@ -14,29 +16,86 @@ class SelectAddressComponent extends StatefulWidget {
 
 class _SelectAddressComponentState extends State<SelectAddressComponent> {
   int _selectedAddressIndex = 0;
+  final ProfileController _profileController = Get.put(ProfileController());
 
-  final List<Map<String, dynamic>> _savedAddresses = [
-    {
-      'title': 'Home',
-      'address':
-          'Flat 402, Sunshine Apartments, 12th Main Road, Indiranagar, Bangalore - 560038',
-      'eta': '30 mins',
-      'icon': Icons.home_filled,
-    },
-    {
-      'title': 'Work',
-      'address':
-          'WeWork Galaxy, 43 Residency Road, Shanthala Nagar, Ashok Nagar, Bangalore - 560025',
-      'eta': '45 mins',
-      'icon': Icons.work,
-    },
-    {
-      'title': 'Gym',
-      'address': 'Gold\'s Gym, 4th Floor, 100 Feet Rd, Indiranagar, Bangalore - 560038',
-      'eta': 'Too far',
-      'icon': Icons.fitness_center,
-    },
-  ];
+  final RxList<dynamic> _savedAddresses = [].obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAddresses();
+  }
+
+  Future<void> _loadAddresses() async {
+    await _profileController.getAddresses();
+    _savedAddresses.assignAll(_profileController.savedAddresses);
+    if (_savedAddresses.isNotEmpty && _selectedAddressIndex >= _savedAddresses.length) {
+      setState(() {
+        _selectedAddressIndex = 0;
+      });
+    }
+  }
+
+  IconData _getAddressIcon(String label) {
+    final normalized = label.toLowerCase();
+    if (normalized == 'home') return Icons.home_filled;
+    if (normalized == 'office') return Icons.business;
+    if (normalized == 'work') return Icons.work;
+    return Icons.location_on;
+  }
+
+  String _getAddressTitle(dynamic item) {
+    if (item is! Map) return 'Other';
+    final raw = (item['label'] ?? item['title'] ?? 'Other').toString().trim();
+    return raw.isEmpty ? 'Other' : raw;
+  }
+
+  String _getAddressText(dynamic item) {
+    if (item is! Map) return '';
+    final fullAddress = (item['fullAddress'] ?? item['formattedAddress'] ?? item['address'] ?? '').toString().trim();
+    if (fullAddress.isNotEmpty) return fullAddress;
+    return [
+      (item['line1'] ?? item['flat'] ?? '').toString().trim(),
+      (item['line2'] ?? item['area'] ?? '').toString().trim(),
+      (item['landmark'] ?? '').toString().trim(),
+      (item['city'] ?? '').toString().trim(),
+      (item['state'] ?? '').toString().trim(),
+      (item['pincode'] ?? item['postalCode'] ?? '').toString().trim(),
+    ].where((part) => part.isNotEmpty).join(', ');
+  }
+
+  String _getMetaInfo(dynamic item) {
+    if (item is! Map) return '';
+    final city = (item['city'] ?? '').toString().trim();
+    final state = (item['state'] ?? '').toString().trim();
+    final pincode = (item['pincode'] ?? item['postalCode'] ?? '').toString().trim();
+    final phone = (item['phone'] ?? item['mobile'] ?? '').toString().trim();
+    final parts = <String>[
+      if (city.isNotEmpty) 'City: $city',
+      if (state.isNotEmpty) 'State: $state',
+      if (pincode.isNotEmpty) 'Pincode: $pincode',
+      if (phone.isNotEmpty) 'Mobile: $phone',
+    ];
+    return parts.join('  |  ');
+  }
+
+  Map<String, dynamic> _normalizeSelectedAddress(dynamic item) {
+    final normalized = <String, dynamic>{};
+    if (item is Map) {
+      item.forEach((key, value) {
+        normalized[key.toString()] = value;
+      });
+    }
+    final title = _getAddressTitle(item);
+    final address = _getAddressText(item);
+    normalized['title'] = title;
+    normalized['label'] = (normalized['label'] ?? title).toString().trim();
+    normalized['address'] = address;
+    if ((normalized['fullAddress'] ?? '').toString().trim().isEmpty) {
+      normalized['fullAddress'] = address;
+    }
+    return normalized;
+  }
 
   Future<void> _onAddNewAddressTap() async {
     final dynamic result = await Get.toNamed(Routes.ADDADDRESS);
@@ -46,8 +105,8 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
     final String fullAddress = (result['fullAddress'] ?? '').toString().trim();
     final String formattedAddress = (result['formattedAddress'] ?? '').toString().trim();
     final String fallbackAddress = [
-      (result['flat'] ?? '').toString().trim(),
-      (result['area'] ?? '').toString().trim(),
+      (result['line1'] ?? result['flat'] ?? '').toString().trim(),
+      (result['line2'] ?? result['area'] ?? '').toString().trim(),
       (result['landmark'] ?? '').toString().trim(),
     ].where((part) => part.isNotEmpty).join(', ');
 
@@ -56,19 +115,14 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
         : (formattedAddress.isNotEmpty ? formattedAddress : fallbackAddress);
     if (addressText.isEmpty) return;
 
-    IconData icon = Icons.location_on;
-    if (label.toLowerCase() == 'home') {
-      icon = Icons.home_filled;
-    } else if (label.toLowerCase() == 'work') {
-      icon = Icons.work;
-    }
-
     setState(() {
       _savedAddresses.insert(0, {
-        'title': label,
-        'address': addressText,
-        'eta': 'New',
-        'icon': icon,
+        'label': label,
+        'fullAddress': addressText,
+        'city': (result['city'] ?? '').toString().trim(),
+        'state': (result['state'] ?? '').toString().trim(),
+        'pincode': (result['pincode'] ?? result['postalCode'] ?? '').toString().trim(),
+        'phone': (result['phone'] ?? result['mobile'] ?? '').toString().trim(),
       });
       _selectedAddressIndex = 0;
     });
@@ -194,85 +248,104 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ..._savedAddresses.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final item = entry.value;
-                      final isSelected = _selectedAddressIndex == index;
+                    Obx(() {
+                      if (_profileController.loading && _savedAddresses.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedAddressIndex = index;
-                          });
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: isSelected
-                                  ? HexColor.fromHex('#F97316')
-                                  : HexColor.fromHex('#E5E7EB'),
+                      if (_savedAddresses.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'No saved addresses found',
+                            style: commonTextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              fontColor: greyFontColor,
                             ),
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(top: 2),
-                                child: Icon(
-                                  item['icon'] as IconData,
+                        );
+                      }
+
+                      return Column(
+                        children: _savedAddresses.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+                          final isSelected = _selectedAddressIndex == index;
+                          final title = _getAddressTitle(item);
+                          final address = _getAddressText(item);
+                          final metaInfo = _getMetaInfo(item);
+                          final icon = _getAddressIcon(title);
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedAddressIndex = index;
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
                                   color: isSelected
                                       ? HexColor.fromHex('#F97316')
-                                      : HexColor.fromHex('#9CA3AF'),
-                                  size: 22,
+                                      : HexColor.fromHex('#E5E7EB'),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item['title'] as String,
-                                      style: commonTextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        fontColor: blackFontColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      item['address'] as String,
-                                      style: commonTextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w400,
-                                        fontColor: greyFontColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color:  isSelected ?  HexColor.fromHex('#FF5200').withValues(alpha: 0.1) : HexColor.fromHex('#F3F4F6'),
-                                      borderRadius: BorderRadius.circular(20),
+                                    margin: const EdgeInsets.only(top: 2),
+                                    child: Icon(
+                                      icon,
+                                      color: isSelected
+                                          ? HexColor.fromHex('#F97316')
+                                          : HexColor.fromHex('#9CA3AF'),
+                                      size: 22,
                                     ),
-                                    child: Text(
-                                      item['eta'] as String,
-                                      style: commonTextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        fontColor: isSelected ? HexColor.fromHex('#F97316') : greyFontColor,
-                                      ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          title,
+                                          style: commonTextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                            fontColor: blackFontColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          address,
+                                          style: commonTextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w400,
+                                            fontColor: greyFontColor,
+                                          ),
+                                        ),
+                                        if (metaInfo.isNotEmpty) ...[
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            metaInfo,
+                                            style: commonTextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              fontColor: HexColor.fromHex('#6B7280'),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -290,9 +363,9 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        }).toList(),
                       );
                     }),
                     const SizedBox(height: 8),
@@ -302,8 +375,7 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
             ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 5),
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(
@@ -312,11 +384,19 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
             ),
             child: SafeArea(
               top: false,
-              child: commonTextWithSufixAndPreFixIcon(
-                buttonTitle: 'Deliver to this address',
-                buttonHeight: 58,
-                onTap: () => Navigator.of(context).pop(_savedAddresses[_selectedAddressIndex]),
-                padding: EdgeInsets.zero,
+              child: 
+              LoadingButton(
+                title: 'Deliver to this address',
+                buttonColor: HexColor.fromHex('#F48C25'),
+                height: 54,
+                onPressed: _profileController.loading ? null : () {
+                  if (_savedAddresses.isEmpty) {
+                    toastWidget('Please add address first', true);
+                    return;
+                  }
+                  final selectedItem = _savedAddresses[_selectedAddressIndex];
+                  Navigator.of(context).pop(_normalizeSelectedAddress(selectedItem));
+                },
               ),
             ),
           ),

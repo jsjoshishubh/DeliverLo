@@ -21,7 +21,7 @@ class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
     this.onVegModeChanged,
     this.deliveryTime = '10 minutes',
     this.distance = '1.2 km',
-    this.addressLabel = 'HOME - Savaliya Siddharth',
+    this.addressLabel = '',
     this.searchPlaceholder = "Search 'Biryani'",  
     this.vegMode = true,
     this.showVegMode = true,
@@ -60,25 +60,45 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  children: [
-                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('10 minutes',style: commonTextStyle(fontSize:24,fontWeight: FontWeight.w700,fontColor: Colors.white),),
-                        SizedBox(width: 10,),
-                        _DistanceBadge(distance: widget.distance,),
-                      ],
-                    ),
-                    Container(
-                      child: Row(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(widget.addressLabel,style: commonTextStyle(fontSize:14,fontWeight: FontWeight.w500,fontColor: Colors.white),),
-                          Icon(Icons.arrow_drop_down,color: Colors.white,size: 25,)
+                          Text('10 minutes',style: commonTextStyle(fontSize:24,fontWeight: FontWeight.w700,fontColor: Colors.white),),
+                          SizedBox(width: 10,),
+                          _DistanceBadge(distance: widget.distance,),
                         ],
                       ),
-                    ),
-                  ],
+                      InkWell(
+                        onTap: () => widget.onAddressTap?.call(),
+                        child: Container(
+                          padding: EdgeInsets.only(top: 1),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.55,
+                                child: Text(
+                                  widget.addressLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: commonTextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Icon(Icons.arrow_drop_down,color: Colors.white,size: 25,)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top:2.0),

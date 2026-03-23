@@ -1,6 +1,8 @@
+import 'package:deliverylo/Commons%20and%20Reusables/commonButton.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/commonTextFormField.dart';
+import 'package:deliverylo/Controllers/Profile_Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,113 +14,24 @@ class AddAddressPage extends StatefulWidget {
 }
 
 class _AddAddressPageState extends State<AddAddressPage> {
-  final TextEditingController _flatController = TextEditingController();
-  final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _landmarkController = TextEditingController();
-  final TextEditingController _fullAddressController = TextEditingController();
-
-  bool _isFetchingLocation = false;
-  String _selectedSaveAs = 'Home';
-  String _otherPlaceName = 'Other';
-  double? _latitude;
-  double? _longitude;
-
-  @override
-  void dispose() {
-    _flatController.dispose();
-    _areaController.dispose();
-    _landmarkController.dispose();
-    _fullAddressController.dispose();
-    super.dispose();
-  }
+  final ProfileController _profileController = Get.put(ProfileController());
 
   @override
   void initState() {
     super.initState();
   }
 
-  Future<void> _fetchCurrentLocationAndFillAddress() async {
-    if (_isFetchingLocation) return;
-    setState(() {
-      _isFetchingLocation = true;
-    });
-
-    try {
-      final addressData = await fetchCurrentFormattedAddress();
-      final formattedAddress = (addressData['formatted_address'] ?? '').toString();
-
-      _latitude = addressData['latitude'] as double?;
-      _longitude = addressData['longitude'] as double?;
-
-      _fullAddressController.text = formattedAddress;
-      _fillFieldsFromFormattedAddress(formattedAddress);
-
-      toastWidget('Current location fetched successfully');
-    } catch (e) {
-      showSnackNotification(
-        message: e.toString().replaceFirst('Exception: ', ''),
-        hasError: true,
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isFetchingLocation = false;
-        });
-      }
-    }
-  }
-
-  void _fillFieldsFromFormattedAddress(String formattedAddress) {
-    if (formattedAddress.trim().isEmpty) return;
-
-    final addressParts = formattedAddress
-        .split(',')
-        .map((part) => part.trim())
-        .where((part) => part.isNotEmpty)
-        .toList();
-
-    if (addressParts.isEmpty) return;
-
-    final firstPart = addressParts.first;
-    final remainingParts =
-        addressParts.length > 1 ? addressParts.sublist(1).join(', ') : '';
-
-    _flatController.text = firstPart;
-    _areaController.text = remainingParts;
-  }
-
-  void _onSaveAddress() {
-    if (_flatController.text.trim().isEmpty || _areaController.text.trim().isEmpty) {
-      showSnackNotification(
-        message: 'Please enter flat/house and area details',
-        hasError: true,
-      );
-      return;
-    }
-
-    final composedAddress = [
-      _flatController.text.trim(),
-      _areaController.text.trim(),
-      if (_landmarkController.text.trim().isNotEmpty) _landmarkController.text.trim(),
-    ].join(', ');
-
-    Get.back(
-      result: {
-        'label': _selectedSaveAs,
-        'flat': _flatController.text.trim(),
-        'area': _areaController.text.trim(),
-        'landmark': _landmarkController.text.trim(),
-        'fullAddress': composedAddress,
-        'formattedAddress': _fullAddressController.text.trim(),
-        'latitude': _latitude,
-        'longitude': _longitude,
-      },
-    );
+  Future<void> _onSaveAddress() async {
+    final didSave = await _profileController.validateAndSaveAddress();
+    if (!didSave) return;
+    Get.back(result: _profileController.buildAddAddressPayload());
   }
 
   Future<void> _showOtherPlaceNameDialog() async {
     final TextEditingController placeNameController = TextEditingController(
-      text: _otherPlaceName == 'Other' ? '' : _otherPlaceName,
+      text: _profileController.otherPlaceName.value == 'Other'
+          ? ''
+          : _profileController.otherPlaceName.value,
     );
 
     await Get.dialog(
@@ -176,10 +89,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                           return;
                         }
 
-                        setState(() {
-                          _otherPlaceName = customName;
-                          _selectedSaveAs = customName;
-                        });
+                        _profileController.setOtherPlaceName(customName);
                         Get.back();
                       },
                       style: ElevatedButton.styleFrom(
@@ -229,19 +139,21 @@ class _AddAddressPageState extends State<AddAddressPage> {
           ),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+      body: GetBuilder<ProfileController>(
+        builder: (_) {
+          return SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                     InkWell(
                       borderRadius: BorderRadius.circular(18),
-                      onTap: _fetchCurrentLocationAndFillAddress,
+                      onTap: _profileController.fetchCurrentLocationAndFillAddress,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -279,7 +191,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    _isFetchingLocation
+                                    _profileController.isFetchingLocation.value
                                         ? 'Fetching current location...'
                                         : 'Tap to enable location access',
                                     style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor, ),
@@ -287,7 +199,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 ],
                               ),
                             ),
-                            _isFetchingLocation
+                            _profileController.isFetchingLocation.value
                                 ? SizedBox(
                                     height: 20,
                                     width: 20,
@@ -309,28 +221,58 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     _buildLabel('FLAT / HOUSE NO. / FLOOR'),
                     const SizedBox(height: 8),
                     _buildInput(
-                      controller: _flatController,
+                      controller: _profileController.flatController,
                       hintText: 'e.g. Apt 4B, 3rd Floor',
                     ),
                     const SizedBox(height: 14),
                     _buildLabel('AREA / SECTOR / LOCALITY'),
                     const SizedBox(height: 8),
                     _buildInput(
-                      controller: _areaController,
+                      controller: _profileController.areaController,
                       hintText: 'e.g. Brooklyn Heights',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildLabel('CITY'),
+                    const SizedBox(height: 8),
+                    _buildInput(
+                      controller: _profileController.cityController,
+                      hintText: 'e.g. Mumbai',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildLabel('STATE'),
+                    const SizedBox(height: 8),
+                    _buildInput(
+                      controller: _profileController.stateController,
+                      hintText: 'e.g. Maharashtra',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildLabel('PINCODE'),
+                    const SizedBox(height: 8),
+                    _buildInput(
+                      controller: _profileController.pincodeController,
+                      hintText: 'e.g. 400001',
+                      textInputType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 14),
+                    _buildLabel('MOBILE NUMBER'),
+                    const SizedBox(height: 8),
+                    _buildInput(
+                      controller: _profileController.phoneController,
+                      hintText: 'e.g. +919876543210',
+                      textInputType: TextInputType.phone,
                     ),
                     const SizedBox(height: 14),
                     _buildLabel('LANDMARK (OPTIONAL)'),
                     const SizedBox(height: 8),
                     _buildInput(
-                      controller: _landmarkController,
+                      controller: _profileController.landmarkController,
                       hintText: 'e.g. Near the park entrance',
                     ),
                     const SizedBox(height: 14),
                     _buildLabel('FULL ADDRESS (AUTO/MANUAL)'),
                     const SizedBox(height: 8),
                     _buildInput(
-                      controller: _fullAddressController,
+                      controller: _profileController.fullAddressController,
                       hintText: 'Auto-filled from current location or type manually',
                       maxLines: 2,
                     ),
@@ -343,12 +285,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                           child: _saveAsOption(
                             label: 'Home',
                             icon: Icons.home,
-                            selected: _selectedSaveAs == 'Home',
-                            onTap: () {
-                              setState(() {
-                                _selectedSaveAs = 'Home';
-                              });
-                            },
+                            selected: _profileController.selectedSaveAs.value == 'Home',
+                            onTap: () => _profileController.selectSaveAs('Home'),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -356,40 +294,38 @@ class _AddAddressPageState extends State<AddAddressPage> {
                           child: _saveAsOption(
                             label: 'Work',
                             icon: Icons.work,
-                            selected: _selectedSaveAs == 'Work',
-                            onTap: () {
-                              setState(() {
-                                _selectedSaveAs = 'Work';
-                              });
-                            },
+                            selected: _profileController.selectedSaveAs.value == 'Work',
+                            onTap: () => _profileController.selectSaveAs('Work'),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: _saveAsOption(
-                            label: _otherPlaceName,
+                            label: _profileController.otherPlaceName.value,
                             icon: Icons.location_on,
-                            selected: _selectedSaveAs != 'Home' && _selectedSaveAs != 'Work',
+                            selected: _profileController.selectedSaveAs.value != 'Home' &&
+                                _profileController.selectedSaveAs.value != 'Work',
                             onTap: _showOtherPlaceNameDialog,
                           ),
                         ),
                       ],
                     ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                LoadingButton(
+                 title: 'Save Address',
+                 loading: _profileController.loading,
+                 onPressed: _profileController.loading ? null : _onSaveAddress,
+                 buttonColor: HexColor.fromHex('#F48C25'),
+                 borderRadius: BorderRadius.circular(10),
+                 height: 54,
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-              child: commonTextWithSufixAndPreFixIcon(
-                buttonTitle: 'Save Address',
-                buttonHeight: 58,
-                onTap: _onSaveAddress,
-                padding: EdgeInsets.zero,
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -409,11 +345,12 @@ class _AddAddressPageState extends State<AddAddressPage> {
     required TextEditingController controller,
     required String hintText,
     int maxLines = 1,
+    TextInputType? textInputType,
   }) {
     return TextFormFieldWidget(
       controller: controller,
       labelText: hintText,
-      textInputType: maxLines > 1 ? TextInputType.multiline : TextInputType.text,
+      textInputType: textInputType ?? (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
       maxLines: maxLines,
       minLines: maxLines > 1 ? 2 : 1,
       textInputAction: maxLines > 1 ? TextInputAction.newline : TextInputAction.next,
