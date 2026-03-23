@@ -2,7 +2,6 @@ import 'package:deliverylo/Commons%20and%20Reusables/Validators.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/commonButton.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/commonTextFormField.dart';
 import 'package:deliverylo/Controllers/Auth_Controller.dart';
-import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +17,8 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   AuthController authController = Get.put(AuthController());
+  final _formKey = GlobalKey<FormState>();
+  bool autovallidate = false;
   String selectedAddress = 'Street name, Building,\nApartment...';
   bool isFetchingAddress = false;
 
@@ -51,9 +52,9 @@ class _SignUpPageState extends State<SignUpPage> {
         selectedAddress = address.isEmpty ? selectedAddress : address;
       });
 
-      authController.onLoginChange('address', selectedAddress);
-      authController.onLoginChange('latitude', latitude.toString());
-      authController.onLoginChange('longitude', longitude.toString());
+      authController.onSignUpChange('address', selectedAddress);
+      authController.onSignUpChange('latitude', latitude.toString());
+      authController.onSignUpChange('longitude', longitude.toString());
     } catch (e) {
       showSnackBar(message: e.toString(), isError: true);
     } finally {
@@ -69,6 +70,17 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  void _onSubmitSignup() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      authController.onSignUp(context);
+    } else {
+      setState(() {
+        autovallidate = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,12 +89,15 @@ class _SignUpPageState extends State<SignUpPage> {
         init: authController,
         builder: (controller){
           return SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
+            child: Form(
+              key: _formKey,
+              autovalidateMode: autovallidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+              child: SingleChildScrollView(
+                child: Column(
                 children: [
                   Center(
                     child: Container(
-                      margin: EdgeInsets.only(top: 40),
+                      margin: EdgeInsets.only(top: 90),
                       child: Image.asset("Assets/onBoardingAndAuthFlow/login_otp.png", scale: 4.5,),
                     ),
                   ),
@@ -110,9 +125,9 @@ class _SignUpPageState extends State<SignUpPage> {
                             child: TextFormFieldWidget(
                               prefixIcon: Icon(Icons.person_outline_rounded,color: Colors.grey.shade400,),
                               labelText: 'Sid',
-                              textInputType: TextInputType.emailAddress,
-                              validator: (v) => AppFieldValidator.emailValidation(v),
-                              // onChanged: (v) => authController.onLoginChange('email', v),
+                              textInputType: TextInputType.text,
+                              validator: (v) => AppFieldValidator.formEmptyText(v, 'full name'),
+                              onChanged: (v) => authController.onSignUpChange('name', v),
                             ),
                           ),
                           Padding(
@@ -126,67 +141,66 @@ class _SignUpPageState extends State<SignUpPage> {
                               labelText: 'hello@example.com',
                               textInputType: TextInputType.emailAddress,
                               validator: (v) => AppFieldValidator.emailValidation(v),
-                              // onChanged: (v) => authController.onLoginChange('email', v),
+                              onChanged: (v) => authController.onSignUpChange('email', v),
                             ),
                           ),
 
-                          Padding(
-                            padding: const EdgeInsets.only(left: 22.0,top: 5,bottom: 5),
-                            child: Text(' Gender',style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w600,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.6),),),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                            child: GenderSelector(
-                              onChange: (data) {
-                                authController.onLoginChange('gender', data['gender']);
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 22.0, top: 14, bottom: 8),
-                            child: Text(
-                              ' FULL ADDRESS',
-                              style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w600,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.6),),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                            child: GestureDetector(
-                              onTap: _fetchCurrentAddress,
-                              child: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                                decoration: BoxDecoration(color: HexColor.fromHex('#F8F8F8'),border: Border.all(color: Colors.grey.shade300),borderRadius: BorderRadius.circular(18),),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Icon(
-                                      Icons.location_on_outlined,
-                                      size: 26,
-                                      color: HexColor.fromHex('#9CA3AF'),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      child: Text(
-                                        selectedAddress,
-                                        style: commonTextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w300,
-                                          fontColor: blackFontColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(left: 22.0,top: 5,bottom: 5),
+                          //   child: Text(' Gender',style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w600,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.6),),),
+                          // ),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                          //   child: GenderSelector(
+                          //     onChange: (data) {
+                          //       authController.onLoginChange('gender', data['gender']);
+                          //     },
+                          //   ),
+                          // ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(left: 22.0, top: 14, bottom: 8),
+                          //   child: Text(
+                          //     ' FULL ADDRESS',
+                          //     style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w600,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.6),),
+                          //   ),
+                          // ),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                          //   child: GestureDetector(
+                          //     onTap: _fetchCurrentAddress,
+                          //     child: Container(
+                          //       width: double.infinity,
+                          //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                          //       decoration: BoxDecoration(color: HexColor.fromHex('#F8F8F8'),border: Border.all(color: Colors.grey.shade300),borderRadius: BorderRadius.circular(18),),
+                          //       child: Row(
+                          //         crossAxisAlignment: CrossAxisAlignment.start,
+                          //         children: [
+                          //           Icon(
+                          //             Icons.location_on_outlined,
+                          //             size: 26,
+                          //             color: HexColor.fromHex('#9CA3AF'),
+                          //           ),
+                          //           const SizedBox(width: 5),
+                          //           Expanded(
+                          //             child: Text(
+                          //               selectedAddress,
+                          //               style: commonTextStyle(
+                          //                 fontSize: 16,
+                          //                 fontWeight: FontWeight.w300,
+                          //                 fontColor: blackFontColor,
+                          //               ),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           SizedBox(height: 20,),
                           LoadingButton(
                             buttonColor: orangeColor,
-                            onPressed: () {
-                              Get.offAllNamed(Routes.MAIN_DASHBOARD);
-                            },
+                            loading: authController.isLoading.value,
+                            onPressed: _onSubmitSignup,
                             title: 'Verify & Continue',
                           ),
                           SizedBox(height: 20,),
@@ -195,6 +209,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ],
+                ),
               ),
             ),
           );

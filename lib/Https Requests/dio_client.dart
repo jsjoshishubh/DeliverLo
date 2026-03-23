@@ -84,7 +84,7 @@ class DioClient {
     } on DioError catch (e) {
       log('eee -- ${e.message}');
       // Handle error
-      return Future.error(e is CustomResponse ? e.message : getFormattedResponse(e.message));
+      return Future.error(e is CustomResponse ? e : getFormattedResponse(e));
     }
   }
 
@@ -96,7 +96,7 @@ class DioClient {
       return response;
     } on DioError catch (e) {
       // log('eee -- ${e.message}');
-      return Future.error(e is CustomResponse ? e.message : getFormattedResponse(e.message));
+      return Future.error(e is CustomResponse ? e : getFormattedResponse(e));
     }
   }
 
@@ -147,7 +147,11 @@ class CustomResponse {
   dynamic? error;
   CustomResponse({this.statusCode,this.message,this.error});
   
-  factory CustomResponse.fromJson(Map<String,dynamic> json) => CustomResponse(statusCode: json['code'],message: json['errorMessage'],error: json['error']);
+  factory CustomResponse.fromJson(Map<String,dynamic> json) => CustomResponse(
+    statusCode: json['code'] ?? json['statusCode'],
+    message: json['errorMessage'] ?? json['message'],
+    error: json['error'] ?? json['errors'],
+  );
 }
 
 networkErrorResponse(){
@@ -158,19 +162,47 @@ getFormattedResponse(res){
  try{
    final response = res.response;
   final statusCode = response?.statusCode;
+  final responseData = response?.data;
+
+  if ([DioExceptionType.receiveTimeout, DioExceptionType.connectionTimeout].contains(res.type)) {
+     return CustomResponse.fromJson({
+       'code': 422,
+       'errorMessage': 'connection timeout, please try again',
+       'error': 'connection timeout, please try again'
+     });
+  }
+
+  if (responseData is Map<String, dynamic>) {
+    return CustomResponse.fromJson({
+      'code': statusCode ?? responseData['code'] ?? responseData['statusCode'],
+      'errorMessage': responseData['message'] ?? responseData['errorMessage'] ?? 'Something went wrong',
+      'error': responseData['error'] ?? responseData['errors'] ?? responseData,
+    });
+  }
+
+  if (responseData is String) {
+    return CustomResponse.fromJson({
+      'code': statusCode,
+      'errorMessage': responseData,
+      'error': responseData,
+    });
+  }
+
   if(statusCode == 401){
     // showSnackBar(message: 'Authorization Denied, please login again.',isError: true);
     // onClearLocalSetup();
     return CustomResponse.fromJson(response.data);
   }else if(statusCode == 422){
     return CustomResponse.fromJson({'code': 422, 'errorMessage': response.data['errorMessage'], 'error': response.data['error'] ?? 'server error, please try again'});
-  }else if([DioExceptionType.receiveTimeout].contains(res.type)){
-     return CustomResponse.fromJson({'code': 422, 'errorMessage': 'connection timeout, please try again', 'error': 'connection timeout, please try again'});
   }
-  final  v =  CustomResponse.fromJson(response.data);
-  return CustomResponse.fromJson(response.data);
+  return CustomResponse.fromJson({'code': statusCode, 'errorMessage': 'Something went wrong', 'error': responseData});
  }catch(er){
   print('e -- ${er}');
+  return CustomResponse.fromJson({
+    'code': 500,
+    'errorMessage': 'Something went wrong',
+    'error': er.toString(),
+  });
  }
 }
 

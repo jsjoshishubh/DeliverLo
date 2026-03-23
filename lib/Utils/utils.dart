@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:deliverylo/Https%20Requests/dio_client.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
@@ -63,35 +65,37 @@ Future<Map<String, dynamic>> fetchCurrentFormattedAddress() async {
   };
 }
 
-void onLocalSetup({data,startup,callback}) async {
+void onLocalSetup({data, startup, bool? isNewUser, callback}) async {
   try {
-  final storage = GetStorage();
-  final userId = data['_id'].toString();
-  await storage.write('_id', userId);
-  final at = '${data['token']}';
-  await storage.write('token', at);
-  // await storage.write('user_image', data['image']);
-  await storage.write('full_name', '${data['full_name']}');
-  await storage.write('email', data['email']);
-  await storage.write('mobile', data['mobile'] ?? '');
-  await storage.write('roleType', data['roleType'] ?? '');
-  await storage.write('roleId', data['roleId'] ?? '');
-  await storage.write('subscription_status', data['subscription_status'] ?? '');
-  // await storage.write('user_image', data['image' ?? '']);
-  await storage.write('refer_code', data['refer_code' ?? '']);
-  await storage.write('consent_status', data['consent_status'] ?? false);
-  await storage.write('availability_status', data['availability_status'] == 'ACTIVE' ? true : false);
-  await storage.write(isLOGGEDIN, true);
-  
-  if(callback is Function) callback();
-   if(!['',null].contains(startup)){
-    // Get.offAllNamed(Routes.);
-    // Get.toNamed(Routes.MAIN_HOME_PAGE);;
-  }else{
-    //  Get.offAndToNamed(Routes.MAIN_HOME_PAGE);
-  }
+    final storage = GetStorage();
+    final Map<String, dynamic> payload = (data is Map<String, dynamic>) ? data : <String, dynamic>{};
+    final Map<String, dynamic> user = (payload['user'] is Map<String, dynamic>)
+        ? payload['user'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    await storage.write('_id', user['_id']?.toString() ?? '');
+    await storage.write('token', payload['accessToken']?.toString() ?? '');
+    await storage.write('full_name', user['displayName']?.toString() ?? '');
+    await storage.write('email', user['email']?.toString() ?? '');
+    await storage.write('mobile', user['phone']?.toString() ?? '');
+    await storage.write('roleType', user['role']?.toString() ?? '');
+    await storage.write('phoneVerified', user['phoneVerified'] ?? false);
+    await storage.write('emailVerified', user['emailVerified'] ?? false);
+    await storage.write('isActive', user['isActive'] ?? false);
+    await storage.write('signupComplete', user['signupComplete'] ?? false);
+    await storage.write('isNewUser', isNewUser ?? (payload['isNewUser'] == true));
+    await storage.write(isLOGGEDIN, true);
+
+    if (callback is Function) callback();
+
+    final bool shouldRouteToSignup = isNewUser ?? (payload['isNewUser'] == true);
+    if (shouldRouteToSignup) {
+      Get.offAllNamed(Routes.SIGNUP);
+    } else {
+      Get.offAllNamed(Routes.MAIN_DASHBOARD);
+    }
   } catch (e) {
-    log('Error  ---- ${e}');
+    log('Error ---- ${e}');
   }
 }
 
@@ -277,16 +281,120 @@ commonTextWithSufixAndPreFixIcon({Function? onTap, IconData? preFixicon, bool is
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-         isPreFixIcon ? Icon(preFixicon == null ? Icons.map : preFixicon!,color: Colors.white,size: 20,) : SizedBox(),
+         isPreFixIcon ? Icon(preFixicon ?? Icons.map,color: Colors.white,size: 20,) : SizedBox(),
           const SizedBox(width: 5),
           Text(
             '${buttonTitle}',style: commonTextStyle(fontSize: 20,fontWeight:FontWeight.w700,fontColor: Colors.white),
           ),
           SizedBox(width: 5,),
-          isSufixIcon ? Icon(sufixIcon == null ? Icons.map : sufixIcon!,color: Colors.white,size: 20,) : SizedBox(),
+          isSufixIcon ? Icon(sufixIcon ?? Icons.map,color: Colors.white,size: 20,) : SizedBox(),
           
         ],
       ),
     ),
   );
+}
+
+
+void onHandleError({required dynamic error, Function? onCallback, List<String>? validationKey,}) {
+  int? statusCode;
+  dynamic errorData;
+  String? message;
+
+  if (error is DioException) {
+    final responseData = error.response?.data;
+    statusCode = error.response?.statusCode;
+
+    if (responseData is Map<String, dynamic>) {
+      message = (responseData['message'] ??
+              responseData['errorMessage'] ??
+              responseData['error'])
+          ?.toString();
+      errorData = responseData['error'] ?? responseData['errors'] ?? responseData;
+    } else if (responseData is String && responseData.trim().isNotEmpty) {
+      message = responseData;
+      errorData = responseData;
+    }
+
+    message ??= error.message;
+  } else if (error is CustomResponse) {
+    statusCode = error.statusCode;
+    message = error.message?.toString();
+    errorData = error.error;
+  } else if (error is Map<String, dynamic>) {
+    statusCode = error['statusCode'] ?? error['code'];
+    message = (error['message'] ?? error['errorMessage'] ?? error['error'])?.toString();
+    errorData = error['error'] ?? error['errors'] ?? error;
+  } else if (error is String) {
+    message = error;
+  } else {
+    message = error?.toString();
+  }
+
+  log('Error caught — StatusCode: ---- ${statusCode}, Message: ----- ${message}');
+
+  switch (statusCode) {
+     case 400:
+      if (onCallback != null) onCallback();
+      showSnackNotification(
+        message: (message?.toString().trim().isNotEmpty ?? false)
+            ? message!.toString().capitalizeFirst
+            : 'Something went wrong'.tr,
+        hasError: true,
+      );
+      break;
+    case 500:
+      if (onCallback != null) onCallback();
+      showSnackNotification(
+        message: (message?.toString().trim().isNotEmpty ?? false)
+            ? message!.toString().capitalizeFirst
+            : 'Something went wrong'.tr,
+        hasError: true,
+      );
+      break;
+
+    case 502:
+      showSnackNotification(
+        message: (message?.toString().trim().isNotEmpty ?? false)
+            ? message!.toString().capitalizeFirst
+            : 'Server error, please try again later'.tr,
+        hasError: true,
+      );
+      onClearLocalSetup();
+      break;
+
+    case 422:
+      if (validationKey != null && errorData is Map) {
+        for (var key in validationKey) {
+          final val = errorData[key];
+          if (val is List && val.isNotEmpty) {
+            final validationMsg = val[0];
+            if (validationMsg != null && validationMsg.toString().isNotEmpty) {
+              showSnackNotification(
+                message: validationMsg.toString().capitalizeFirst,
+                hasError: true,
+              );
+              return;
+            }
+          }
+        }
+      }
+
+      showSnackNotification(
+        message: (message?.toString().trim().isNotEmpty ?? false)
+            ? message!.toString().capitalizeFirst
+            : 'Something went wrong, please try again later'.tr,
+        hasError: true,
+      );
+      break;
+
+    default:
+      showSnackNotification(
+        message: (message?.toString().trim().isNotEmpty ?? false)
+            ? message!.toString().capitalizeFirst
+            : 'Something went wrong, please try again later'.tr,
+        hasError: true,
+      );
+      break;
+  }
 }

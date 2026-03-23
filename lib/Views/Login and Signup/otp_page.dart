@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:deliverylo/Commons and Reusables/commonButton.dart';
 import 'package:deliverylo/Controllers/Auth_Controller.dart';
-import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +55,21 @@ class _OtpPageState extends State<OtpPage> {
     return '(${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')})';
   }
 
+  void onCheckOtpValidation() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    final otp = _otpController.text.trim();
+    if (otp.isEmpty || otp.length < 4) {
+      toastWidget('Please enter the 4-digit code', true);
+      return;
+    }
+
+    _formKey.currentState?.save();
+    authController.onOtpVerification(context, otp);
+  }
+
   @override
   void dispose() {
     _resendTimer?.cancel();
@@ -69,35 +83,46 @@ class _OtpPageState extends State<OtpPage> {
           body: GetBuilder(
             init: authController,
             builder: (controller) {
-              return  Column(
-                children: [
-                  Center(
-                    child: Container(
-                      margin: EdgeInsets.only(top: 90),
-                      child: Image.asset("Assets/onBoardingAndAuthFlow/login_otp.png", scale: 4.5,),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 16,
                     ),
-                  ),
-                  SizedBox(height: 20,),
-                  ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [HexColor.fromHex('#000000'),HexColor.fromHex('#969696'),],
-                        ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                      );
-                    },
-                    blendMode: BlendMode.srcIn,
-                    child: Text('One app for food,\ngrocery, dining\nand more in mins!',textAlign: TextAlign.center,style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25,),),
-                  ),
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildVerificationCard(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Column(
+                        children: [
+                          Center(
+                            child: Container(
+                              margin: EdgeInsets.only(top: 90),
+                              child: Image.asset("Assets/onBoardingAndAuthFlow/login_otp.png", scale: 4.5,),
+                            ),
+                          ),
+                          SizedBox(height: 20,),
+                          ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [HexColor.fromHex('#000000'),HexColor.fromHex('#969696'),],
+                                ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                              );
+                            },
+                            blendMode: BlendMode.srcIn,
+                            child: Text('One app for food,\ngrocery, dining\nand more in mins!',textAlign: TextAlign.center,style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25,),),
+                          ),
+                          SizedBox(height: 20),
+                          _buildVerificationCard(),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  );
+                },
               );
         },
       )
@@ -105,7 +130,6 @@ class _OtpPageState extends State<OtpPage> {
   }
 
   Widget _buildVerificationCard() {
-    const orange = Color(0xFFF08B27);
     const cardBg = Colors.white;
     const shadowColor = Color(0x1A000000);
 
@@ -197,20 +221,12 @@ class _OtpPageState extends State<OtpPage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: _remainingSeconds <= 0
-                      ? () {
-                          _startResendTimer();
-                        }
-                      : null,
-                  child: Text(
-                    'Resend Code',
-                    style: commonTextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontColor: _remainingSeconds <= 0
-                          ? HexColor.fromHex('#FF5200')
-                          : const Color(0xFFAAAAAA),
-                    ),
+                  onTap: _remainingSeconds <= 0 ? ()async {
+                    _startResendTimer();
+                    await authController.onResendOtp(context, _mobileNumber);
+                  }
+                  : null,
+                  child: Text('Resend Code', style: commonTextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontColor: _remainingSeconds <= 0 ? HexColor.fromHex('#FF5200'): const Color(0xFFAAAAAA),),
                   ),
                 ),
               ],
@@ -231,15 +247,7 @@ class _OtpPageState extends State<OtpPage> {
               borderRadius: BorderRadius.circular(12),
               height: 50,
               loading: authController.isLoading.value,
-              onPressed: () {
-                if (_formKey.currentState?.validate() ?? true) {
-                  final otp = _otpController.text;
-                  if (otp.length == 4) {
-                    Get.offAllNamed(Routes.SIGNUP);
-                    // Verify OTP - add your verification logic here
-                  }
-                }
-              },
+              onPressed:()=> onCheckOtpValidation(),
             ),
           ],
         ),
