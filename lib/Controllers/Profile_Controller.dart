@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:deliverylo/Https%20Requests/dio_client.dart';
 import 'package:deliverylo/Utils/utils.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -30,6 +31,7 @@ class ProfileController extends GetxController {
   final otherPlaceName = 'Other'.obs;
   final latitude = RxnDouble();
   final longitude = RxnDouble();
+  final Dio _googleDio = Dio();
 
 
   getAddresses()async{
@@ -100,6 +102,169 @@ class ProfileController extends GetxController {
     flatController.text = addressParts.first;
     areaController.text =
         addressParts.length > 1 ? addressParts.sublist(1).join(', ') : '';
+    update();
+  }
+
+  List<dynamic> addressSearchResults = <dynamic>[];
+  bool isSearchingAddress = false;
+
+  Future<void> searchGoogleAddresses(String query) async {
+    final normalized = query.trim();
+    if (normalized.length < 2) {
+      addressSearchResults = <dynamic>[];
+      update();
+      return;
+    }
+    try {
+      isSearchingAddress = true;
+      update();
+      final response = await _googleDio.get(
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json',
+        queryParameters: {
+          'input': normalized,
+          'key': googleMpaKey,
+          'components': 'country:in',
+        },
+      );
+      final data = response.data;
+      final status = (data['status'] ?? '').toString();
+      if (status != 'OK' && status != 'ZERO_RESULTS') {
+        throw Exception('Unable to fetch address suggestions');
+      }
+      final predictions = (data['predictions'] is List)
+          ? List<dynamic>.from(data['predictions'] as List)
+          : <dynamic>[];
+      addressSearchResults = predictions;
+    } catch (e) {
+      addressSearchResults = <dynamic>[];
+      showSnackNotification(
+        message: e.toString().replaceFirst('Exception: ', ''),
+        hasError: true,
+      );
+    } finally {
+      isSearchingAddress = false;
+      update();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getAddressDetailsFromPlaceId(String placeId) async {
+    if (placeId.trim().isEmpty) return null;
+    try {
+      final response = await _googleDio.get(
+        'https://maps.googleapis.com/maps/api/place/details/json',
+        queryParameters: {
+          'place_id': placeId,
+          'key': googleMpaKey,
+          'fields': 'formatted_address,address_components,geometry/location,name',
+        },
+      );
+      final data = response.data;
+      final status = (data['status'] ?? '').toString();
+      if (status != 'OK') {
+        throw Exception('Unable to fetch selected address');
+      }
+      final result = (data['result'] is Map<String, dynamic>)
+          ? data['result'] as Map<String, dynamic>
+          : <String, dynamic>{};
+      final components = (result['address_components'] is List)
+          ? List<dynamic>.from(result['address_components'] as List)
+          : <dynamic>[];
+      final geometry = (result['geometry'] is Map<String, dynamic>)
+          ? result['geometry'] as Map<String, dynamic>
+          : <String, dynamic>{};
+      final location = (geometry['location'] is Map<String, dynamic>)
+          ? geometry['location'] as Map<String, dynamic>
+          : <String, dynamic>{};
+
+      String componentValue(List<dynamic> list, List<String> types) {
+        for (final item in list) {
+          if (item is! Map<String, dynamic>) continue;
+          final itemTypes = (item['types'] is List)
+              ? List<dynamic>.from(item['types'] as List)
+              : <dynamic>[];
+          if (types.any((type) => itemTypes.contains(type))) {
+            return (item['long_name'] ?? '').toString().trim();
+          }
+        }
+        return '';
+      }
+
+      final houseNo = componentValue(components, ['street_number']);
+      final street = componentValue(components, ['route']);
+      final locality = componentValue(
+        components,
+        ['sublocality', 'sublocality_level_1', 'neighborhood'],
+      );
+      final city = componentValue(
+        components,
+        ['locality', 'administrative_area_level_2'],
+      );
+      final state = componentValue(components, ['administrative_area_level_1']);
+      final pincode = componentValue(components, ['postal_code']);
+      final landmark = componentValue(components, ['point_of_interest', 'premise']);
+      final placeName = (result['name'] ?? '').toString().trim();
+
+      final line1 = [houseNo, street]
+          .where((part) => part.trim().isNotEmpty)
+          .join(', ');
+      final line2 = locality.isNotEmpty ? locality : city;
+
+      return {
+        'formattedAddress': (result['formatted_address'] ?? '').toString().trim(),
+        'line1': line1,
+        'line2': line2,
+        'city': city,
+        'state': state,
+        'pincode': pincode,
+        'landmark': landmark,
+        'placeName': placeName,
+        'latitude': (location['lat'] as num?)?.toDouble(),
+        'longitude': (location['lng'] as num?)?.toDouble(),
+      };
+    } catch (e) {
+      showSnackNotification(
+        message: e.toString().replaceFirst('Exception: ', ''),
+        hasError: true,
+      );
+      return null;
+    }
+  }
+
+  void applyAddressPrefill(Map<String, dynamic> data) {
+    final line1 = (data['line1'] ?? '').toString().trim();
+    final line2 = (data['line2'] ?? '').toString().trim();
+    final city = (data['city'] ?? '').toString().trim();
+    final state = (data['state'] ?? '').toString().trim();
+    final pincode = (data['pincode'] ?? data['postalCode'] ?? '').toString().trim();
+    final landmark = (data['landmark'] ?? '').toString().trim();
+    final fullAddress = (data['fullAddress'] ?? data['formattedAddress'] ?? '').toString().trim();
+    final label = (data['label'] ?? '').toString().trim();
+    final lat = (data['latitude'] as num?)?.toDouble();
+    final lng = (data['longitude'] as num?)?.toDouble();
+
+    flatController.text = line1;
+    areaController.text = line2;
+    cityController.text = city;
+    stateController.text = state;
+    pincodeController.text = pincode;
+    landmarkController.text = landmark;
+    fullAddressController.text = fullAddress;
+    if (lat != null) latitude.value = lat;
+    if (lng != null) longitude.value = lng;
+
+    if (label.isNotEmpty) {
+      if (label == 'Home' || label == 'Work') {
+        selectedSaveAs.value = label;
+      } else {
+        otherPlaceName.value = label;
+        selectedSaveAs.value = label;
+      }
+    }
+
+    if (phoneController.text.trim().isEmpty) {
+      final storage = GetStorage();
+      phoneController.text = (storage.read('mobile') ?? '').toString().trim();
+    }
     update();
   }
 

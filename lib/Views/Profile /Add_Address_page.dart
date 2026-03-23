@@ -19,6 +19,17 @@ class _AddAddressPageState extends State<AddAddressPage> {
   @override
   void initState() {
     super.initState();
+    final args = Get.arguments;
+    if (args is Map) {
+      final normalized = <String, dynamic>{};
+      args.forEach((key, value) {
+        normalized[key.toString()] = value;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _profileController.applyAddressPrefill(normalized);
+      });
+    }
   }
 
   Future<void> _onSaveAddress() async {

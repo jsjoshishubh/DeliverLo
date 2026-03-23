@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:deliverylo/Commons%20and%20Reusables/commonButton.dart';
+import 'package:deliverylo/Commons%20and%20Reusables/commonTextFormField.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +20,8 @@ class SelectAddressComponent extends StatefulWidget {
 class _SelectAddressComponentState extends State<SelectAddressComponent> {
   int _selectedAddressIndex = 0;
   final ProfileController _profileController = Get.put(ProfileController());
+  final TextEditingController _addressSearchController = TextEditingController();
+  Timer? _searchDebounce;
 
   final RxList<dynamic> _savedAddresses = [].obs;
 
@@ -97,8 +102,177 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
     return normalized;
   }
 
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _addressSearchController.dispose();
+    super.dispose();
+  }
+
+  Future<Map<String, dynamic>?> _openGoogleAddressSearchBottomSheet() async {
+    _addressSearchController.clear();
+    _profileController.addressSearchResults = <dynamic>[];
+    _profileController.isSearchingAddress = false;
+    _profileController.update();
+
+    return await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 12,
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(sheetContext).size.height * 0.72,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 6,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: HexColor.fromHex('#D1D5DB'),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Search Address',
+                    style: commonTextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      fontColor: blackFontColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormFieldWidget(
+                    controller: _addressSearchController,
+                    labelText: 'Search with area, street, place...',
+                    textInputAction: TextInputAction.search,
+                    textInputType: TextInputType.streetAddress,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                    onChanged: (value) {
+                      _searchDebounce?.cancel();
+                      _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+                        _profileController.searchGoogleAddresses(value.toString());
+                      });
+                    },
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        _searchDebounce?.cancel();
+                        _addressSearchController.clear();
+                        _profileController.addressSearchResults = <dynamic>[];
+                        _profileController.update();
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: HexColor.fromHex('#94A3B8'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: GetBuilder<ProfileController>(
+                      builder: (_) {
+                        if (_profileController.isSearchingAddress) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (_addressSearchController.text.trim().length < 2) {
+                          return Center(
+                            child: Text(
+                              'Type at least 2 characters to search',
+                              style: commonTextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                fontColor: greyFontColor,
+                              ),
+                            ),
+                          );
+                        }
+                        if (_profileController.addressSearchResults.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No address suggestions found',
+                              style: commonTextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                fontColor: greyFontColor,
+                              ),
+                            ),
+                          );
+                        }
+                        return ListView.separated(
+                          itemCount: _profileController.addressSearchResults.length,
+                          separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: HexColor.fromHex('#E5E7EB'),
+                          ),
+                          itemBuilder: (_, index) {
+                            final item = _profileController.addressSearchResults[index];
+                            if (item is! Map) return const SizedBox.shrink();
+                            final description = (item['description'] ?? '').toString().trim();
+                            final placeId = (item['place_id'] ?? '').toString().trim();
+                            if (description.isEmpty || placeId.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              leading: Icon(
+                                Icons.location_on_outlined,
+                                color: HexColor.fromHex('#F97316'),
+                              ),
+                              title: Text(
+                                description,
+                                style: commonTextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  fontColor: blackFontColor,
+                                ),
+                              ),
+                              onTap: () async {
+                                final details = await _profileController.getAddressDetailsFromPlaceId(placeId);
+                                if (details == null) return;
+                                if (!sheetContext.mounted) return;
+                                Navigator.of(sheetContext).pop({
+                                  ...details,
+                                  'fullAddress': (details['formattedAddress'] ?? '').toString(),
+                                  'label': 'Other',
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _onAddNewAddressTap() async {
-    final dynamic result = await Get.toNamed(Routes.ADDADDRESS);
+    final searchedAddress = await _openGoogleAddressSearchBottomSheet();
+    if (searchedAddress == null) return;
+    final dynamic result = await Get.toNamed(
+      Routes.ADDADDRESS,
+      arguments: searchedAddress,
+    );
     if (result is! Map) return;
 
     final String label = (result['label'] ?? 'Other').toString().trim();
@@ -119,10 +293,15 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
       _savedAddresses.insert(0, {
         'label': label,
         'fullAddress': addressText,
+        'line1': (result['line1'] ?? '').toString().trim(),
+        'line2': (result['line2'] ?? '').toString().trim(),
+        'landmark': (result['landmark'] ?? '').toString().trim(),
         'city': (result['city'] ?? '').toString().trim(),
         'state': (result['state'] ?? '').toString().trim(),
         'pincode': (result['pincode'] ?? result['postalCode'] ?? '').toString().trim(),
         'phone': (result['phone'] ?? result['mobile'] ?? '').toString().trim(),
+        'latitude': (result['latitude'] ?? 0),
+        'longitude': (result['longitude'] ?? 0),
       });
       _selectedAddressIndex = 0;
     });
@@ -178,35 +357,35 @@ class _SelectAddressComponentState extends State<SelectAddressComponent> {
                       color: HexColor.fromHex('#E5E7EB'),
                       height: 1,
                     ),
-                    const SizedBox(height: 18),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: HexColor.fromHex('#F3F4F6').withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: HexColor.fromHex('#E5E7EB')),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.search,
-                            color: HexColor.fromHex('#9CA3AF'),
-                            size: 22,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Search for area, street name...',
-                              style: commonTextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                fontColor: greyFontColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // const SizedBox(height: 18),
+                    // Container(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    //   decoration: BoxDecoration(
+                    //     color: HexColor.fromHex('#F3F4F6').withOpacity(0.5),
+                    //     borderRadius: BorderRadius.circular(14),
+                    //     border: Border.all(color: HexColor.fromHex('#E5E7EB')),
+                    //   ),
+                    //   child: Row(
+                    //     children: [
+                    //       Icon(
+                    //         Icons.search,
+                    //         color: HexColor.fromHex('#9CA3AF'),
+                    //         size: 22,
+                    //       ),
+                    //       const SizedBox(width: 10),
+                    //       Expanded(
+                    //         child: Text(
+                    //           'Search for area, street name...',
+                    //           style: commonTextStyle(
+                    //             fontSize: 14,
+                    //             fontWeight: FontWeight.w500,
+                    //             fontColor: greyFontColor,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
                     InkWell(
                       onTap: _onAddNewAddressTap,
