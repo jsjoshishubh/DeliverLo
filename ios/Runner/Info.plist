@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Deliverylo needs your location to show nearby restaurants and track your deliveries on the map.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Deliverylo uses your location to provide accurate delivery tracking and better service, even when the app is in the background.</string>
 </dict>
 </plist>

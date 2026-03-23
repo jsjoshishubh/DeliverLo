@@ -28,11 +28,10 @@ class _MyAppState extends State<MyApp> {
     bool isLoggedIn = storage.read(isLOGGEDIN) ?? false;
     bool shownOnboard = storage.read('onBorderDone') ?? false;
     if (isLoggedIn){
-      //  return Routes.MAIN_HOME_PAGE;
+       return Routes.MAIN_DASHBOARD;
    }else{
-      // return  shownOnboard ? Routes.LOGINPAGE : Routes.ONBOARDING;
-      return  Routes.ONBOARDING;
-      // return Routes.LOGINPAGE;ç
+      return  shownOnboard ? Routes.MAIN_DASHBOARD : Routes.ONBOARDING;
+      return Routes.ONBOARDING;
     }
   }
   @override
@@ -42,7 +41,8 @@ class _MyAppState extends State<MyApp> {
       getPages: AppPages.pages,
       initialRoute: renderInitialRoute(),
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: 'PlusJakartaSans',
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const OnBoardingMainPage(),
     );

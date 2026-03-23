@@ -39,6 +39,11 @@ dependencies:
   get_storage: ^2.1.1
   intl: ^0.20.2
   pin_code_fields: ^9.1.0
+  flutter_switch: ^0.3.2
+  google_maps_flutter: ^2.10.0
+  easy_stepper: ^1.0.1
+  flash: ^3.1.1
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
@@ -66,7 +71,8 @@ flutter:
   assets:
     - Assets/onBoardingAndAuthFlow/
     - Assets/Extras/
-    - Assets/Logs/
+    - Assets/Logos/
+    - Assets/Fonts/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -94,3 +100,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: Assets/Fonts/PlusJakartaSans-Light.ttf
+          weight: 300
+        - asset: Assets/Fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: Assets/Fonts/PlusJakartaSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: Assets/Fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: Assets/Fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: Assets/Fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: Assets/Fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
