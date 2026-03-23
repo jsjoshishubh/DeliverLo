@@ -100,10 +100,10 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top:2.0),
-                  child: _ProfileIcon(),
-                )
+                // Padding(
+                //   padding: const EdgeInsets.only(top:2.0),
+                //   child: _ProfileIcon(),
+                // )
               ],
             ),
 

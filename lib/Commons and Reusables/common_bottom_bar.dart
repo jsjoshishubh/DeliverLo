@@ -16,11 +16,11 @@ class CommonBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final List<CommonBottomBarItem> items;
+  final Color selectedColor;
 
   static const double _contentHeight = 80;
   static const double _iconSize = 26;
   static const double _fontSize = 12;
-  static final Color _selectedColor = HexColor.fromHex('#BD0D0E');
   static final Color _selectedBackgroundColor = HexColor.fromHex('#FFEFEF');
   static final Color _unselectedColor = HexColor.fromHex('#777777');
 
@@ -29,6 +29,7 @@ class CommonBottomBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTap,
     required this.items,
+    this.selectedColor = const Color(0xFFBD0D0E),
   });
 
   @override
@@ -58,6 +59,7 @@ class CommonBottomBar extends StatelessWidget {
                 label: items[index].label,
                 isSelected: currentIndex == index,
                 onTap: () => onTap(index),
+                selectedColor: selectedColor,
               );
             }),
           ),
@@ -72,12 +74,14 @@ class _BottomBarTile extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final Color selectedColor;
 
   const _BottomBarTile({
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.selectedColor,
   });
 
   @override
@@ -105,7 +109,7 @@ class _BottomBarTile extends StatelessWidget {
                       icon,
                       size: CommonBottomBar._iconSize,
                       color: isSelected
-                          ? CommonBottomBar._selectedColor
+                          ? selectedColor
                           : CommonBottomBar._unselectedColor,
                     ),
                     const SizedBox(height: 4),
@@ -123,7 +127,7 @@ class _BottomBarTile extends StatelessWidget {
                             fontWeight:
                                 isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected
-                                ? CommonBottomBar._selectedColor
+                                ? selectedColor
                                 : CommonBottomBar._unselectedColor,
                           ),
                         ),

@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
+const String kFoodHomeAccentHex = '#BD0D0E';
 const int _backgroundColorValue = 0xFF4D4D4D;
 const int _darkBackgroundColorValue = 0xFF202826;
 const int _blackFontColorValue = 0xFF111827;

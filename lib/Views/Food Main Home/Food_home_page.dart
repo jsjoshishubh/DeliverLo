@@ -5,10 +5,12 @@ import 'package:deliverylo/Components/FoodHomePageComponents/Food_TabBar_compone
 import 'package:deliverylo/Components/FoodHomePageComponents/Khana_Khajana_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/whats_on_your_mind_component.dart';
 import 'package:deliverylo/Components/ProfilePageComponents/select_address_component.dart';
+import 'package:deliverylo/Components/common_image_carousel_component.dart';
+import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
-import 'package:deliverylo/Utils/utils.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class FoodHomePageView extends StatefulWidget {
@@ -21,26 +23,28 @@ class FoodHomePageView extends StatefulWidget {
 class _FoodHomePageViewState extends State<FoodHomePageView> {
   static const String _selectedAddressStorageKey = 'food_selected_address';
   final GetStorage _storage = GetStorage();
+  final FoodController _foodController =
+      Get.isRegistered<FoodController>()
+          ? Get.find<FoodController>()
+          : Get.put(FoodController());
   String _selectedAddressLabel = 'HOME - Savaliya Siddharth';
+  int _currentBannerIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _loadSelectedAddressFromStorage();
+    _foodController.getCategoriesAndHomeOfferBanners();
   }
 
   Future<void> _onRefresh() async {
-    // Simulate refresh - replace with actual data fetching
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await _foodController.getCategoriesAndHomeOfferBanners();
     if (mounted) setState(() {});
   }
 
   String _buildAddressLabelFromSelection(Map selection) {
     final String title = (selection['title'] ?? selection['label'] ?? 'Other').toString().trim();
-    final String directAddress =
-        (selection['address'] ?? selection['fullAddress'] ?? selection['formattedAddress'] ?? '')
-            .toString()
-            .trim();
+    final String directAddress = (selection['address'] ?? selection['fullAddress'] ?? selection['formattedAddress'] ?? '').toString().trim();
     final String composedAddress = [
       (selection['line1'] ?? selection['flat'] ?? '').toString().trim(),
       (selection['line2'] ?? selection['area'] ?? '').toString().trim(),
@@ -87,59 +91,97 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        color: HexColor.fromHex('#BD0D0E'),
-        child: CommonAppScreenBackground(
-          scrollable: true,
-          topColor: HexColor.fromHex('#BD0D0E'),
-          topHeight: 400,
-          topChild: Container(
-            child: Column(
-              children: [
-                HomePageAddressAndSearchAndProfileComponenet(
-                  onAddressTap: _openSelectAddressBottomSheet,
-                  addressLabel: _selectedAddressLabel,
+    return GetBuilder<FoodController>(
+      init: _foodController,
+      builder: (controller) {
+        final apiCategories = controller.categories.map((e) => <String, String>{'title': (e.name ?? '').trim().isEmpty ? 'Category' : (e.name ?? ''),'image': 'Assets/Extras/ct_2.png',}).toList();
+        final bannersWithImages = controller.homeOfferBanners
+            .where((e) => (e.imageUrl ?? '').trim().isNotEmpty)
+            .toList();
+        final bannerUrls = bannersWithImages.map((e) => (e.imageUrl ?? '').trim()).toList();
+        final safeBannerIndex = bannerUrls.isEmpty
+            ? 0
+            : (_currentBannerIndex >= bannerUrls.length ? 0 : _currentBannerIndex);
+
+        String dynamicTopColorHex = kFoodHomeAccentHex;
+        Color dynamicTopColor = HexColor.fromHex(dynamicTopColorHex);
+        if (bannersWithImages.isNotEmpty) {
+          final rawColor = (bannersWithImages[safeBannerIndex].backgroundColor ?? '').trim();
+          if (rawColor.isNotEmpty) {
+            try {
+              dynamicTopColorHex = rawColor;
+              dynamicTopColor = HexColor.fromHex(rawColor);
+            } catch (_) {
+              dynamicTopColor = HexColor.fromHex(kFoodHomeAccentHex);
+              dynamicTopColorHex = kFoodHomeAccentHex;
+            }
+          }
+        }
+        if (controller.homeAccentHex != dynamicTopColorHex) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _foodController.setHomeAccentHex(dynamicTopColorHex);
+          });
+        }
+
+        return Scaffold(
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: HexColor.fromHex(kFoodHomeAccentHex),
+            child: CommonAppScreenBackground(
+              scrollable: true,
+              topColor: dynamicTopColor,
+              topHeight: 420,
+              topChild: Container(
+                child: Column(
+                  children: [
+                    HomePageAddressAndSearchAndProfileComponenet(
+                      onAddressTap: _openSelectAddressBottomSheet,
+                      addressLabel: _selectedAddressLabel,
+                    ),
+                    HomePageCatagoryComponent(categories: apiCategories),
+                    const SizedBox(height: 6),
+                    CommonImageCarouselComponent(
+                      imageUrls: bannerUrls,
+                      height: 145,
+                      borderRadius: 10,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      fallbackWidget: Image.asset('Assets/Extras/cat_5.png', scale: 5),
+                      onPageChanged: (index) {
+                        if (!mounted) return;
+                        setState(() {
+                          _currentBannerIndex = index;
+                        });
+                      },
+                    ),
+
+                  ],
                 ),
-                HomePageCatagoryComponent(),
-                const SizedBox(height: 6),
-                Image.asset('Assets/Extras/cat_5.png', scale: 5),
-                Container(
-                  margin: const EdgeInsets.only(left: 20, right: 20, top: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('60% OFF', style: commonTextStyle(fontSize: 14, fontColor: Colors.white, fontWeight: FontWeight.w600)),
-                      Text('₹60 CASHBACK', style: commonTextStyle(fontSize: 14, fontColor: Colors.white, fontWeight: FontWeight.w600)),
-                    ],
+              ),
+              bottomChild: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  
+                  Container(
+                    height: 296,
+                    child: FoodTabBarComponent(),
                   ),
-                )
-              ],
+                  const SizedBox(height: 10),
+                  Container(
+                    child: KhanaKhajanaComponent(),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    child: WhatsOnYourMindComponent(),
+                  ),
+
+                ],
+              ),
             ),
           ),
-          bottomChild: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 10),
-              
-              Container(
-                height: 296,
-                child: FoodTabBarComponent(),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                child: KhanaKhajanaComponent(),
-              ),
-              SizedBox(height: 5),
-              Container(
-                child: WhatsOnYourMindComponent(),
-              ),
-
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

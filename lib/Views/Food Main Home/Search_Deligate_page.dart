@@ -26,7 +26,7 @@ class _SearchDeligatePageState extends State<SearchDeligatePage> {
     return Scaffold(
       body: CommonAppScreenBackground(
         scrollable: false,
-        topColor: HexColor.fromHex('#E88A2E'),
+        topColor: HexColor.fromHex('#BD0D0E'),
         bottomColor: HexColor.fromHex('#F8F8F8'),
         topHeight: 180,
         topChild: SearchHeaderComponent(
