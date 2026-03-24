@@ -101,7 +101,7 @@ class DioClient {
     }
   }
 
-  Future<Response> patchRequest(String url, [dynamic data]) async {
+  Future<Response> patchRequest(String url, {dynamic data}) async {
     try {
       await checkNetworkConnetion();
       final baseRequest = addInterceptors(dio);

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:deliverylo/Https%20Requests/dio_client.dart';
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ DioClient dioClient = DioClient();
 class ProfileController extends GetxController {
   final RxList<dynamic> _savedAddresses = [].obs;
   List<dynamic> get savedAddresses => _savedAddresses;
+  final RxMap<String, dynamic> _userProfileData = <String, dynamic>{}.obs;
+  Map<String, dynamic> get userProfileData => _userProfileData;
 
   final isLoading = false.obs;
   get loading => this.isLoading.value;
@@ -302,7 +305,7 @@ class ProfileController extends GetxController {
       "latitude": latitude.value ?? 0,
       "longitude": longitude.value ?? 0,
       "landmark": landmarkController.text.trim(),
-      // "fullAddress": fullAddress,
+      "fullAddress": fullAddress,
     };
   }
 
@@ -342,6 +345,78 @@ class ProfileController extends GetxController {
       update();
       return false;
     }
+  }
+
+
+  Future<void> getUserProfileData() async {
+    try{
+      changeLoading(true);
+      update();
+      final url = 'users/me';
+      final response = await dioClient.getRequest(url);
+      log('getUserFrofileData response ---- ${response}');
+      final data = response.data;
+      log('getUserFrofileData data ---- ${data}');
+      if (data is Map<String, dynamic>) {
+        final dynamic profile = data['data'];
+        if (profile is Map<String, dynamic>) {
+          _userProfileData.assignAll(profile);
+        } else {
+          _userProfileData.assignAll(data);
+        }
+      } else {
+        _userProfileData.clear();
+      }
+    }catch(e){
+      log(e.toString());
+      _userProfileData.clear();
+    } finally {
+      changeLoading(false);
+      update();
+    }
+  }
+
+
+  Future<bool> updateUserProfile(Map<String, dynamic> payload) async {
+    try{
+      changeLoading(true);
+      update();
+      final url = 'users/me';
+      final response = await dioClient.patchRequest(url, data: payload);
+      log('updateUserProfile response ---- ${response}');
+      _userProfileData.addAll(payload);
+      await getUserProfileData();
+      toastWidget('Profile updated successfully', false);
+      return true;
+    }catch(e){
+      log(e.toString());
+      onHandleError(e, error: e);
+      return false;
+    } finally {
+      changeLoading(false);
+      update();
+    }
+  }
+
+
+  deleteUserProfile()async {
+    try{
+      changeLoading(true);
+      update();
+      final url = 'users/me';
+      final response = await dioClient.deleteRequest(url);
+      log('deleteUserProfile response ---- ${response}');
+      toastWidget('Profile deleted successfully', false);
+      Get.offAllNamed(Routes.SIGNUPAMDLOGIN);
+    }catch(e){
+      log(e.toString());
+      onHandleError(e, error: e);
+      return false;
+    } finally {
+      changeLoading(false);
+      update();
+    }
+    return true;
   }
 
   @override

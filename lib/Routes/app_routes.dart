@@ -5,6 +5,7 @@ import 'package:deliverylo/Views/Login%20and%20Signup/login_signup_page.dart';
 import 'package:deliverylo/Views/Login%20and%20Signup/otp_page.dart';
 import 'package:deliverylo/Views/Main%20Home/main_DashBoard_page.dart';
 import 'package:deliverylo/Views/Main%20Home/main_home_page.dart';
+import 'package:deliverylo/Views/Profile%20/Edit_Profile_page.dart';
 import 'package:deliverylo/Views/Profile%20/Favourites_page.dart';
 import 'package:deliverylo/Views/Profile%20/Profile_main_page.dart';
 import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20Tracking/My_Order_page.dart';
@@ -41,7 +42,8 @@ abstract class Routes{
  static const PROFILE = '/profile_page'; 
  static const FAVOURITES = '/favourites_page'; 
  static const MYYORDER = '/my_order';   
- static const ADDADDRESS = '/add_address'; 
+ static const ADDADDRESS = '/add_address';
+ static const EDITPROFILE = '/edit_profile';
 }
 
 
@@ -67,5 +69,6 @@ abstract class AppPages{
      GetPage(name: Routes.FAVOURITES, page: () => FavouritesPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.MYYORDER, page: () => MyOrderPage(),transition: Transition.fadeIn), 
      GetPage(name: Routes.ADDADDRESS, page: () => AddAddressPage(),transition: Transition.fadeIn),
+     GetPage(name: Routes.EDITPROFILE, page: () => EditProfilePage(),transition: Transition.fadeIn),
   ];
 }

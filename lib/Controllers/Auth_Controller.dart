@@ -79,7 +79,7 @@ class AuthController extends GetxController {
       update();
     } catch (e) {
       log('Error ---- ${e}');
-      onHandleError(error: e);
+      onHandleError(e, error: e);
       changeLoading(false);
       update();
     }
@@ -119,7 +119,7 @@ class AuthController extends GetxController {
       };
       reqObj.removeWhere((key, value) => value == null || value.toString().trim().isEmpty);
       final formData = dio.FormData.fromMap(reqObj);
-      final response = await dioClient.patchRequest(url, formData);
+      final response = await dioClient.patchRequest(url, data: formData);
       if(response.data['success'] == true){
         toastWidget('Profile updated successfully', false);
         final Map<String, dynamic> responseData = (response.data['data'] is Map<String, dynamic>)
@@ -143,7 +143,7 @@ class AuthController extends GetxController {
       update();
     } catch (e) {
       log('SignUp API Error ---- ${e}');
-      onHandleError(error: e);
+      onHandleError(e, error: e);
       changeLoading(false);
       update();
     }

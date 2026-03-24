@@ -323,7 +323,7 @@ commonTextWithSufixAndPreFixIcon({Function? onTap, IconData? preFixicon, bool is
 }
 
 
-void onHandleError({required dynamic error, Function? onCallback, List<String>? validationKey,}) {
+void onHandleError(Object e, {required dynamic error, Function? onCallback, List<String>? validationKey,}) {
   int? statusCode;
   dynamic errorData;
   String? message;
