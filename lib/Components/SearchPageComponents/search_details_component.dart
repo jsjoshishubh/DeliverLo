@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:deliverylo/Commons%20and%20Reusables/common_app_screen_background.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/common_filter_chip.dart';
 import 'package:deliverylo/Components/SearchPageComponents/search_details_tab_bar.dart';
+import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
@@ -18,6 +19,10 @@ class SearchDetailsComponent extends StatefulWidget {
   final Color? topColor;
   final double? topHeight;
 
+  /// When set with [subCategoryIds], loads menu via [FoodController.fetchFoodProductsBySubCategory] with `vendorId`.
+  final String? vendorId;
+  final List<String>? subCategoryIds;
+
   const SearchDetailsComponent({
     super.key,
     required this.restaurantDetails,
@@ -26,6 +31,8 @@ class SearchDetailsComponent extends StatefulWidget {
     this.topImageUrl,
     this.topColor,
     this.topHeight,
+    this.vendorId,
+    this.subCategoryIds,
   });
 
 
@@ -35,10 +42,66 @@ class SearchDetailsComponent extends StatefulWidget {
 }
 
 class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
+  late final FoodController _foodController =
+      Get.isRegistered<FoodController>() ? Get.find<FoodController>() : Get.put(FoodController());
+
   bool _pureVeg = false;
   int _selectedTabIndex = 0;
-  int _selectedFilterIndex = 0;
+  /// -1 = no chip; 0 = Bestseller (`hasOffers`); 1 = Top Rated (`ratingMin` + `sort`).
+  int _selectedFilterChip = -1;
   final List<Map<String, dynamic>> _cartItems = [];
+
+  bool _useVendorMenuApi() {
+    final v = widget.vendorId?.trim() ?? '';
+    final ids = widget.subCategoryIds;
+    if (v.isEmpty || ids == null || ids.isEmpty) return false;
+    if (ids.length != widget.menuTabs.length) return false;
+    return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (_useVendorMenuApi()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_useVendorMenuApi()) return;
+        _fetchVendorMenuForCurrentTab();
+      });
+    }
+  }
+
+  void _refetchVendorMenuIfNeeded() {
+    if (!_useVendorMenuApi()) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_useVendorMenuApi()) return;
+      _fetchVendorMenuForCurrentTab();
+    });
+  }
+
+  void _fetchVendorMenuForCurrentTab() {
+    if (!_useVendorMenuApi()) return;
+    final i = _selectedTabIndex.clamp(0, widget.subCategoryIds!.length - 1);
+    final subId = widget.subCategoryIds![i];
+    final diet = _pureVeg ? 'veg' : 'all';
+    final offersOnly = _selectedFilterChip == 0;
+    final ratingMin = _selectedFilterChip == 1 ? 4.0 : 0.0;
+    final sort = _selectedFilterChip == 1 ? 'rating' : null;
+    _foodController.fetchFoodProductsBySubCategory(
+      subId,
+      vendorId: widget.vendorId,
+      diet: diet,
+      offersOnly: offersOnly,
+      ratingMin: ratingMin,
+      sort: sort,
+    );
+  }
+
+  void _onFilterChipTap(int chipIndex) {
+    setState(() {
+      _selectedFilterChip = _selectedFilterChip == chipIndex ? -1 : chipIndex;
+    });
+    _refetchVendorMenuIfNeeded();
+  }
 
   void _addToCart(Map<String, dynamic> item) {
     setState(() {
@@ -49,6 +112,35 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   int get _cartItemCount => _cartItems.length;
   int get _cartTotalAmount => _cartItems.fold(0, (sum, item) => sum + parsePrice(item['price'] as String?));
   String get _cartTotalFormatted => '₹$_cartTotalAmount';
+
+  Widget _buildMenuTabBar() {
+    if (!_useVendorMenuApi()) {
+      return SearchDetailsTabBar(
+        tabs: widget.menuTabs,
+        selectedIndex: _selectedTabIndex,
+        onTabChanged: (i) => setState(() => _selectedTabIndex = i),
+        menuItemsByTab: List.generate(widget.menuTabs.length, (_) => widget.menuItems),
+        onAddToCart: _addToCart,
+      );
+    }
+    return GetBuilder<FoodController>(
+      builder: (c) {
+        return SearchDetailsTabBar(
+          tabs: widget.menuTabs,
+          selectedIndex: _selectedTabIndex,
+          onTabChanged: (i) {
+            setState(() => _selectedTabIndex = i);
+            _fetchVendorMenuForCurrentTab();
+          },
+          menuItemsByTab: List.generate(widget.menuTabs.length, (_) => widget.menuItems),
+          onAddToCart: _addToCart,
+          vendorMenuMode: true,
+          vendorMenuItems: c.vendorStoreMenuProducts,
+          vendorMenuLoading: c.vendorStoreMenuProductsLoading,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,21 +163,12 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Transform.translate(
-                  offset: const Offset(0, -24),
+                  offset: const Offset(0, 0),
                   child: _buildContentSection(),
                 ),
                 Transform.translate(
-                  offset: const Offset(0, -20),
-                  child: SearchDetailsTabBar(
-                    tabs: widget.menuTabs,
-                    selectedIndex: _selectedTabIndex,
-                    onTabChanged: (i) => setState(() => _selectedTabIndex = i),
-                    menuItemsByTab: List.generate(
-                      widget.menuTabs.length,
-                      (_) => widget.menuItems,
-                    ),
-                    onAddToCart: _addToCart,
-                  ),
+                  offset: const Offset(0, 10),
+                  child: _buildMenuTabBar(),
                 ),
                 const SizedBox(height: 100),
               ],
@@ -114,16 +197,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildContentSection(),
-              SearchDetailsTabBar(
-                tabs: widget.menuTabs,
-                selectedIndex: _selectedTabIndex,
-                onTabChanged: (i) => setState(() => _selectedTabIndex = i),
-                menuItemsByTab: List.generate(
-                  widget.menuTabs.length,
-                  (_) => widget.menuItems,
-                ),
-                onAddToCart: _addToCart,
-              ),
+              _buildMenuTabBar(),
               const SizedBox(height: 100),
             ],
           ),
@@ -359,60 +433,71 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(22, 45, 0, 0),
+            padding: const EdgeInsets.fromLTRB(18, 25, 0, 0),
             child: Row(
               children: [
-                // Pure Veg: entire chip clickable (icon + text + toggle)
-                GestureDetector(
-                  onTap: () => setState(() => _pureVeg = !_pureVeg),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical:5),
-                    decoration: BoxDecoration(
-                      color: HexColor.fromHex('#F9FAFB'),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: HexColor.fromHex('#E5E7EB'), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.eco, size: 18, color: HexColor.fromHex('#22C55E')),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Pure Veg',
-                          style: commonTextStyle(
-                            fontSize: 12,
-                            fontColor: HexColor.fromHex('#374151'),
-                            fontWeight: FontWeight.w500,
-                          ),
+                // Pure Veg: icon+label tappable; switch uses onToggle only (avoids double-toggle).
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: HexColor.fromHex('#F9FAFB'),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: HexColor.fromHex('#E5E7EB'), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          setState(() => _pureVeg = !_pureVeg);
+                          _refetchVendorMenuIfNeeded();
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.eco, size: 18, color: HexColor.fromHex('#22C55E')),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Pure Veg',
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor: HexColor.fromHex('#374151'),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        FlutterSwitch(
-                          toggleSize:13.0,
-                          borderRadius: 30.0,
-                          padding: 2.0,
-                          value: _pureVeg,
-                          onToggle: (v) => setState(() => _pureVeg = v),
-                          width: 40,
-                          height: 18,
-                          activeColor: HexColor.fromHex('#22C55E'),
-                          inactiveColor: HexColor.fromHex('#E5E7EB'),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 10),
+                      FlutterSwitch(
+                        toggleSize: 13.0,
+                        borderRadius: 30.0,
+                        padding: 2.0,
+                        value: _pureVeg,
+                        onToggle: (v) {
+                          setState(() => _pureVeg = v);
+                          _refetchVendorMenuIfNeeded();
+                        },
+                        width: 40,
+                        height: 18,
+                        activeColor: HexColor.fromHex('#22C55E'),
+                        inactiveColor: HexColor.fromHex('#E5E7EB'),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
                 CommonFilterChip(
                   label: 'Bestseller',
                   icon: Icons.local_fire_department,
-                  isActive: _selectedFilterIndex == 0,
-                  onTap: () => setState(() => _selectedFilterIndex = 0),
+                  isActive: _selectedFilterChip == 0,
+                  onTap: () => _onFilterChipTap(0),
                 ),
                 const SizedBox(width: 8),
                 CommonFilterChip(
                   label: 'Top Rated',
-                  isActive: _selectedFilterIndex == 1,
-                  onTap: () => setState(() => _selectedFilterIndex = 1),
+                  isActive: _selectedFilterChip == 1,
+                  onTap: () => _onFilterChipTap(1),
                 ),
               ],
             ),

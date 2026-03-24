@@ -1,5 +1,30 @@
 import 'package:flutter/material.dart';
 
+class _TopSectionImage extends StatelessWidget {
+  const _TopSectionImage({required this.imageUrl});
+
+  final String imageUrl;
+
+  bool get _isNetwork =>
+      imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isNetwork) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      );
+    }
+    return Image.asset(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    );
+  }
+}
+
 class CommonAppScreenBackground extends StatelessWidget {
   const CommonAppScreenBackground({
     super.key,
@@ -47,11 +72,7 @@ class CommonAppScreenBackground extends StatelessWidget {
             ? Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    topImageUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                  ),
+                  _TopSectionImage(imageUrl: topImageUrl!),
                   if (topChild != null) topChild!,
                 ],
               )

@@ -34,13 +34,13 @@ class SearchResultsListComponent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 5),
+          SizedBox(height: 15),
           SearchResultsHeaderComponent(
             resultCount: resultCount ?? list.length,
             onSortTap: onSortTap,
           ),
           Transform.translate(
-            offset: const Offset(0, -40),
+            offset: const Offset(0, -20),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ListView.builder(

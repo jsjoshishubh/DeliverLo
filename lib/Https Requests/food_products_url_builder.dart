@@ -77,6 +77,7 @@ String buildFoodProductsSubCategoryUrl({
   bool offersOnly = false,
   String? sort,
   bool applyFilters = false,
+  String? vendorId,
 }) {
   final id = subCategoryId.trim();
   if (id.isEmpty) return 'products?type=food&page=$page&limit=$limit';
@@ -84,6 +85,10 @@ String buildFoodProductsSubCategoryUrl({
   final buf = StringBuffer(
     'products?subCategoryId=${Uri.encodeQueryComponent(id)}&type=food&page=$page&limit=$limit&ratingMin=$ratingMin',
   );
+  final v = vendorId?.trim() ?? '';
+  if (v.isNotEmpty) {
+    buf.write('&vendorId=${Uri.encodeQueryComponent(v)}');
+  }
   final q = search.trim();
   if (q.isNotEmpty) {
     buf.write('&search=${Uri.encodeQueryComponent(q)}');

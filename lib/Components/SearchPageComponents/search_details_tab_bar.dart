@@ -12,6 +12,11 @@ class SearchDetailsTabBar extends StatefulWidget {
   final List<List<Map<String, dynamic>>> menuItemsByTab;
   final void Function(Map<String, dynamic> item) onAddToCart;
 
+  /// When true, [vendorMenuItems] / [vendorMenuLoading] drive the list (vendor store menu API).
+  final bool vendorMenuMode;
+  final List<Map<String, dynamic>> vendorMenuItems;
+  final bool vendorMenuLoading;
+
   const SearchDetailsTabBar({
     super.key,
     required this.tabs,
@@ -19,11 +24,53 @@ class SearchDetailsTabBar extends StatefulWidget {
     required this.onTabChanged,
     required this.menuItemsByTab,
     required this.onAddToCart,
+    this.vendorMenuMode = false,
+    this.vendorMenuItems = const <Map<String, dynamic>>[],
+    this.vendorMenuLoading = false,
   });
 
   
   @override
   State<SearchDetailsTabBar> createState() => _SearchDetailsTabBarState();
+}
+
+Widget _menuItemImage(String url, {required double width, required double height}) {
+  final u = url.trim();
+  if (u.isEmpty) {
+    return Container(
+      width: width,
+      height: height,
+      color: greyFontColor.shade50,
+      child: Icon(Icons.fastfood, color: greyFontColor.shade400),
+    );
+  }
+  final isNet = u.startsWith('http://') || u.startsWith('https://');
+  if (isNet) {
+    return Image.network(
+      u,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        width: width,
+        height: height,
+        color: greyFontColor.shade50,
+        child: Icon(Icons.fastfood, color: greyFontColor.shade400),
+      ),
+    );
+  }
+  return Image.asset(
+    u,
+    width: width,
+    height: height,
+    fit: BoxFit.cover,
+    errorBuilder: (_, __, ___) => Container(
+      width: width,
+      height: height,
+      color: greyFontColor.shade50,
+      child: Icon(Icons.fastfood, color: greyFontColor.shade400),
+    ),
+  );
 }
 
 class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTickerProviderStateMixin {
@@ -65,6 +112,9 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
   }
 
   List<Map<String, dynamic>> get _currentTabItems {
+    if (widget.vendorMenuMode) {
+      return widget.vendorMenuItems;
+    }
     if (widget.selectedIndex < 0 || widget.selectedIndex >= widget.menuItemsByTab.length) {
       return widget.menuItemsByTab.isNotEmpty ? widget.menuItemsByTab.first : [];
     }
@@ -115,14 +165,34 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
             ],
           ),
         ),
-        ..._currentTabItems.asMap().entries.map(
-          (entry) => SearchDetailsMenuItemCard(
-            item: entry.value,
-            onAddTap: () => widget.onAddToCart(entry.value),
-            topPadding: entry.key == 0 ? 4 : null,
-            showBottomDivider: entry.key < _currentTabItems.length - 1,
-          ),
-        ),
+        if (widget.vendorMenuMode && widget.vendorMenuLoading)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: CircularProgressIndicator(color: HexColor.fromHex('#F48C25')),
+            ),
+          )
+        else if (widget.vendorMenuMode && _currentTabItems.isEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            child: Text(
+              'No dishes in this category yet.',
+              style: commonTextStyle(
+                fontSize: 14,
+                fontColor: HexColor.fromHex('#64748B'),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          )
+        else
+          ..._currentTabItems.asMap().entries.map(
+                (entry) => SearchDetailsMenuItemCard(
+                  item: entry.value,
+                  onAddTap: () => widget.onAddToCart(entry.value),
+                  topPadding: entry.key == 0 ? 4 : null,
+                  showBottomDivider: entry.key < _currentTabItems.length - 1,
+                ),
+              ),
       ],
     );
   }
@@ -164,7 +234,9 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isVeg = item['isVeg'] as bool? ?? true;
     final isBestseller = item['isBestseller'] as bool? ?? false;
-
+    final titleDish = (item['dish'] ?? item['name'] ?? '').toString().trim();
+    final descText = (item['description'] ?? '').toString();
+print("titleDish: $item");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -212,7 +284,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        item['name'] as String,
+                        titleDish,
                         style: commonTextStyle(
                           fontSize: 18,
                           fontColor: HexColor.fromHex('#1E293B'),
@@ -223,7 +295,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item['price'] as String,
+                        item['price'] is String ? item['price'] as String : '${item['price']}',
                         style: commonTextStyle(
                           fontSize: 14,
                           fontColor: HexColor.fromHex('#0F172A'),
@@ -232,7 +304,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item['description'] as String,
+                        descText,
                         style: commonTextStyle(
                           fontSize: 14,
                           fontColor: HexColor.fromHex('#64748B'),
@@ -251,17 +323,10 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(18),
-                      child: Image.asset(
-                        item['imageUrl'] as String,
+                      child: _menuItemImage(
+                        item['imageUrl'] as String? ?? '',
                         width: 130,
                         height: 130,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 120,
-                          height: 120,
-                          color: greyFontColor.shade50,
-                          child: Icon(Icons.fastfood, color: greyFontColor.shade50),
-                        ),
                       ),
                     ),
                     Positioned(

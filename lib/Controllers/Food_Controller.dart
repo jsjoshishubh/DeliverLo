@@ -47,9 +47,18 @@ class FoodController extends GetxController {
   List<Map<String, dynamic>> foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
   bool foodProductsBySubCategoryLoading = false;
 
+  /// Same products API scoped to a vendor menu on [SearchDetailsPage] — separate from [foodProductsBySubCategoryResults].
+  List<Map<String, dynamic>> vendorStoreMenuProducts = <Map<String, dynamic>>[];
+  bool vendorStoreMenuProductsLoading = false;
+
   /// Text search on the food search delegate screen (`SearchDeligatePage`).
   List<Map<String, dynamic>> foodSearchResults = <Map<String, dynamic>>[];
   bool foodSearchResultsLoading = false;
+
+  /// Vendor store detail for [SearchDetailsPage] (`vendors/:id/store`).
+  bool searchedStoreDetailsLoading = false;
+  Map<String, dynamic>? searchedStoreDetails;
+  List<String> searchedStoreMenuTabs = <String>[];
 
   void setHomeAccentHex(String hexColor) {
     final next = hexColor.trim();
@@ -213,7 +222,9 @@ class FoodController extends GetxController {
       update();
     }
   }
-  /// Loads food products for a selected "What's on your mind" subcategory.
+  /// Loads food products for a selected subcategory.
+  /// When [vendorId] is set, results go to [vendorStoreMenuProducts] (vendor menu on [SearchDetailsPage]);
+  /// otherwise results go to [foodProductsBySubCategoryResults] ("What's on your mind" / home).
   Future<void> fetchFoodProductsBySubCategory(
     String categoryId, {
     double ratingMin = 0.0,
@@ -221,12 +232,21 @@ class FoodController extends GetxController {
     bool offersOnly = false,
     String? sort,
     bool applyFilters = false,
+    String? vendorId,
   }) async {
     final id = categoryId.trim();
     if (id.isEmpty) return;
 
-    foodProductsBySubCategoryLoading = true;
-    foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+    final String? vendor = vendorId?.trim();
+    final bool forVendorMenu = vendor != null && vendor.isNotEmpty;
+
+    if (forVendorMenu) {
+      vendorStoreMenuProductsLoading = true;
+      vendorStoreMenuProducts = <Map<String, dynamic>>[];
+    } else {
+      foodProductsBySubCategoryLoading = true;
+      foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+    }
     update();
 
     try {
@@ -239,22 +259,38 @@ class FoodController extends GetxController {
         offersOnly: offersOnly,
         sort: sort,
         applyFilters: applyFilters,
+        vendorId: vendor,
       );
       final response = await dioClient.getRequest(url);
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final parsed = FoodTabDiscoveryResponseModel.fromJson(data);
         final items = parsed.data?.items ?? const <FoodItemModel>[];
-        foodProductsBySubCategoryResults =
-            items.map(_foodItemToSearchCardMap).toList();
+        if (forVendorMenu) {
+          vendorStoreMenuProducts = items.map(_foodItemToSearchDetailsMenuMap).toList();
+        } else {
+          foodProductsBySubCategoryResults = items.map(_foodItemToSearchCardMap).toList();
+        }
       } else {
-        foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+        if (forVendorMenu) {
+          vendorStoreMenuProducts = <Map<String, dynamic>>[];
+        } else {
+          foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+        }
       }
     } catch (e) {
       log(e.toString());
-      foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+      if (forVendorMenu) {
+        vendorStoreMenuProducts = <Map<String, dynamic>>[];
+      } else {
+        foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+      }
     } finally {
-      foodProductsBySubCategoryLoading = false;
+      if (forVendorMenu) {
+        vendorStoreMenuProductsLoading = false;
+      } else {
+        foodProductsBySubCategoryLoading = false;
+      }
       update();
     }
   }
@@ -350,5 +386,101 @@ class FoodController extends GetxController {
       'offerText': discount,
       'offerBadge': offerBadge,
     };
+  }
+
+  Map<String, dynamic> _foodItemToSearchDetailsMenuMap(FoodItemModel item) {
+    final dishTitle = item.dish.trim().isNotEmpty ? item.dish : item.name;
+    final desc = item.description.trim();
+    final descriptionLine = desc.isNotEmpty
+        ? desc
+        : (item.category.trim().isNotEmpty ? item.category : '');
+
+    String priceLabel = '₹—';
+    if (item.price != null && item.price! > 0) {
+      final p = item.price!;
+      priceLabel = p == p.roundToDouble() ? '₹${p.toInt()}' : '₹${p.toStringAsFixed(0)}';
+    }
+
+    final bool bestseller = item.discount.trim().isNotEmpty ||
+        (item.offerPercentage != null && item.offerPercentage! > 0) ||
+        (item.offerAmount != null && item.offerAmount! > 0);
+
+    return <String, dynamic>{
+      'id': item.id,
+      'vendorId': item.vendorId,
+      'name': item.name,
+      'dish': dishTitle,
+      'price': priceLabel,
+      'description': descriptionLine,
+      'imageUrl': item.imageUrl,
+      'isVeg': item.isPureVeg,
+      'isBestseller': bestseller,
+    };
+  }
+
+  Future<void> getSearchedDetails(String id) async {
+    final vid = id.trim();
+    if (vid.isEmpty) return;
+
+    searchedStoreDetailsLoading = true;
+    searchedStoreDetails = null;
+    searchedStoreMenuTabs = <String>[];
+    update();
+
+    try {
+      final url = 'vendors/$vid/store';
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final inner = data['data'];
+        if (inner is Map<String, dynamic>) {
+          searchedStoreDetails = _mapVendorStoreToRestaurantDetails(inner);
+          searchedStoreMenuTabs = _subcategoryTabNamesFrom(inner);
+        }
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      searchedStoreDetailsLoading = false;
+      update();
+    }
+  }
+
+  Map<String, dynamic> _mapVendorStoreToRestaurantDetails(Map<String, dynamic> inner) {
+    final ratingRaw = inner['rating'];
+    final double ratingVal = ratingRaw is num
+        ? ratingRaw.toDouble()
+        : double.tryParse(ratingRaw?.toString() ?? '') ?? 0.0;
+
+    return <String, dynamic>{
+      'id': inner['id']?.toString() ?? '',
+      'name': inner['name']?.toString() ?? '',
+      'cuisine': inner['cuisine']?.toString() ?? '',
+      'heroImageUrl': inner['heroImageUrl']?.toString() ?? '',
+      'rating': ratingVal,
+      'ratingCount': inner['ratingCount']?.toString() ?? '',
+      'deliveryTime': inner['deliveryTime']?.toString() ?? '',
+      'costForTwo': inner['costForTwo']?.toString() ?? '',
+      'description': inner['description']?.toString() ?? '',
+      'categories': inner['categories'],
+      'subcategories': inner['subcategories'],
+    };
+  }
+
+  List<String> _subcategoryTabNamesFrom(Map<String, dynamic> inner) {
+    final raw = inner['subcategories'];
+    if (raw is! List) return <String>['Recommended'];
+
+    final names = <String>[];
+    for (final e in raw) {
+      if (e is Map<String, dynamic>) {
+        final n = e['name']?.toString().trim() ?? '';
+        if (n.isNotEmpty) names.add(n);
+      } else if (e is Map) {
+        final n = e['name']?.toString().trim() ?? '';
+        if (n.isNotEmpty) names.add(n);
+      }
+    }
+    return names.isEmpty ? <String>['Recommended'] : names;
   }
 }

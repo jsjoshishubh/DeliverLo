@@ -8,6 +8,7 @@ class FoodItemModel {
   final String discount;
   final String vendorId;
   final String dish;
+  final String description;
   final String location;
   final bool isPureVeg;
   final num? price;
@@ -24,6 +25,7 @@ class FoodItemModel {
     required this.discount,
     this.vendorId = '',
     this.dish = '',
+    this.description = '',
     this.location = '',
     this.isPureVeg = false,
     this.price,
@@ -106,6 +108,7 @@ class FoodItemModel {
       discount: discountLabel,
       vendorId: _toString(json['vendorId']),
       dish: _toString(json['dish']),
+      description: _toString(json['description']),
       location: _toString(json['location']),
       isPureVeg: json['isPureVeg'] == true,
       price: priceNum,
