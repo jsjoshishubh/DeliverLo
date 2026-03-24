@@ -1,9 +1,202 @@
+import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:get/get.dart';
+
+/// Arguments for [WhatsOnYourMindFoodResultsPage] (`Get.toNamed(..., arguments: ...)`).
+/// Matches [FoodController.getwhatsOnYourMindFoodResults] query params.
+class WhatsOnYourMindFoodResultsArgs {
+  const WhatsOnYourMindFoodResultsArgs({
+    required this.categoryId,
+    this.categoryTitle,
+    this.ratingMin = 0.0,
+    this.diet = 'all',
+    this.offersOnly = false,
+    this.sort,
+    this.applyFilters = false,
+  });
+
+  final String categoryId;
+  final String? categoryTitle;
+  final double ratingMin;
+  final String diet;
+  final bool offersOnly;
+  final String? sort;
+  final bool applyFilters;
+}
+
+/// Loads `getwhatsOnYourMindFoodResults` for [categoryId] and shows cards (embedded or full scroll).
+class WhatsOnYourMindFoodResultsSection extends StatefulWidget {
+  const WhatsOnYourMindFoodResultsSection({
+    super.key,
+    required this.categoryId,
+    this.ratingMin = 0.0,
+    this.diet = 'all',
+    this.offersOnly = false,
+    this.sort,
+    this.applyFilters = false,
+    this.shrinkWrappedList = true,
+    this.padding = EdgeInsets.zero,
+  });
+
+  final String categoryId;
+  final double ratingMin;
+  final String diet;
+  final bool offersOnly;
+  final String? sort;
+  final bool applyFilters;
+  final bool shrinkWrappedList;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  State<WhatsOnYourMindFoodResultsSection> createState() =>
+      _WhatsOnYourMindFoodResultsSectionState();
+}
+
+class _WhatsOnYourMindFoodResultsSectionState
+    extends State<WhatsOnYourMindFoodResultsSection> {
+  void _scheduleFetch() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _fetch();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleFetch();
+  }
+
+  @override
+  void didUpdateWidget(covariant WhatsOnYourMindFoodResultsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.categoryId != widget.categoryId ||
+        oldWidget.ratingMin != widget.ratingMin ||
+        oldWidget.diet != widget.diet ||
+        oldWidget.offersOnly != widget.offersOnly ||
+        oldWidget.sort != widget.sort ||
+        oldWidget.applyFilters != widget.applyFilters) {
+      _scheduleFetch();
+    }
+  }
+
+  Future<void> _fetch() async {
+    final id = widget.categoryId.trim();
+    if (id.isEmpty) return;
+    final FoodController controller = Get.find<FoodController>();
+    await controller.getwhatsOnYourMindFoodResults(
+      id,
+      ratingMin: widget.ratingMin,
+      diet: widget.diet,
+      offersOnly: widget.offersOnly,
+      sort: widget.sort,
+      applyFilters: widget.applyFilters,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<FoodController>(
+      builder: (controller) {
+        if (controller.whatsOnYourMindFoodResultsLoading) {
+          return SizedBox(
+            height: widget.shrinkWrappedList ? 220 : null,
+            width: double.infinity,
+            child: const Center(
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+        if (controller.whatsOnYourMindFoodResults.isEmpty) {
+          return SizedBox(
+            height: widget.shrinkWrappedList ? 120 : null,
+            width: double.infinity,
+            child: Center(
+              child: Text(
+                'No items in this category yet.',
+                style: commonTextStyle(
+                  fontSize: 14,
+                  fontColor: HexColor.fromHex('#64748B'),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          shrinkWrap: widget.shrinkWrappedList,
+          physics: widget.shrinkWrappedList
+              ? const NeverScrollableScrollPhysics()
+              : const AlwaysScrollableScrollPhysics(),
+          padding: widget.padding,
+          itemCount: controller.whatsOnYourMindFoodResults.length,
+          itemBuilder: (context, index) {
+            return WhatsOnYourMindFoodResultCard(
+              item: controller.whatsOnYourMindFoodResults[index],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Full-screen route: pass [WhatsOnYourMindFoodResultsArgs] via `Get.arguments`.
+class WhatsOnYourMindFoodResultsPage extends StatelessWidget {
+  const WhatsOnYourMindFoodResultsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final dynamic raw = Get.arguments;
+    final WhatsOnYourMindFoodResultsArgs? args =
+        raw is WhatsOnYourMindFoodResultsArgs ? raw : null;
+    final String categoryId = (args?.categoryId ?? '').trim();
+    final String title = (args?.categoryTitle ?? '').trim().isNotEmpty
+        ? args!.categoryTitle!.trim()
+        : "What's on your mind";
+
+    if (categoryId.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("What's on your mind")),
+        body: Center(
+          child: Text(
+            'Missing category. Open this screen with WhatsOnYourMindFoodResultsArgs.',
+            textAlign: TextAlign.center,
+            style: commonTextStyle(
+              fontSize: 14,
+              fontColor: HexColor.fromHex('#64748B'),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: SafeArea(
+        child: WhatsOnYourMindFoodResultsSection(
+          categoryId: categoryId,
+          ratingMin: args?.ratingMin ?? 0.0,
+          diet: args?.diet ?? 'all',
+          offersOnly: args?.offersOnly ?? false,
+          sort: args?.sort,
+          applyFilters: args?.applyFilters ?? false,
+          shrinkWrappedList: false,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        ),
+      ),
+    );
+  }
+}
 
 class WhatsOnYourMindFoodResultCard extends StatelessWidget {
   const WhatsOnYourMindFoodResultCard({
@@ -47,17 +240,10 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                    child: Image.asset(
-                      item['imageUrl'] as String,
+                    child: _WhatsOnMindResultImage(
+                      path: item['imageUrl'] as String? ?? '',
                       width: double.infinity,
                       height: 180,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: double.infinity,
-                        height: 180,
-                        color: greyFontColor.shade50.withValues(alpha: 0.2),
-                        child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 48),
-                      ),
                     ),
                   ),
                   Positioned(
@@ -195,7 +381,7 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
               child: Container(
                 width: 112,
                 height: 29,
-                padding: const EdgeInsets.only(left: 4, right: 14),
+                padding: const EdgeInsets.only(left: 4, right: 10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -244,6 +430,48 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WhatsOnMindResultImage extends StatelessWidget {
+  const _WhatsOnMindResultImage({
+    required this.path,
+    required this.width,
+    required this.height,
+  });
+
+  final String path;
+  final double width;
+  final double height;
+
+  bool get _isNetwork =>
+      path.startsWith('http://') || path.startsWith('https://');
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Container(
+      width: width,
+      height: height,
+      color: greyFontColor.shade50.withValues(alpha: 0.2),
+      child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 48),
+    );
+    if (path.isEmpty) return fallback;
+    if (_isNetwork) {
+      return Image.network(
+        path,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => fallback,
+      );
+    }
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => fallback,
     );
   }
 }

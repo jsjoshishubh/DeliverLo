@@ -10,6 +10,11 @@ class WhatsOnYourMindFilterOptions extends StatelessWidget {
     this.onRating,
     this.onPureVeg,
     this.onOffers,
+    this.filterSelected = false,
+    this.sortBySelected = false,
+    this.ratingSelected = false,
+    this.pureVegSelected = false,
+    this.offersSelected = false,
   });
 
   final VoidCallback? onFilter;
@@ -17,6 +22,11 @@ class WhatsOnYourMindFilterOptions extends StatelessWidget {
   final VoidCallback? onRating;
   final VoidCallback? onPureVeg;
   final VoidCallback? onOffers;
+  final bool filterSelected;
+  final bool sortBySelected;
+  final bool ratingSelected;
+  final bool pureVegSelected;
+  final bool offersSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +38,14 @@ class WhatsOnYourMindFilterOptions extends StatelessWidget {
           _FilterChip(
             label: 'Filter',
             icon: Icons.tune,
+            isSelected: filterSelected,
             onTap: onFilter ?? () {},
           ),
           const SizedBox(width: 10),
           _FilterChip(
             label: 'Sort by',
             icon: Icons.keyboard_arrow_down,
+            isSelected: sortBySelected,
             onTap: onSortBy ?? () {},
           ),
           const SizedBox(width: 10),
@@ -42,6 +54,7 @@ class WhatsOnYourMindFilterOptions extends StatelessWidget {
             icon: Icons.star,
             iconColor: HexColor.fromHex('#15803D'),
             labelColor: HexColor.fromHex('#15803D'),
+            isSelected: ratingSelected,
             onTap: onRating ?? () {},
           ),
           const SizedBox(width: 10),
@@ -49,11 +62,13 @@ class WhatsOnYourMindFilterOptions extends StatelessWidget {
             label: 'Pure Veg',
             icon: Icons.eco,
             iconColor: HexColor.fromHex('#16A34A'),
+            isSelected: pureVegSelected,
             onTap: onPureVeg ?? () {},
           ),
           const SizedBox(width: 10),
           _FilterChip(
             label: 'Offers',
+            isSelected: offersSelected,
             onTap: onOffers ?? () {},
           ),
         ],
@@ -68,6 +83,7 @@ class _FilterChip extends StatelessWidget {
     this.icon,
     this.iconColor,
     this.labelColor,
+    this.isSelected = false,
     required this.onTap,
   });
 
@@ -75,20 +91,34 @@ class _FilterChip extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final Color? labelColor;
+  final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final textColor = labelColor ?? HexColor.fromHex('#3D4152');
-    final iconCol = iconColor ?? HexColor.fromHex('#686B78');
+    final accent = HexColor.fromHex('#15803D');
+    final mutedIcon = HexColor.fromHex('#686B78');
+    final defaultText = HexColor.fromHex('#3D4152');
+    final textColor = isSelected
+        ? accent
+        : (labelColor ?? defaultText);
+    final iconCol = isSelected
+        ? accent
+        : (iconColor ?? mutedIcon);
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected
+              ? HexColor.fromHex('#ECFDF5')
+              : Colors.white,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: HexColor.fromHex('#D1D5DB')),
+          border: Border.all(
+            color: isSelected ? accent : HexColor.fromHex('#D1D5DB'),
+            width: isSelected ? 1.5 : 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -99,7 +129,7 @@ class _FilterChip extends StatelessWidget {
               label,
               style: commonTextStyle(
                 fontSize: 14,
-                fontColor: HexColor.fromHex('#3D4152'),
+                fontColor: textColor,
                 fontWeight: FontWeight.w500,
               ),
             ),

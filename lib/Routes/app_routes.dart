@@ -15,6 +15,7 @@ import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20T
 import 'package:deliverylo/Views/checkout%20and%20orderSuccess%20and%20Order%20Tracking/order_tracking_page.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Food_Main_dashboard.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Search_Details_Page.dart';
+import 'package:deliverylo/Components/FoodHomePageComponents/whats_on_your_mind_food_result_card.dart';
 import 'package:deliverylo/Views/Grocery mainHome/Grocery_Detail_page.dart';
 import 'package:deliverylo/Views/Grocery mainHome/Grocery_home_page.dart';
 import 'package:deliverylo/Views/Grocery mainHome/Grocery_main_dashboard.dart';
@@ -44,6 +45,7 @@ abstract class Routes{
  static const MYYORDER = '/my_order';   
  static const ADDADDRESS = '/add_address';
  static const EDITPROFILE = '/edit_profile';
+ static const WHATS_ON_YOUR_MIND_FOOD_RESULTS = '/whats_on_your_mind_food_results';
 }
 
 
@@ -70,5 +72,6 @@ abstract class AppPages{
      GetPage(name: Routes.MYYORDER, page: () => MyOrderPage(),transition: Transition.fadeIn), 
      GetPage(name: Routes.ADDADDRESS, page: () => AddAddressPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.EDITPROFILE, page: () => EditProfilePage(),transition: Transition.fadeIn),
+     GetPage(name: Routes.WHATS_ON_YOUR_MIND_FOOD_RESULTS, page: () => const WhatsOnYourMindFoodResultsPage(), transition: Transition.cupertino),
   ];
 }

@@ -29,7 +29,7 @@ class MainHomeTopDealsComponent extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 265,
+      height: 270,
       child: Column(
         children: [
           Row(

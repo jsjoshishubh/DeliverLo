@@ -3,6 +3,7 @@ import 'package:deliverylo/Https%20Requests/dio_client.dart';
 import 'package:deliverylo/Model%20Classes/food_home_settings_model.dart';
 import 'package:deliverylo/Model%20Classes/food_tab_discovery_model.dart';
 import 'package:deliverylo/Model%20Classes/khana_khajana_model.dart';
+import 'package:deliverylo/Model%20Classes/whats_on_your_mind_categories_model.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:get/get.dart';
@@ -17,8 +18,8 @@ class FoodController extends GetxController {
   final GetStorage _storage = GetStorage();
 
   final isLoading = false.obs;
-  get loading => this.isLoading.value;
-  void changeLoading(bool v) => this.isLoading.value = v;
+  get loading => isLoading.value;
+  void changeLoading(bool v) => isLoading.value = v;
   final Rxn<FoodHomeSettingsResponseModel> _foodHomeResponse = Rxn<FoodHomeSettingsResponseModel>();
   FoodHomeSettingsResponseModel? get foodHomeResponse => _foodHomeResponse.value;
 
@@ -37,6 +38,13 @@ class FoodController extends GetxController {
       List<FoodItemModel>.from(_foodItemsByApiType[apiType] ?? const <FoodItemModel>[]);
   bool isTabLoading(String apiType) => _tabLoadingByApiType[apiType] == true;
 
+  final RxList<WhatsOnYourMindCategoryModel> whatsOnYourMindCategories =
+      <WhatsOnYourMindCategoryModel>[].obs;
+  bool whatsOnYourMindCategoriesLoading = false;
+
+  List<Map<String, dynamic>> whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+  bool whatsOnYourMindFoodResultsLoading = false;
+
   void setHomeAccentHex(String hexColor) {
     final next = hexColor.trim();
     if (next.isEmpty || next == _homeAccentHex.value) return;
@@ -44,10 +52,10 @@ class FoodController extends GetxController {
     update();
   }
 
-  getCategoriesAndHomeOfferBanners()async{
+  getCategoriesAndHomeOfferBanners() async {
     changeLoading(true);
     update();
-    try{
+    try {
       final url = 'settings';
       final response = await dioClient.getRequest(url);
       final data = response.data;
@@ -85,7 +93,7 @@ class FoodController extends GetxController {
       categories.clear();
       homeOfferBanners.clear();
       update();
-    }finally{
+    } finally {
       changeLoading(false);
       update();
     }
@@ -167,5 +175,100 @@ class FoodController extends GetxController {
       changeLoading(false);
       update();
     }
+  }
+
+  Future<void> getwhatsOnYourMindCategories() async {
+    whatsOnYourMindCategoriesLoading = true;
+    update();
+    try {
+      const url = 'categories/whats-on-your-mind?vertical=food';
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final parsed = WhatsOnYourMindCategoriesResponseModel.fromJson(data);
+        final list = parsed.data ?? <WhatsOnYourMindCategoryModel>[];
+        whatsOnYourMindCategories.assignAll(
+          list.where(
+            (e) =>
+                (e.id ?? '').trim().isNotEmpty &&
+                (e.name ?? '').trim().isNotEmpty &&
+                ((e.status ?? '').trim().isEmpty ||
+                    (e.status ?? '').toLowerCase() == 'active'),
+          ),
+        );
+      } else {
+        whatsOnYourMindCategories.clear();
+      }
+    } catch (e) {
+      log(e.toString());
+      whatsOnYourMindCategories.clear();
+    } finally {
+      whatsOnYourMindCategoriesLoading = false;
+      update();
+    }
+  }
+  Future<void> getwhatsOnYourMindFoodResults(
+    String categoryId, {
+    double ratingMin = 0.0,
+    String diet = 'all',
+    bool offersOnly = false,
+    String? sort,
+    bool applyFilters = false,
+  }) async {
+    final id = categoryId.trim();
+    if (id.isEmpty) return;
+
+    whatsOnYourMindFoodResultsLoading = true;
+    whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+    update();
+
+    try {
+      final dietNorm = diet.trim().toLowerCase();
+      var url =
+          'products?subCategoryId=$id&type=food&page=1&limit=20&ratingMin=$ratingMin';
+      if (dietNorm == 'veg' || dietNorm == 'non_veg') {
+        url += '&diet=$dietNorm';
+      }
+      if (offersOnly) url += '&hasOffers=true';
+      if (sort != null && sort.trim().isNotEmpty) {
+        url += '&sort=${Uri.encodeQueryComponent(sort.trim())}';
+      }
+      if (applyFilters) url += '&filter=1';
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final parsed = FoodTabDiscoveryResponseModel.fromJson(data);
+        final items = parsed.data?.items ?? const <FoodItemModel>[];
+        whatsOnYourMindFoodResults =
+            items.map(_foodItemToWhatsOnMindResultMap).toList();
+      } else {
+        whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+      }
+    } catch (e) {
+      log(e.toString());
+      whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+    } finally {
+      whatsOnYourMindFoodResultsLoading = false;
+      update();
+    }
+  }
+
+  Map<String, dynamic> _foodItemToWhatsOnMindResultMap(FoodItemModel item) {
+    final delivery = item.deliveryTime.trim().isNotEmpty
+        ? item.deliveryTime.trim()
+        : '20-30 min';
+    return <String, dynamic>{
+      'id': item.id,
+      'name': item.name,
+      'cuisine': item.category,
+      'dish': item.name,
+      'location': delivery,
+      'imageUrl': item.imageUrl,
+      'rating': item.rating,
+      'deliveryTime': delivery,
+      'deliveryFee': 'Free Fee',
+      'isPureVeg': false,
+      'offerText': item.discount,
+    };
   }
 }

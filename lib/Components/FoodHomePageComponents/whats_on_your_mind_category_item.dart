@@ -2,6 +2,11 @@ import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
+bool _isNetworkImage(String path) {
+  final p = path.trim().toLowerCase();
+  return p.startsWith('http://') || p.startsWith('https://');
+}
+
 class WhatsOnYourMindCategoryItem extends StatelessWidget {
   const WhatsOnYourMindCategoryItem({
     super.key,
@@ -41,14 +46,23 @@ class WhatsOnYourMindCategoryItem extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                    color: greyFontColor.shade50.withValues(alpha: 0.2),
-                    child: Icon(Icons.restaurant, color: greyFontColor.shade50),
-                  ),
-                ),
+                child: _isNetworkImage(imagePath)
+                    ? Image.network(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: greyFontColor.shade50.withValues(alpha: 0.2),
+                          child: Icon(Icons.restaurant, color: greyFontColor.shade50),
+                        ),
+                      )
+                    : Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: greyFontColor.shade50.withValues(alpha: 0.2),
+                          child: Icon(Icons.restaurant, color: greyFontColor.shade50),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 8),

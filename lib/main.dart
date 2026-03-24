@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
        return Routes.MAIN_DASHBOARD;
    }else{
       return  shownOnboard ? Routes.SIGNUPAMDLOGIN : Routes.ONBOARDING;
-      return Routes.ONBOARDING;
+      // return Routes.ONBOARDING;
     }
   }
   @override
@@ -40,6 +40,15 @@ class _MyAppState extends State<MyApp> {
       title: 'Delivery Lo',
       getPages: AppPages.pages,
       initialRoute: renderInitialRoute(),
+      builder: (context, child) {
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaleFactor: mq.textScaleFactor.clamp(0.8, 0.9),
+          ),
+          child: child!,
+        );
+      },
       theme: ThemeData(
         fontFamily: 'PlusJakartaSans',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

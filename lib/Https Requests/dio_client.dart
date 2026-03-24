@@ -30,7 +30,6 @@ class DioClient {
     };
     if (isllogedin) {
       final jwtToken = storage.read('token');
-      log('jwtToken -- ${jwtToken}');
       map.update('Authorization', (v) => "Bearer ${jwtToken}", ifAbsent: () => "Bearer ${jwtToken}");
     }
     opts.headers = map;

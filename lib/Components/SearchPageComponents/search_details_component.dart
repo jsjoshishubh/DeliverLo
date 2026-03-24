@@ -359,7 +359,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(32, 45, 20, 0),
+            padding: const EdgeInsets.fromLTRB(22, 45, 0, 0),
             child: Row(
               children: [
                 // Pure Veg: entire chip clickable (icon + text + toggle)

@@ -23,10 +23,7 @@ class FoodHomePageView extends StatefulWidget {
 class _FoodHomePageViewState extends State<FoodHomePageView> {
   static const String _selectedAddressStorageKey = 'food_selected_address';
   final GetStorage _storage = GetStorage();
-  final FoodController _foodController =
-      Get.isRegistered<FoodController>()
-          ? Get.find<FoodController>()
-          : Get.put(FoodController());
+  final FoodController _foodController = Get.isRegistered<FoodController>() ? Get.find<FoodController>() : Get.put(FoodController());
   String _selectedAddressLabel = 'HOME - Savaliya Siddharth';
   int _currentBannerIndex = 0;
 
@@ -36,10 +33,13 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
     _loadSelectedAddressFromStorage();
     _foodController.getCategoriesAndHomeOfferBanners();
     _foodController.getKhanaKhajanaData();
+    _foodController.getwhatsOnYourMindCategories();
   }
 
   Future<void> _onRefresh() async {
     await _foodController.getCategoriesAndHomeOfferBanners();
+    await _foodController.getKhanaKhajanaData();
+    await _foodController.getwhatsOnYourMindCategories();
     if (mounted) setState(() {});
   }
 
@@ -96,14 +96,9 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
       init: _foodController,
       builder: (controller) {
         final apiCategories = controller.categories.map((e) => <String, String>{'title': (e.name ?? '').trim().isEmpty ? 'Category' : (e.name ?? ''),'image': 'Assets/Extras/ct_2.png',}).toList();
-        final bannersWithImages = controller.homeOfferBanners
-            .where((e) => (e.imageUrl ?? '').trim().isNotEmpty)
-            .toList();
+        final bannersWithImages = controller.homeOfferBanners.where((e) => (e.imageUrl ?? '').trim().isNotEmpty).toList();
         final bannerUrls = bannersWithImages.map((e) => (e.imageUrl ?? '').trim()).toList();
-        final safeBannerIndex = bannerUrls.isEmpty
-            ? 0
-            : (_currentBannerIndex >= bannerUrls.length ? 0 : _currentBannerIndex);
-
+        final safeBannerIndex = bannerUrls.isEmpty ? 0 : (_currentBannerIndex >= bannerUrls.length ? 0 : _currentBannerIndex);
         String dynamicTopColorHex = kFoodHomeAccentHex;
         Color dynamicTopColor = HexColor.fromHex(dynamicTopColorHex);
         if (bannersWithImages.isNotEmpty) {
@@ -137,27 +132,22 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
             'api_type': 'fast_delivery',
           },
         ];
-        final List<Map<String, dynamic>> khanaKhajanaItems = controller.khanaKhajanaVendors
-            .expand((vendor) => (vendor.products ?? const [])
-                .map((product) {
-                  final variants = product.variants ?? const [];
-                  final firstVariant = variants.isNotEmpty ? variants.first : null;
-                  final salePrice = (firstVariant?.salePrice ?? 0).toDouble();
-                  final originalPrice = (firstVariant?.price ?? salePrice).toDouble();
-                  return <String, dynamic>{
-                    'id': product.id ?? '',
-                    'name': (product.name ?? '').trim().isEmpty ? (vendor.storeName ?? 'Item') : product.name!,
-                    'description': (product.description ?? '').trim().isEmpty
-                        ? (vendor.storeName ?? '')
-                        : product.description!,
-                    'image': product.thumbnail ?? '',
-                    'originalPrice': originalPrice.toStringAsFixed(0),
-                    'discountedPrice': salePrice.toStringAsFixed(0),
-                    'rating': (vendor.ratingAvg ?? 0).toStringAsFixed(1),
-                    'isVegetarian': true,
-                  };
-                }))
-            .toList();
+        final List<Map<String, dynamic>> khanaKhajanaItems = controller.khanaKhajanaVendors.expand((vendor) => (vendor.products ?? const []).map((product) {
+          final variants = product.variants ?? const [];
+          final firstVariant = variants.isNotEmpty ? variants.first : null;
+          final salePrice = (firstVariant?.salePrice ?? 0).toDouble();
+          final originalPrice = (firstVariant?.price ?? salePrice).toDouble();
+          return <String, dynamic>{
+            'id': product.id ?? '',
+            'name': (product.name ?? '').trim().isEmpty ? (vendor.storeName ?? 'Item') : product.name!,
+            'description': (product.description ?? '').trim().isEmpty ? (vendor.storeName ?? '') : product.description!,
+            'image': product.thumbnail ?? '',
+            'originalPrice': originalPrice.toStringAsFixed(0),
+            'discountedPrice': salePrice.toStringAsFixed(0),
+            'rating': (vendor.ratingAvg ?? 0).toStringAsFixed(1),
+            'isVegetarian': true,
+          };
+        })).toList();
 
         return Scaffold(
           body: RefreshIndicator(
@@ -167,38 +157,34 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
               scrollable: true,
               topColor: dynamicTopColor,
               topHeight: 420,
-              topChild: Container(
-                child: Column(
-                  children: [
-                    HomePageAddressAndSearchAndProfileComponenet(
-                      onAddressTap: _openSelectAddressBottomSheet,
-                      addressLabel: _selectedAddressLabel,
-                    ),
-                    HomePageCatagoryComponent(categories: apiCategories),
-                    const SizedBox(height: 6),
-                    CommonImageCarouselComponent(
-                      imageUrls: bannerUrls,
-                      height: 145,
-                      borderRadius: 10,
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      fallbackWidget: Image.asset('Assets/Extras/cat_5.png', scale: 5),
-                      onPageChanged: (index) {
-                        if (!mounted) return;
-                        setState(() {
-                          _currentBannerIndex = index;
-                        });
-                      },
-                    ),
-
-                  ],
-                ),
+              topChild: Column(
+                children: [
+                  HomePageAddressAndSearchAndProfileComponenet(
+                    onAddressTap: _openSelectAddressBottomSheet,
+                    addressLabel: _selectedAddressLabel,
+                  ),
+                  HomePageCatagoryComponent(categories: apiCategories),
+                  const SizedBox(height: 6),
+                  CommonImageCarouselComponent(
+                    imageUrls: bannerUrls,
+                    height: 145,
+                    borderRadius: 10,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    fallbackWidget: Image.asset('Assets/Extras/cat_5.png', scale: 5),
+                    onPageChanged: (index) {
+                      if (!mounted) return;
+                      setState(() {
+                        _currentBannerIndex = index;
+                      });
+                    },
+                  ),
+                ],
               ),
               bottomChild: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 10),
-                  
-                  Container(
+                  SizedBox(
                     height: 296,
                     child: FoodTabBarComponent(
                       tabss: dynamicFoodTabs,
@@ -206,17 +192,13 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    child: KhanaKhajanaComponent(
-                      items: khanaKhajanaItems,
-                      isLoading: controller.loading && khanaKhajanaItems.isEmpty,
-                    ),
+                  KhanaKhajanaComponent(
+                    items: khanaKhajanaItems,
+                    isLoading: controller.loading && khanaKhajanaItems.isEmpty,
                   ),
-                  SizedBox(height: 5),
-                  Container(
-                    child: WhatsOnYourMindComponent(),
-                  ),
-
+                  const SizedBox(height: 10),
+                  const WhatsOnYourMindComponent(),
+                   const SizedBox(height: 40),
                 ],
               ),
             ),
