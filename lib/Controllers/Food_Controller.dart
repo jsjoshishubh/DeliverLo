@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:deliverylo/Https%20Requests/dio_client.dart';
+import 'package:deliverylo/Https%20Requests/food_products_url_builder.dart';
 import 'package:deliverylo/Model%20Classes/food_home_settings_model.dart';
 import 'package:deliverylo/Model%20Classes/food_tab_discovery_model.dart';
 import 'package:deliverylo/Model%20Classes/khana_khajana_model.dart';
@@ -42,8 +43,13 @@ class FoodController extends GetxController {
       <WhatsOnYourMindCategoryModel>[].obs;
   bool whatsOnYourMindCategoriesLoading = false;
 
-  List<Map<String, dynamic>> whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
-  bool whatsOnYourMindFoodResultsLoading = false;
+  /// Products loaded for a "What's on your mind" subcategory (horizontal rail / full page).
+  List<Map<String, dynamic>> foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
+  bool foodProductsBySubCategoryLoading = false;
+
+  /// Text search on the food search delegate screen (`SearchDeligatePage`).
+  List<Map<String, dynamic>> foodSearchResults = <Map<String, dynamic>>[];
+  bool foodSearchResultsLoading = false;
 
   void setHomeAccentHex(String hexColor) {
     final next = hexColor.trim();
@@ -207,7 +213,8 @@ class FoodController extends GetxController {
       update();
     }
   }
-  Future<void> getwhatsOnYourMindFoodResults(
+  /// Loads food products for a selected "What's on your mind" subcategory.
+  Future<void> fetchFoodProductsBySubCategory(
     String categoryId, {
     double ratingMin = 0.0,
     String diet = 'all',
@@ -218,57 +225,130 @@ class FoodController extends GetxController {
     final id = categoryId.trim();
     if (id.isEmpty) return;
 
-    whatsOnYourMindFoodResultsLoading = true;
-    whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+    foodProductsBySubCategoryLoading = true;
+    foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
     update();
 
     try {
-      final dietNorm = diet.trim().toLowerCase();
-      var url =
-          'products?subCategoryId=$id&type=food&page=1&limit=20&ratingMin=$ratingMin';
-      if (dietNorm == 'veg' || dietNorm == 'non_veg') {
-        url += '&diet=$dietNorm';
-      }
-      if (offersOnly) url += '&hasOffers=true';
-      if (sort != null && sort.trim().isNotEmpty) {
-        url += '&sort=${Uri.encodeQueryComponent(sort.trim())}';
-      }
-      if (applyFilters) url += '&filter=1';
+      final url = buildFoodProductsSubCategoryUrl(
+        subCategoryId: id,
+        page: 1,
+        limit: 20,
+        ratingMin: ratingMin,
+        diet: diet,
+        offersOnly: offersOnly,
+        sort: sort,
+        applyFilters: applyFilters,
+      );
       final response = await dioClient.getRequest(url);
       final data = response.data;
       if (data is Map<String, dynamic>) {
         final parsed = FoodTabDiscoveryResponseModel.fromJson(data);
         final items = parsed.data?.items ?? const <FoodItemModel>[];
-        whatsOnYourMindFoodResults =
-            items.map(_foodItemToWhatsOnMindResultMap).toList();
+        foodProductsBySubCategoryResults =
+            items.map(_foodItemToSearchCardMap).toList();
       } else {
-        whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+        foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
       }
     } catch (e) {
       log(e.toString());
-      whatsOnYourMindFoodResults = <Map<String, dynamic>>[];
+      foodProductsBySubCategoryResults = <Map<String, dynamic>>[];
     } finally {
-      whatsOnYourMindFoodResultsLoading = false;
+      foodProductsBySubCategoryLoading = false;
       update();
     }
   }
 
-  Map<String, dynamic> _foodItemToWhatsOnMindResultMap(FoodItemModel item) {
-    final delivery = item.deliveryTime.trim().isNotEmpty
-        ? item.deliveryTime.trim()
-        : '20-30 min';
+  /// Food search for [SearchDeligatePage]. Uses [buildFoodProductsSearchUrl] (`search` param).
+  Future<void> searchFoodProducts(
+    String query, {
+    double ratingMin = 0.0,
+    String diet = 'all',
+    bool offersOnly = false,
+    String? sort,
+    bool applyFilters = false,
+  }) async {
+    final q = query.trim();
+    if (q.isEmpty) {
+      foodSearchResults = <Map<String, dynamic>>[];
+      foodSearchResultsLoading = false;
+      update();
+      return;
+    }
+
+    foodSearchResultsLoading = true;
+    foodSearchResults = <Map<String, dynamic>>[];
+    update();
+
+    try {
+      final url = buildFoodProductsSearchUrl(
+        searchTerm: q,
+        page: 1,
+        limit: 20,
+        ratingMin: ratingMin,
+        diet: diet,
+        offersOnly: offersOnly,
+        sort: sort,
+        applyFilters: applyFilters,
+      );
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final parsed = FoodTabDiscoveryResponseModel.fromJson(data);
+        final items = parsed.data?.items ?? const <FoodItemModel>[];
+        foodSearchResults = items.map(_foodItemToSearchCardMap).toList();
+      } else {
+        foodSearchResults = <Map<String, dynamic>>[];
+      }
+    } catch (e) {
+      log(e.toString());
+      foodSearchResults = <Map<String, dynamic>>[];
+    } finally {
+      foodSearchResultsLoading = false;
+      update();
+    }
+  }
+
+  Map<String, dynamic> _foodItemToSearchCardMap(FoodItemModel item) {
+    final deliveryRaw = item.deliveryTime.trim();
+    final locationRaw = item.location.trim();
+    final discount = item.discount.trim();
+
+    String offerBadge = '';
+    final int? pct = item.offerPercentage;
+    final num? amt = item.offerAmount;
+    final bool hasPct = pct != null && pct > 0;
+    final bool hasAmt = amt != null && amt > 0;
+    if (hasPct) {
+      offerBadge = '$pct% OFF';
+    } else if (hasAmt) {
+      final num a = amt;
+      offerBadge =
+          a == a.roundToDouble() ? '₹${a.toInt()} OFF' : '₹${a.toStringAsFixed(0)} OFF';
+    }
+
+    String priceForTwo = '';
+    if (item.price != null && item.price! > 0) {
+      final p = item.price!;
+      priceForTwo = p == p.roundToDouble() ? '₹${p.toInt()} for two' : '₹${p.toStringAsFixed(0)} for two';
+    }
+
     return <String, dynamic>{
       'id': item.id,
+      'vendorId': item.vendorId,
       'name': item.name,
       'cuisine': item.category,
-      'dish': item.name,
-      'location': delivery,
+      'dish': item.dish.trim().isNotEmpty ? item.dish : item.name,
+      'location': locationRaw,
       'imageUrl': item.imageUrl,
       'rating': item.rating,
-      'deliveryTime': delivery,
+      'deliveryTime': deliveryRaw,
+      'price': item.price,
+      'priceForTwo': priceForTwo,
       'deliveryFee': 'Free Fee',
-      'isPureVeg': false,
-      'offerText': item.discount,
+      'isPureVeg': item.isPureVeg,
+      'offerText': discount,
+      'offerBadge': offerBadge,
     };
   }
 }

@@ -19,7 +19,16 @@ class SearchRestaurantCard extends StatelessWidget {
     final rating = (item['rating'] as num?)?.toDouble() ?? 4.0;
     final offerBadge = item['offerBadge'] as String? ?? '';
     final offerText = item['offerText'] as String? ?? '';
-
+    final imageUrl = item['imageUrl'] as String? ?? '';
+    final isNetwork =
+        imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+    final distanceRaw = item['distance'] as String?;
+    final locationRaw = item['location'] as String?;
+    final distanceDisplay = (distanceRaw != null && distanceRaw.trim().isNotEmpty)
+        ? distanceRaw.trim()
+        : (locationRaw != null && locationRaw.trim().isNotEmpty
+            ? locationRaw.trim()
+            : '2.5 km');
     return GestureDetector(
       onTap: onTap ?? () {},
       child: Container(
@@ -42,21 +51,44 @@ class SearchRestaurantCard extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left:10.0,top: 10.0,bottom: 10.0),
+                  padding: const EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      item['imageUrl'] as String,
-                      width: 110,
-                      height: 110,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 120,
-                        height: 120,
-                        color: greyFontColor.shade50.withValues(alpha: 0.2),
-                        child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 40),
-                      ),
-                    ),
+                    child: imageUrl.isEmpty
+                        ? Container(
+                            width: 110,
+                            height: 110,
+                            color: greyFontColor.shade50.withValues(alpha: 0.2),
+                            child: Icon(Icons.restaurant,
+                                color: greyFontColor.shade50, size: 40),
+                          )
+                        : isNetwork
+                            ? Image.network(
+                                imageUrl,
+                                width: 110,
+                                height: 110,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 110,
+                                  height: 110,
+                                  color: greyFontColor.shade50.withValues(alpha: 0.2),
+                                  child: Icon(Icons.restaurant,
+                                      color: greyFontColor.shade50, size: 40),
+                                ),
+                              )
+                            : Image.asset(
+                                imageUrl,
+                                width: 110,
+                                height: 110,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 110,
+                                  height: 110,
+                                  color: greyFontColor.shade50.withValues(alpha: 0.2),
+                                  child: Icon(Icons.restaurant,
+                                      color: greyFontColor.shade50, size: 40),
+                                ),
+                              ),
                   ),
                 ),
                 if (offerBadge.isNotEmpty)
@@ -75,9 +107,9 @@ class SearchRestaurantCard extends StatelessWidget {
                             offset: const Offset(0, 4),
                           ),
                         ],
-                      ),
+                      ),  
                       child: Text(
-                        offerBadge,
+                        "${offerBadge.toString().split('%').first} % OFF",
                         style: commonTextStyle(
                           fontSize: 12,
                           fontColor: HexColor.fromHex('#FF5200'),
@@ -110,12 +142,12 @@ class SearchRestaurantCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
+                        SizedBox(
                           width: MediaQuery.of(context).size.width * .3,
                           child: Text(
-                            item['name'] as String,
+                            item['name'] as String? ?? '',
                             style: commonTextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontColor: HexColor.fromHex('#111827'),
                               fontWeight: FontWeight.w700,
                             ),
@@ -170,50 +202,54 @@ class SearchRestaurantCard extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        Container(
-                          child: Row(
-                            children: [
-                              Icon(Icons.timer_outlined, size: 13, color: HexColor.fromHex('#16A34A')),
-                              const SizedBox(width: 4),
-                              Text(
-                                item['deliveryTime'] as String? ?? '25 mins',
-                                style: commonTextStyle(
-                                  fontSize: 12,
-                                  fontColor: HexColor.fromHex('#374151'),
-                                  fontWeight: FontWeight.w400,
-                                ),
+                        Row(
+                          children: [
+                            Icon(Icons.timer_outlined,
+                                size: 13, color: HexColor.fromHex('#16A34A')),
+                            const SizedBox(width: 4),
+                            Text(
+                              (item['deliveryTime'] as String?)?.trim().isNotEmpty == true
+                                  ? item['deliveryTime'] as String
+                                  : '25 mins',
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor: HexColor.fromHex('#374151'),
+                                fontWeight: FontWeight.w400,
                               ),
-                              const SizedBox(width: 8),
-                              Transform.rotate(
-                                angle: pi/3,
-                                child: Icon(Icons.navigation_outlined, size: 14, color: HexColor.fromHex('#002A80'))),
-                              const SizedBox(width: 4),
-                              Text(
-                                item['distance'] as String? ?? '2.5 km',
-                                style: commonTextStyle(
-                                  fontSize: 12,
-                                  fontColor: HexColor.fromHex('#374151'),
-                                  fontWeight: FontWeight.w400,
-                                ),
+                            ),
+                            const SizedBox(width: 8),
+                            Transform.rotate(
+                              angle: pi / 3,
+                              child: Icon(Icons.navigation_outlined,
+                                  size: 14, color: HexColor.fromHex('#002A80')),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              distanceDisplay,
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor: HexColor.fromHex('#374151'),
+                                fontWeight: FontWeight.w400,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 15),
                     Padding(
-                      padding: const EdgeInsets.only(left:8.0,right: 8.0),
-                      child: Divider(color: HexColor.fromHex('#E5E7EB'), height: 1, thickness: 1),
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Divider(
+                          color: HexColor.fromHex('#E5E7EB'), height: 1, thickness: 1),
                     ),
                     const SizedBox(height: 15),
-                    
                     if (offerText.isNotEmpty) ...[
                       const SizedBox(height: 1),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(Icons.local_offer_outlined, size: 14, color: HexColor.fromHex('#A855F7')),
+                          Icon(Icons.local_offer_outlined,
+                              size: 14, color: HexColor.fromHex('#A855F7')),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(

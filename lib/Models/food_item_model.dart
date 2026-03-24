@@ -6,6 +6,13 @@ class FoodItemModel {
   final String deliveryTime;
   final String category;
   final String discount;
+  final String vendorId;
+  final String dish;
+  final String location;
+  final bool isPureVeg;
+  final num? price;
+  final int? offerPercentage;
+  final num? offerAmount;
 
   FoodItemModel({
     required this.id,
@@ -15,6 +22,13 @@ class FoodItemModel {
     required this.deliveryTime,
     required this.category,
     required this.discount,
+    this.vendorId = '',
+    this.dish = '',
+    this.location = '',
+    this.isPureVeg = false,
+    this.price,
+    this.offerPercentage,
+    this.offerAmount,
   });
 
   factory FoodItemModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +48,14 @@ class FoodItemModel {
         ),
       ),
     );
+
+    final priceVal = json['price'];
+    num? priceNum;
+    if (priceVal is num) {
+      priceNum = priceVal;
+    } else {
+      priceNum = num.tryParse(_toString(priceVal));
+    }
 
     return FoodItemModel(
       id: _toString(json['id'], fallback: _toString(json['_id'])),
@@ -82,7 +104,22 @@ class FoodItemModel {
         ),
       ),
       discount: discountLabel,
+      vendorId: _toString(json['vendorId']),
+      dish: _toString(json['dish']),
+      location: _toString(json['location']),
+      isPureVeg: json['isPureVeg'] == true,
+      price: priceNum,
+      offerPercentage: _toInt(offerMap['percentage']),
+      offerAmount: offerMap['amount'] is num
+          ? offerMap['amount'] as num
+          : num.tryParse(_toString(offerMap['amount'])),
     );
+  }
+
+  static int? _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
   }
 
   static String _toString(dynamic value, {String fallback = ''}) {

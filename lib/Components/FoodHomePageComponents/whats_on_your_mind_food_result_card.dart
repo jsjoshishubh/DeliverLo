@@ -7,7 +7,7 @@ import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:get/get.dart';
 
 /// Arguments for [WhatsOnYourMindFoodResultsPage] (`Get.toNamed(..., arguments: ...)`).
-/// Matches [FoodController.getwhatsOnYourMindFoodResults] query params.
+/// Matches [FoodController.fetchFoodProductsBySubCategory] query params.
 class WhatsOnYourMindFoodResultsArgs {
   const WhatsOnYourMindFoodResultsArgs({
     required this.categoryId,
@@ -28,7 +28,7 @@ class WhatsOnYourMindFoodResultsArgs {
   final bool applyFilters;
 }
 
-/// Loads `getwhatsOnYourMindFoodResults` for [categoryId] and shows cards (embedded or full scroll).
+/// Loads [FoodController.fetchFoodProductsBySubCategory] for [categoryId] and shows cards (embedded or full scroll).
 class WhatsOnYourMindFoodResultsSection extends StatefulWidget {
   const WhatsOnYourMindFoodResultsSection({
     super.key,
@@ -88,7 +88,7 @@ class _WhatsOnYourMindFoodResultsSectionState
     final id = widget.categoryId.trim();
     if (id.isEmpty) return;
     final FoodController controller = Get.find<FoodController>();
-    await controller.getwhatsOnYourMindFoodResults(
+    await controller.fetchFoodProductsBySubCategory(
       id,
       ratingMin: widget.ratingMin,
       diet: widget.diet,
@@ -102,7 +102,7 @@ class _WhatsOnYourMindFoodResultsSectionState
   Widget build(BuildContext context) {
     return GetBuilder<FoodController>(
       builder: (controller) {
-        if (controller.whatsOnYourMindFoodResultsLoading) {
+        if (controller.foodProductsBySubCategoryLoading) {
           return SizedBox(
             height: widget.shrinkWrappedList ? 220 : null,
             width: double.infinity,
@@ -115,7 +115,7 @@ class _WhatsOnYourMindFoodResultsSectionState
             ),
           );
         }
-        if (controller.whatsOnYourMindFoodResults.isEmpty) {
+        if (controller.foodProductsBySubCategoryResults.isEmpty) {
           return SizedBox(
             height: widget.shrinkWrappedList ? 120 : null,
             width: double.infinity,
@@ -137,10 +137,10 @@ class _WhatsOnYourMindFoodResultsSectionState
               ? const NeverScrollableScrollPhysics()
               : const AlwaysScrollableScrollPhysics(),
           padding: widget.padding,
-          itemCount: controller.whatsOnYourMindFoodResults.length,
+          itemCount: controller.foodProductsBySubCategoryResults.length,
           itemBuilder: (context, index) {
             return WhatsOnYourMindFoodResultCard(
-              item: controller.whatsOnYourMindFoodResults[index],
+              item: controller.foodProductsBySubCategoryResults[index],
             );
           },
         );

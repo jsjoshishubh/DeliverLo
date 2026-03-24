@@ -429,7 +429,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
       } : null,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(212, 0, 14, 30),
+        margin: const EdgeInsets.fromLTRB(190, 0, 14, 30),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: _cartItemCount > 0 ? HexColor.fromHex('#E88A2D') : HexColor.fromHex('#9CA3AF'),
