@@ -483,4 +483,25 @@ class FoodController extends GetxController {
     }
     return names.isEmpty ? <String>['Recommended'] : names;
   }
+
+
+  /// Product detail for item bottom sheet (`products/:id?format=listing`).
+  Future<Map<String, dynamic>?> getDetailScreenItemDetails(String productId) async {
+    try {
+      final url = 'products/${productId.trim()}?format=listing';
+      final response = await dioClient.getRequest(url);
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final success = data['success'] == true;
+        final inner = data['data'];
+        if (success && inner is Map) {
+          return Map<String, dynamic>.from(inner);
+        }
+      }
+      return null;
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
 }

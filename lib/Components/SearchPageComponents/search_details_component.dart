@@ -110,8 +110,27 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   }
 
   int get _cartItemCount => _cartItems.length;
-  int get _cartTotalAmount => _cartItems.fold(0, (sum, item) => sum + parsePrice(item['price'] as String?));
+
+  int get _cartTotalAmount {
+    return _cartItems.fold(0, (sum, item) {
+      final tp = item['totalPrice'];
+      if (tp is num) return sum + tp.round();
+      return sum + parsePrice(item['price']?.toString());
+    });
+  }
+
   String get _cartTotalFormatted => '₹$_cartTotalAmount';
+
+  void _openCheckout() {
+    final list = _cartItems.map((e) => Map<String, dynamic>.from(e)).toList();
+    Get.toNamed(
+      Routes.CHECKOUT,
+      arguments: <String, dynamic>{
+        'cartItems': list,
+        'restaurantDetails': Map<String, dynamic>.from(widget.restaurantDetails),
+      },
+    );
+  }
 
   Widget _buildMenuTabBar() {
     if (!_useVendorMenuApi()) {
@@ -509,9 +528,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
 
   Widget _buildViewCartBar() {
     return GestureDetector(
-      onTap: _cartItemCount > 0 ? () {
-        Get.toNamed(Routes.CHECKOUT);
-      } : null,
+      onTap: _cartItemCount > 0 ? _openCheckout : null,
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(190, 0, 14, 30),

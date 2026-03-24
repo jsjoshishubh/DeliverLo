@@ -1,9 +1,10 @@
 import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
 import 'package:deliverylo/Commons%20and%20Reusables/common_doted_divider.dart';
+import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
+import 'package:get/get.dart';
 
 class SearchDetailsTabBar extends StatefulWidget {
   final List<String> tabs;
@@ -220,6 +221,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
       child: Container(
         height: MediaQuery.of(context).size.height * 0.72,
         child: SearchedItemDetailedBottomBarComponent(
+          productId: (item['id'] ?? '').toString(),
           item: item,
           onAddToCart: (customizedItem) {
             Navigator.of(context).pop();
@@ -236,7 +238,6 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
     final isBestseller = item['isBestseller'] as bool? ?? false;
     final titleDish = (item['dish'] ?? item['name'] ?? '').toString().trim();
     final descText = (item['description'] ?? '').toString();
-print("titleDish: $item");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -384,11 +385,15 @@ print("titleDish: $item");
 
 
 class SearchedItemDetailedBottomBarComponent extends StatefulWidget {
+  /// Product id for [FoodController.getDetailScreenItemDetails].
+  final String productId;
+  /// Listing-row snapshot until the detail API returns.
   final Map<String, dynamic>? item;
   final void Function(Map<String, dynamic> customizedItem) onAddToCart;
 
   const SearchedItemDetailedBottomBarComponent({
     super.key,
+    required this.productId,
     this.item,
     required this.onAddToCart,
   });
@@ -398,39 +403,465 @@ class SearchedItemDetailedBottomBarComponent extends StatefulWidget {
 }
 
 class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDetailedBottomBarComponent> {
-  Map<String, dynamic> get _item => widget.item ?? <String, dynamic>{};
-  bool _extraSpicy = false;
-  bool _extraRaita = true;
-  bool _addBoiledEgg = false;
-  String _selectedPortion = 'single'; // single, double, family
+  late Map<String, dynamic> _item;
+
+  @override
+  void initState() {
+    super.initState();
+    _item = Map<String, dynamic>.from(widget.item ?? <String, dynamic>{});
+    _rebuildVariantSelectionFromCurrentItem();
+    _rebuildOptionSelectionsFromCurrentItem();
+    _fetchDetail();
+  }
+
+  Future<void> _fetchDetail() async {
+    final id = widget.productId.trim();
+    if (id.isEmpty) return;
+    final FoodController food = Get.isRegistered<FoodController>()
+        ? Get.find<FoodController>()
+        : Get.put(FoodController());
+    final details = await food.getDetailScreenItemDetails(id);
+    if (!mounted || details == null) return;
+    setState(() {
+      _item = details;
+      _rebuildVariantSelectionFromCurrentItem();
+      _rebuildOptionSelectionsFromCurrentItem();
+    });
+  }
+
+  /// Selected variant `_id` when [variants] exist; otherwise null (use product price).
+  String? _selectedVariantId;
+
+  /// Option group `_id` → selected option item `_id`s.
+  Map<String, Set<String>> _selectedOptionIdsByGroup = {};
+
+  List<Map<String, dynamic>> get _parsedVariants {
+    final raw = _item['variants'];
+    if (raw is! List) return <Map<String, dynamic>>[];
+    final list = <Map<String, dynamic>>[];
+    for (final e in raw) {
+      if (e is Map<String, dynamic>) {
+        list.add(e);
+      } else if (e is Map) {
+        list.add(Map<String, dynamic>.from(e));
+      }
+    }
+    return list.where((v) {
+      final st = v['status']?.toString().toLowerCase().trim() ?? 'active';
+      return st.isEmpty || st == 'active';
+    }).toList();
+  }
+
+  bool _variantIsAvailable(Map<String, dynamic> v) {
+    final inv = v['inventory'];
+    if (inv is! Map) return true;
+    final invMap = Map<String, dynamic>.from(inv);
+    final avail = invMap['available'];
+    if (avail is num) return avail.toInt() > 0;
+    final stock = invMap['stock'];
+    if (stock is num) return stock.toInt() > 0;
+    return true;
+  }
+
+  double _variantUnitPrice(Map<String, dynamic> v) {
+    final sp = v['salePrice'];
+    if (sp is num) return sp.toDouble();
+    final p = v['price'];
+    if (p is num) return p.toDouble();
+    return double.tryParse(sp?.toString() ?? '') ??
+        double.tryParse(p?.toString() ?? '0') ??
+        0;
+  }
+
+  Map<String, dynamic>? get _selectedVariantMap {
+    final id = _selectedVariantId;
+    if (id == null || id.isEmpty) return null;
+    for (final v in _parsedVariants) {
+      if (v['_id']?.toString() == id) return v;
+    }
+    return null;
+  }
+
+  void _rebuildVariantSelectionFromCurrentItem() {
+    final vars = _parsedVariants;
+    if (vars.isEmpty) {
+      _selectedVariantId = null;
+      return;
+    }
+    String? pick;
+    for (final v in vars) {
+      if (v['isDefault'] == true && _variantIsAvailable(v)) {
+        final id = v['_id']?.toString();
+        if (id != null && id.isNotEmpty) pick = id;
+        break;
+      }
+    }
+    if (pick == null) {
+      for (final v in vars) {
+        if (_variantIsAvailable(v)) {
+          final id = v['_id']?.toString();
+          if (id != null && id.isNotEmpty) {
+            pick = id;
+            break;
+          }
+        }
+      }
+    }
+    pick ??= vars.first['_id']?.toString();
+    _selectedVariantId = (pick != null && pick.isNotEmpty) ? pick : null;
+  }
 
   double get _basePrice {
-    final priceString = _item['price'] as String? ?? '0';
+    final p = _item['price'];
+    if (p is num) return p.toDouble();
+    final priceString = p?.toString() ?? '0';
     final numeric = RegExp(r'[0-9]+(\.[0-9]+)?').firstMatch(priceString)?.group(0);
     return double.tryParse(numeric ?? '0') ?? 0;
   }
 
-  double get _portionMultiplier {
-    switch (_selectedPortion) {
-      case 'double':
-        return 2;
-      case 'family':
-        return 4;
-      case 'single':
-      default:
-        return 1;
-    }
+  String get _displayTitle {
+    final d = _item['dish']?.toString().trim();
+    if (d != null && d.isNotEmpty) return d;
+    return (_item['name'] ?? 'Item').toString();
   }
 
-  double get _addOnsPrice {
-    double total = 0;
-    if (_extraRaita) total += 20;
-    if (_addBoiledEgg) total += 15;
+  String get _ratingLabel {
+    final r = _item['rating'];
+    final v = r is num ? r.toDouble() : double.tryParse(r?.toString() ?? '') ?? 0;
+    if (v == v.roundToDouble()) return '${v.toInt()}';
+    return v.toStringAsFixed(1);
+  }
+
+  String get _traitsLabel {
+    final labels = _item['displayLabels'];
+    if (labels is List && labels.isNotEmpty) {
+      return labels.map((e) => e.toString()).join(', ');
+    }
+    final cuisine = _item['cuisine']?.toString().trim();
+    if (cuisine != null && cuisine.isNotEmpty) return cuisine;
+    return 'Spicy';
+  }
+
+  String get _descriptionText {
+    final d = _item['description']?.toString().trim();
+    if (d != null && d.isNotEmpty) return d;
+    return 'Authentic Basmati rice cooked with marinated chicken pieces, fresh herbs, and traditional spices. Served with Mirchi ka Salan and Raita.';
+  }
+
+  List<Map<String, dynamic>> get _parsedOptionGroups {
+    final raw = _item['optionGroups'];
+    if (raw is! List) return <Map<String, dynamic>>[];
+    final list = <Map<String, dynamic>>[];
+    for (final e in raw) {
+      if (e is Map<String, dynamic>) {
+        list.add(e);
+      } else if (e is Map) {
+        list.add(Map<String, dynamic>.from(e));
+      }
+    }
+    list.sort((a, b) {
+      final ia = _intFromDynamic(a['sortOrder'], 0);
+      final ib = _intFromDynamic(b['sortOrder'], 0);
+      return ia.compareTo(ib);
+    });
+    return list;
+  }
+
+  List<Map<String, dynamic>> _sortedOptionItems(dynamic raw) {
+    if (raw is! List) return <Map<String, dynamic>>[];
+    final list = <Map<String, dynamic>>[];
+    for (final e in raw) {
+      if (e is Map<String, dynamic>) {
+        list.add(e);
+      } else if (e is Map) {
+        list.add(Map<String, dynamic>.from(e));
+      }
+    }
+    list.sort((a, b) {
+      final ia = _intFromDynamic(a['sortOrder'], 0);
+      final ib = _intFromDynamic(b['sortOrder'], 0);
+      return ia.compareTo(ib);
+    });
+    return list;
+  }
+
+  int _intFromDynamic(dynamic v, int fallback) {
+    if (v is num) return v.toInt();
+    return int.tryParse(v?.toString() ?? '') ?? fallback;
+  }
+
+  double _priceModifierOf(Map<String, dynamic> optionItem) {
+    final pm = optionItem['priceModifier'];
+    if (pm is num) return pm.toDouble();
+    return double.tryParse(pm?.toString() ?? '0') ?? 0;
+  }
+
+  void _rebuildOptionSelectionsFromCurrentItem() {
+    final next = <String, Set<String>>{};
+    for (final g in _parsedOptionGroups) {
+      final gid = g['_id']?.toString() ?? '';
+      if (gid.isEmpty) continue;
+      final minSel = _intFromDynamic(g['minSelect'], 0);
+      final items = _sortedOptionItems(g['items']);
+      final selected = <String>{};
+      for (final it in items) {
+        if (it['isDefault'] == true) {
+          final id = it['_id']?.toString() ?? '';
+          if (id.isNotEmpty) selected.add(id);
+        }
+      }
+      if (selected.isEmpty && minSel > 0) {
+        for (var i = 0; i < minSel && i < items.length; i++) {
+          final id = items[i]['_id']?.toString() ?? '';
+          if (id.isNotEmpty) selected.add(id);
+        }
+      }
+      next[gid] = selected;
+    }
+    _selectedOptionIdsByGroup = next;
+  }
+
+  void _onOptionItemTap(
+    String groupId,
+    String optionItemId,
+    int minSelect,
+    int maxSelect,
+    List<Map<String, dynamic>> itemsInGroup,
+  ) {
+    final maxCap = maxSelect > 0 ? maxSelect : (itemsInGroup.isEmpty ? 1 : itemsInGroup.length);
+
+    setState(() {
+      final current = Set<String>.from(_selectedOptionIdsByGroup[groupId] ?? {});
+
+      if (maxSelect == 1) {
+        if (current.contains(optionItemId)) {
+          if (minSelect == 0) current.remove(optionItemId);
+        } else {
+          current
+            ..clear()
+            ..add(optionItemId);
+        }
+      } else {
+        if (current.contains(optionItemId)) {
+          if (current.length > minSelect) current.remove(optionItemId);
+        } else if (current.length < maxCap) {
+          current.add(optionItemId);
+        }
+      }
+
+      _selectedOptionIdsByGroup[groupId] = current;
+    });
+  }
+
+  String _optionItemSubtitle(Map<String, dynamic> it) {
+    final p = _priceModifierOf(it);
+    if (p <= 0) return 'No extra charge';
+    return '+ ${_formatPrice(p)}';
+  }
+
+  Widget _optionSelectControl(bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 28,
+        width: 28,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected ? HexColor.fromHex('#22C55E') : Colors.grey,
+          ),
+          color: selected ? HexColor.fromHex('#DCFCE7') : Colors.white,
+        ),
+        child: Icon(
+          selected ? Icons.check : Icons.add,
+          size: 18,
+          color: selected ? HexColor.fromHex('#16A34A') : HexColor.fromHex('#9CA3AF'),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildOptionGroupSection(Map<String, dynamic> g) {
+    final gid = g['_id']?.toString() ?? '';
+    if (gid.isEmpty) return <Widget>[];
+
+    final items = _sortedOptionItems(g['items']);
+    if (items.isEmpty) return <Widget>[];
+
+    final name = g['name']?.toString().trim().isNotEmpty == true
+        ? g['name'].toString().trim()
+        : 'Options';
+    final minSel = _intFromDynamic(g['minSelect'], 0);
+    final maxSel = _intFromDynamic(g['maxSelect'], 0);
+
+    final hintParts = <String>[];
+    if (minSel > 0) hintParts.add('Choose at least $minSel');
+    if (maxSel == 1) {
+      hintParts.add('Select one');
+    } else if (maxSel > 1) {
+      hintParts.add('Up to $maxSel');
+    }
+    final hint = hintParts.join(' · ');
+
+    final children = <Widget>[
+      Text(
+        name,
+        style: commonTextStyle(
+          fontColor: HexColor.fromHex('#111827'),
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      if (hint.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(
+          hint,
+          style: commonTextStyle(
+            fontColor: HexColor.fromHex('#6B7280'),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+      const SizedBox(height: 10),
+    ];
+
+    for (final it in items) {
+      final oid = it['_id']?.toString() ?? '';
+      if (oid.isEmpty) continue;
+      final isOn = _selectedOptionIdsByGroup[gid]?.contains(oid) ?? false;
+      children.add(
+        buildAddOnCard(
+          title: it['name']?.toString() ?? 'Option',
+          subtitle: _optionItemSubtitle(it),
+          icon: Icons.tune_rounded,
+          iconBackground: HexColor.fromHex('#DBEAFE'),
+          iconColor: HexColor.fromHex('#2563EB'),
+          trailing: _optionSelectControl(
+            isOn,
+            () => _onOptionItemTap(gid, oid, minSel, maxSel, items),
+          ),
+        ),
+      );
+      children.add(const SizedBox(height: 10));
+    }
+
+    children.add(const SizedBox(height: 4));
+    return children;
+  }
+
+  double get _optionsPrice {
+    var total = 0.0;
+    for (final g in _parsedOptionGroups) {
+      final gid = g['_id']?.toString() ?? '';
+      if (gid.isEmpty) continue;
+      final selected = _selectedOptionIdsByGroup[gid];
+      if (selected == null || selected.isEmpty) continue;
+      for (final it in _sortedOptionItems(g['items'])) {
+        final id = it['_id']?.toString() ?? '';
+        if (id.isNotEmpty && selected.contains(id)) {
+          total += _priceModifierOf(it);
+        }
+      }
+    }
     return total;
   }
 
+  bool get _optionRulesSatisfied {
+    for (final g in _parsedOptionGroups) {
+      final gid = g['_id']?.toString() ?? '';
+      if (gid.isEmpty) continue;
+      final minSel = _intFromDynamic(g['minSelect'], 0);
+      final n = _selectedOptionIdsByGroup[gid]?.length ?? 0;
+      if (n < minSel) return false;
+    }
+    return true;
+  }
+
+  bool get _variantRulesSatisfied {
+    if (_parsedVariants.isEmpty) return true;
+    final m = _selectedVariantMap;
+    if (m == null) return false;
+    return _variantIsAvailable(m);
+  }
+
+  bool get _canAddToCart {
+    if (!_variantRulesSatisfied) return false;
+    if (_parsedOptionGroups.isNotEmpty && !_optionRulesSatisfied) return false;
+    return true;
+  }
+
+  /// Product line price: selected variant when present, else listing `price`.
+  double get _lineBasePrice {
+    final sv = _selectedVariantMap;
+    if (sv != null) return _variantUnitPrice(sv);
+    return _basePrice;
+  }
+
   double get _totalPrice {
-    return (_basePrice * _portionMultiplier) + _addOnsPrice;
+    return _lineBasePrice + _optionsPrice;
+  }
+
+  String _variantChipLabel(Map<String, dynamic> v) {
+    final dn = v['displayName']?.toString().trim();
+    final label = (dn != null && dn.isNotEmpty)
+        ? dn
+        : (v['sku']?.toString().trim().isNotEmpty == true
+            ? v['sku'].toString().trim()
+            : 'Size');
+    return '$label\n${_formatPrice(_variantUnitPrice(v))}';
+  }
+
+  List<Widget> _buildVariantPortionSection() {
+    final vars = _parsedVariants;
+    if (vars.isEmpty) return <Widget>[];
+
+    final activeColor = HexColor.fromHex('#FF5200');
+    final selectedId = _selectedVariantId ?? '';
+
+    return <Widget>[
+      Text(
+        'Portion Size',
+        style: commonTextStyle(
+          fontColor: HexColor.fromHex('#111827'),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      const SizedBox(height: 10),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < vars.length; i++) ...[
+            if (i > 0) const SizedBox(width: 10),
+            Expanded(
+              child: Opacity(
+                opacity: _variantIsAvailable(vars[i]) ? 1 : 0.45,
+                child: IgnorePointer(
+                  ignoring: !_variantIsAvailable(vars[i]),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildPortionChip(
+                        label: _variantChipLabel(vars[i]),
+                        value: vars[i]['_id']?.toString() ?? '',
+                        onTap: (dynamic c) {
+                          final vid = c.toString();
+                          setState(() => _selectedVariantId = vid);
+                        },
+                        activeColor: activeColor,
+                        selectedPortion: selectedId,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      const SizedBox(height: 14),
+    ];
   }
 
   String _formatPrice(double value) {
@@ -439,7 +870,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
 
   @override
   Widget build(BuildContext context) {
-    final itemName = _item['name'] as String? ?? 'Item';
+    final itemName = _displayTitle;
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -462,7 +893,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
               children: [
                 Icon(Icons.star_border,color: HexColor.fromHex('#16A34A'),size: 18,),
                 const SizedBox(width: 5),
-                Text('4.8',style: commonTextStyle(fontColor: HexColor.fromHex('#16A34A'),fontSize: 14,fontWeight: FontWeight.w700,),),
+                Text(_ratingLabel,style: commonTextStyle(fontColor: HexColor.fromHex('#16A34A'),fontSize: 14,fontWeight: FontWeight.w700,),),
               ],
             ),
             const SizedBox(width: 10),
@@ -481,13 +912,13 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
               decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.grey.shade400,),
             ),
             const SizedBox(width: 10),
-            Text('Spicy',style: commonTextStyle(fontColor: HexColor.fromHex('#F48C25'),fontSize: 14,fontWeight: FontWeight.w500,),),
+            Text(_traitsLabel,style: commonTextStyle(fontColor: HexColor.fromHex('#F48C25'),fontSize: 14,fontWeight: FontWeight.w500,),),
           ],
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 54.0, vertical: 10),
           child: Text(
-            'Authentic Basmati rice cooked with marinated chicken pieces, fresh herbs, and traditional spices. Served with Mirchi ka Salan and Raita.',
+            _descriptionText,
             maxLines: 3,
             textAlign: TextAlign.center,
             style: commonTextStyle(fontSize: 14,fontWeight: FontWeight.w400,fontColor: HexColor.fromHex('#4B5563'),),
@@ -503,119 +934,12 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Customize Order',style: commonTextStyle(fontColor: HexColor.fromHex('#111827'),fontSize: 18,fontWeight: FontWeight.w700,),),
-                    const SizedBox(height: 10),
-                    buildAddOnCard(
-                      title: 'Extra Spicy',
-                      subtitle: 'Add more green chillies',
-                      icon: Icons.local_fire_department_outlined,
-                      iconBackground: HexColor.fromHex('#FEE2E2'),
-                      iconColor: HexColor.fromHex('#DC2626'),
-                      trailing: FlutterSwitch(
-                        height: 22,
-                        width: 50,
-                        toggleSize: 20,
-                        padding:2,
-                        value: _extraSpicy,
-                        inactiveColor: HexColor.fromHex('#E5E7EB'),
-                        activeColor: HexColor.fromHex('#F48C25'),
-                        onToggle: (bool val) { 
-                           setState(() {
-                            _extraSpicy = val;
-                          });
-                         },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    buildAddOnCard(
-                      title: 'Add Extra Raita',
-                      subtitle: '+ ₹20',
-                      icon: Icons.science_rounded,
-                      iconBackground: HexColor.fromHex('#DBEAFE'),
-                      iconColor: HexColor.fromHex('#2563EB'),
-                      trailing: FlutterSwitch(
-                        value: _extraRaita,
-                        height: 22,
-                        width: 50,
-                        toggleSize: 20,
-                        padding:2,
-                        inactiveColor: HexColor.fromHex('#E5E7EB'),
-                        activeColor: HexColor.fromHex('#F48C25'),
-                         onToggle: (bool val) { 
-                          setState(() {
-                            _extraRaita = val;
-                          });
-                         },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    buildAddOnCard(
-                      title: 'Add Boiled Egg',
-                      subtitle: '+ ₹15',
-                      icon: Icons.science_rounded,
-                      iconBackground: HexColor.fromHex('#DBEAFE'),
-                      iconColor: HexColor.fromHex('#2563EB'),
-                      trailing: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _addBoiledEgg = !_addBoiledEgg;
-                          });
-                        },
-                        child: Container(
-                          height: 28,
-                          width: 28,
-                          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: _addBoiledEgg ? HexColor.fromHex('#22C55E') : Colors.grey), color: _addBoiledEgg ? HexColor.fromHex('#DCFCE7') : Colors.white,),
-                          child: Icon(_addBoiledEgg ? Icons.check : Icons.add,size: 18, color: _addBoiledEgg ? HexColor.fromHex('#16A34A') : HexColor.fromHex('#9CA3AF'),),),
-                        ),
-                    ),
-                    const SizedBox(height: 14),
-                    Text('Portion Size',style: commonTextStyle(fontColor: HexColor.fromHex('#111827'),fontSize: 18,fontWeight: FontWeight.w700,),),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: buildPortionChip(
-                            label: 'Single (1)',
-                            value: 'single', 
-                            onTap: (c){
-                              setState(() {
-                                _selectedPortion = c;
-                              });
-                            }, activeColor: HexColor.fromHex('#FF5200'), 
-                            selectedPortion: _selectedPortion,
-                            
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: buildPortionChip(
-                            label: 'Double (2)',
-                            value: 'double',
-                            selectedPortion: _selectedPortion,
-                            onTap: (c){
-                              setState(() {
-                                _selectedPortion = c;
-                              });
-                            }, 
-                            activeColor: HexColor.fromHex('#FF5200'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: buildPortionChip(
-                            label: 'Family (4)',
-                            value: 'family',
-                            selectedPortion: _selectedPortion,
-                            onTap: (c){
-                              setState(() {
-                                _selectedPortion = c;
-                              });
-                            }, 
-                            activeColor: HexColor.fromHex('#FF5200'),
-                          ),
-                        ),
-                      ],
-                    ),
+                    ..._buildVariantPortionSection(),
+                    if (_parsedOptionGroups.isNotEmpty) ...[
+                    
+                      const SizedBox(height: 10),
+                      for (final g in _parsedOptionGroups) ..._buildOptionGroupSection(g),
+                    ],
                   ],
                 ),
               ),
@@ -655,18 +979,26 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
               ),
               const Spacer(),
               GestureDetector(
-                onTap: (){
+                onTap: () {
+                  if (!_canAddToCart) return;
+                  final selections = <String, List<String>>{};
+                  _selectedOptionIdsByGroup.forEach((k, v) {
+                    selections[k] = v.toList();
+                  });
                   final customizedItem = Map<String, dynamic>.from(_item)
-                      ..['extraSpicy'] = _extraSpicy
-                      ..['extraRaita'] = _extraRaita
-                      ..['boiledEgg'] = _addBoiledEgg
-                      ..['portion'] = _selectedPortion
-                      ..['totalPrice'] = _totalPrice;
-                    widget.onAddToCart(customizedItem);
+                    ..['selectedVariantId'] = _selectedVariantId
+                    ..['selectedOptionIdsByGroup'] = selections
+                    ..['totalPrice'] = _totalPrice;
+                  widget.onAddToCart(customizedItem);
                 },
                 child: Container(
                   padding: EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: HexColor.fromHex('#E88A2D'),borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(
+                    color: HexColor.fromHex('#E88A2D').withValues(
+                      alpha: _canAddToCart ? 1 : 0.45,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Row(
                     children: [
                       Icon(

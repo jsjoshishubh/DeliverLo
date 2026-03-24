@@ -272,7 +272,7 @@ int parsePrice(String? priceStr) {
     return GestureDetector(
       onTap: () => onTap(value),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 40),
         decoration: BoxDecoration(
           color: isSelected ? activeColor.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -284,9 +284,11 @@ int parsePrice(String? priceStr) {
         alignment: Alignment.center,
         child: Text(
           label,
+          textAlign: TextAlign.center,
           style: commonTextStyle(
             fontColor: isSelected ? activeColor : HexColor.fromHex('#4B5563'),
             fontSize: 14,
+          
             fontWeight: FontWeight.w600,
           ),
         ),
