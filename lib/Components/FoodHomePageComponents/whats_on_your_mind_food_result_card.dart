@@ -6,8 +6,6 @@ import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:get/get.dart';
 
-/// Arguments for [WhatsOnYourMindFoodResultsPage] (`Get.toNamed(..., arguments: ...)`).
-/// Matches [FoodController.fetchFoodProductsBySubCategory] query params.
 class WhatsOnYourMindFoodResultsArgs {
   const WhatsOnYourMindFoodResultsArgs({
     required this.categoryId,
@@ -28,7 +26,6 @@ class WhatsOnYourMindFoodResultsArgs {
   final bool applyFilters;
 }
 
-/// Loads [FoodController.fetchFoodProductsBySubCategory] for [categoryId] and shows cards (embedded or full scroll).
 class WhatsOnYourMindFoodResultsSection extends StatefulWidget {
   const WhatsOnYourMindFoodResultsSection({
     super.key,
@@ -133,9 +130,7 @@ class _WhatsOnYourMindFoodResultsSectionState
         }
         return ListView.builder(
           shrinkWrap: widget.shrinkWrappedList,
-          physics: widget.shrinkWrappedList
-              ? const NeverScrollableScrollPhysics()
-              : const AlwaysScrollableScrollPhysics(),
+          physics: widget.shrinkWrappedList ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
           padding: widget.padding,
           itemCount: controller.foodProductsBySubCategoryResults.length,
           itemBuilder: (context, index) {
@@ -156,12 +151,9 @@ class WhatsOnYourMindFoodResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamic raw = Get.arguments;
-    final WhatsOnYourMindFoodResultsArgs? args =
-        raw is WhatsOnYourMindFoodResultsArgs ? raw : null;
+    final WhatsOnYourMindFoodResultsArgs? args = raw is WhatsOnYourMindFoodResultsArgs ? raw : null;
     final String categoryId = (args?.categoryId ?? '').trim();
-    final String title = (args?.categoryTitle ?? '').trim().isNotEmpty
-        ? args!.categoryTitle!.trim()
-        : "What's on your mind";
+    final String title = (args?.categoryTitle ?? '').trim().isNotEmpty ? args!.categoryTitle!.trim() : "What's on your mind";
 
     if (categoryId.isEmpty) {
       return Scaffold(
@@ -250,10 +242,7 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.55),shape: BoxShape.circle,),
                       padding: const EdgeInsets.all(6),
                       child: Icon(Icons.favorite_border, color: Colors.white, size: 20),
                     ),
@@ -261,7 +250,7 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                 ],
               ),
               Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 10, 14),
+            padding: const EdgeInsets.fromLTRB(12, 10, 10, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -269,32 +258,16 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Text(
-                        item['name'] as String,
-                        style: commonTextStyle(
-                          fontSize: 18,
-                          fontColor: HexColor.fromHex('#0F172A'),
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text(item['name'] as String,style: commonTextStyle(fontSize: 18,fontColor: blackFontColor,fontWeight: FontWeight.w700,),maxLines: 1,overflow: TextOverflow.ellipsis,),
                     ),
-                    if (isPureVeg) ...[
+                    if (!isPureVeg) ...[
                       const SizedBox(width: 10),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.eco, size: 14, color: HexColor.fromHex('#16A34A')),
                           const SizedBox(width: 5),
-                          Text(
-                            'Pure Veg',
-                            style: commonTextStyle(
-                              fontSize: 12,
-                              fontColor: HexColor.fromHex('#1B5E20'),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          Text('Pure Veg',style: commonTextStyle(fontSize: 12,fontColor: HexColor.fromHex('#1B5E20'),fontWeight: FontWeight.w500,),),
                         ],
                       ),
                     ],
@@ -305,37 +278,18 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Text(
-                        '${item['cuisine']} • ${item['dish']}, ${item['location']}',
-                        style: commonTextStyle(
-                          fontSize: 14,
-                          fontColor: HexColor.fromHex('#64748B'),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text('${item['cuisine']}  •  ${item['dish']}, ${item['location']}',style: commonTextStyle(fontSize: 12,fontColor: greyFontColor,fontWeight: FontWeight.w400,),maxLines: 1,overflow: TextOverflow.ellipsis,),
                     ),
                     const SizedBox(width: 10),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal:8, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: HexColor.fromHex('#2ECC71'),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal:8, vertical: 4),
+                      decoration: BoxDecoration(color: HexColor.fromHex('#2ECC71'),borderRadius: BorderRadius.circular(18),),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.star, size: 12, color: Colors.white),
                           const SizedBox(width: 5),
-                          Text(
-                            '$rating',
-                            style: commonTextStyle(
-                              fontSize: 12,
-                              fontColor: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          Text('$rating',style: commonTextStyle(fontSize: 12,fontColor: Colors.white,fontWeight: FontWeight.w700,),),
                         ],
                       ),
                     ),
@@ -345,27 +299,13 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.access_time, size: 16, color: HexColor.fromHex('#475569')),
+                    Icon(Icons.access_time, size: 16, color:greyFontColor),
                     const SizedBox(width: 6),
-                    Text(
-                      item['deliveryTime'] as String? ?? '20-30 min',
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontColor: HexColor.fromHex('#475569'),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    Text(item['deliveryTime'] as String? ?? '20-30 min',style: commonTextStyle(fontSize: 12,fontColor:greyFontColor,fontWeight: FontWeight.w400,),),
                     const SizedBox(width: 20),
-                    Icon(Icons.two_wheeler, size: 16, color: HexColor.fromHex('#475569')),
+                    Icon(Icons.two_wheeler, size: 16, color: greyFontColor),
                     const SizedBox(width: 6),
-                    Text(
-                      item['deliveryFee'] as String? ?? 'Free Fee',
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontColor: HexColor.fromHex('#475569'),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    Text(item['deliveryFee'] as String? ?? 'Free Fee',style: commonTextStyle(fontSize: 12,fontColor:greyFontColor,fontWeight: FontWeight.w400,),),
                     if (offerText.isNotEmpty) const Spacer(),
                   ],
                 ),
@@ -376,22 +316,22 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
       ),
           if (offerText.isNotEmpty)
             Positioned(
-              bottom: 0,
-              right: -2,
+              bottom: -1,
+              right: -8,
               child: Container(
                 width: 112,
                 height: 29,
-                padding: const EdgeInsets.only(left: 4, right: 10),
+                padding: const EdgeInsets.only(left: 4, right: 2),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      HexColor.fromHex('#C30001'),
+                     redColor,
                       HexColor.fromHex('#FFFFFF'),
                     ],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
-                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(28), topLeft: Radius.circular(18),bottomLeft: Radius.circular(18),topRight: Radius.circular(8)),
+                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(48), topLeft: Radius.circular(28),bottomLeft: Radius.circular(28),topRight: Radius.circular(0)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -404,25 +344,11 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Text(
-                          '%',
-                          style: commonTextStyle(
-                            fontSize: 14,
-                            fontColor: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                        child: Text('%',style: commonTextStyle(fontSize: 12,fontColor: Colors.white,fontWeight: FontWeight.w800,),),
                       ),
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      offerText,
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontColor: HexColor.fromHex('#FFFFFF'),
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+                    Text(offerText.capitalizeFirst.toString(),style: commonTextStyle(fontSize: 11,fontColor: HexColor.fromHex('#FFFFFF'),fontWeight: FontWeight.w900,),),
                   ],
                 ),
               ),

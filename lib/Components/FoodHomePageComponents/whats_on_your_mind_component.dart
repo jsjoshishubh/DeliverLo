@@ -54,7 +54,7 @@ class _WhatsOnYourMindComponentState extends State<WhatsOnYourMindComponent> {
       height: 115,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 0),
+        padding: const EdgeInsets.only(left: 16, right: 20, bottom: 0),
         itemCount: cats.length,
         itemBuilder: (context, index) {
           final cat = cats[index];
@@ -98,15 +98,8 @@ class _WhatsOnYourMindComponentState extends State<WhatsOnYourMindComponent> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 2, 20, 14),
-                child: Text(
-                  "What's on your mind?",
-                  style: commonTextStyle(
-                    fontSize: 18,
-                    fontColor: HexColor.fromHex('#3D4152'),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                padding: const EdgeInsets.fromLTRB(16, 2, 20, 24),
+                child: Text("What's on your mind?",style: commonTextStyle(fontColor: blackFontColor,fontSize: 18,fontWeight: FontWeight.w700,)),
               ),
               _categoryStrip(controller),
               WhatsOnYourMindFilterOptions(
@@ -122,19 +115,16 @@ class _WhatsOnYourMindComponentState extends State<WhatsOnYourMindComponent> {
                 onOffers: () => setState(() => _offersSelected = !_offersSelected),
               ),
               if (_selectedCategoryId != null) ...[
-                Transform.translate(
-                  offset: const Offset(0, 22),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20,),
-                    child: WhatsOnYourMindFoodResultsSection(
-                      categoryId: _selectedCategoryId!,
-                      ratingMin: _queryRatingMin,
-                      diet: _queryDiet,
-                      offersOnly: _offersSelected,
-                      sort: _querySort,
-                      applyFilters: _filterChipSelected,
-                      shrinkWrappedList: true,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 22),
+                  child: WhatsOnYourMindFoodResultsSection(
+                    categoryId: _selectedCategoryId!,
+                    ratingMin: _queryRatingMin,
+                    diet: _queryDiet,
+                    offersOnly: _offersSelected,
+                    sort: _querySort,
+                    applyFilters: _filterChipSelected,
+                    shrinkWrappedList: true,
                   ),
                 ),
               ],

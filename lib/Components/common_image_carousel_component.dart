@@ -122,7 +122,7 @@ class _CommonImageCarouselComponentState
                   duration: const Duration(milliseconds: 180),
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   height: 6,
-                  width: isActive ? 18 : 6,
+                  width: isActive ? 36 : 6,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: isActive ? Colors.white : Colors.white54,

@@ -156,7 +156,7 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
             child: CommonAppScreenBackground(
               scrollable: true,
               topColor: dynamicTopColor,
-              topHeight: 375,
+              topHeight: 365,
               topChild: Column(
                 children: [
                   HomePageAddressAndSearchAndProfileComponenet(
@@ -183,22 +183,21 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
               bottomChild: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   SizedBox(
-                    height: 296,
+                    height: 306,
                     child: FoodTabBarComponent(
                       tabss: dynamicFoodTabs,
-                      accentColor: HexColor.fromHex(kFoodHomeAccentHex),
+                      accentColor: HexColor.fromHex(dynamicTopColorHex),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   KhanaKhajanaComponent(
                     items: khanaKhajanaItems,
                     isLoading: controller.loading && khanaKhajanaItems.isEmpty,
                   ),
                   const SizedBox(height: 10),
                   const WhatsOnYourMindComponent(),
-                   const SizedBox(height: 40),
                 ],
               ),
             ),

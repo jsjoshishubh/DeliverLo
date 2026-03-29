@@ -1,5 +1,6 @@
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
+import 'package:deliverylo/Views/Food%20Main%20Home/Search_Deligate_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
@@ -103,51 +104,51 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
             
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(top: 14),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                  margin: EdgeInsets.only(top: 3),
-                  padding: EdgeInsets.symmetric(vertical:11),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(220)
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          SizedBox(width: 15,),
-                          Icon(Icons.search,color: HexColor.fromHex('#9CA3AF'),),
-                          SizedBox(width: 15,),
-                          Text(widget.searchPlaceholder,style: commonTextStyle(fontColor: HexColor.fromHex('#9CA3AF'),fontSize: 16, fontWeight: FontWeight.w400),),
-                        ],
-                      ),
-                      SizedBox(width: 20,),
-                      Padding(
-                        padding: const EdgeInsets.only(right:16.0),
-                        child: Icon(Icons.mic,color: HexColor.fromHex('#9CA3AF'),),
-                      ),
-                    ],
-                  ),
-                ),),
-                if (widget.showVegMode) ...[
-                  SizedBox(width: 10),
-                  _VegModeToggle(onChanged: (value) {
-                    setState(() {
-                      _vegMode = value;
-                    });
-                  },
-                  value: _vegMode,
-                  
-                  ),
+          InkWell(
+            onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => SearchDeligatePage(searchQuery: '',))),
+            child: Container(
+              margin: EdgeInsets.only(top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                    margin: EdgeInsets.only(top: 3),
+                    padding: EdgeInsets.symmetric(vertical:11),
+                    decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(220)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(width: 15,),
+                            Icon(Icons.search,color: greyFontColor.withValues(alpha: 0.8),),
+                            SizedBox(width: 10,),
+                            Text(widget.searchPlaceholder,style: commonTextStyle(fontColor:greyFontColor.withValues(alpha: 0.4),fontSize: 16, fontWeight: FontWeight.w400),),
+                          ],
+                        ),
+                        SizedBox(width: 20,),
+                        Padding(
+                          padding: const EdgeInsets.only(right:16.0),
+                          child: Icon(Icons.mic,color:greyFontColor.withValues(alpha: 0.8),),
+                        ),
+                      ],
+                    ),
+                  ),),
+                  if (widget.showVegMode) ...[
+                    SizedBox(width: 20),
+                    _VegModeToggle(onChanged: (value) {
+                      setState(() {
+                        _vegMode = value;
+                      });
+                    },
+                    value: _vegMode,
+                    
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           )
          
@@ -225,14 +226,7 @@ class _VegModeToggle extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Veg Mode',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+        Text('Veg Mode', style: commonTextStyle(fontColor: Colors.white,fontSize: 12,fontWeight: FontWeight.w600,),),
         SizedBox(height: 8),
         FlutterSwitch(
           width: 50.0,

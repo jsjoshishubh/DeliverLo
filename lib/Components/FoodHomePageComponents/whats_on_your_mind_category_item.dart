@@ -35,7 +35,7 @@ class WhatsOnYourMindCategoryItem extends StatelessWidget {
               height: 72,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: isSelected ? Border.all(color: HexColor.fromHex('#BD0D0E'), width: 2) : null,
+                border: isSelected ? Border.all(color: HexColor.fromHex('#BD0D0E'), width: 2) : Border.all(color: greyFontColor.withValues(alpha: 0.12)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.06),
@@ -72,8 +72,8 @@ class WhatsOnYourMindCategoryItem extends StatelessWidget {
                 name,
                 style: commonTextStyle(
                   fontSize: 12,
-                  fontColor: HexColor.fromHex('#494949'),
-                  fontWeight: FontWeight.w500,
+                  fontColor: blackFontColor,
+                  fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
