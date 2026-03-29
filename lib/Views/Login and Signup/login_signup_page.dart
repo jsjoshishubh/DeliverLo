@@ -43,11 +43,8 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-                  ),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 6,),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: Column(
@@ -68,22 +65,20 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                 HexColor.fromHex('#000000'),
                                 HexColor.fromHex('#969696'),
                               ],
-                            ).createShader(
-                              Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                            );
+                            ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height),);
                           },
                           blendMode: BlendMode.srcIn,
                           child: Text(
                             'One app for food,\ngrocery, dining\nand more in mins!',
                             textAlign: TextAlign.center,
-                            style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25),
+                            style: commonTextStyle(fontSize: 28,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 18,),
                           child: Card(
-                            elevation: 2,
+                            elevation: 1,
                             shadowColor: HexColor.fromHex('#F8F8F8').withOpacity(0.9),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),),
                             color: Colors.white,
@@ -93,20 +88,23 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Center(
-                                    child: Text('Get Started',style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w700,fontColor: HexColor.fromHex('#1D1D1D'),),),
+                                    child: Text('Get Started',style: commonTextStyle(fontSize: 28,fontWeight: FontWeight.w600,fontColor: blackFontColor,),),
                                   ),
-                                  SizedBox(height: 5),
+                                  SizedBox(height: 4),
                                   Center(
-                                    child: Text('Experience premium shopping\ndelivered instantly.',style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w400,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.7),),textAlign: TextAlign.center,),
+                                    child: Text('Experience premium shopping\ndelivered instantly.',style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor),textAlign: TextAlign.center,),
                                   ),
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 16),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 22.0,vertical: 0,),
-                                    child: Text(' Mobile Number',style: commonTextStyle(fontSize: 16,fontWeight: FontWeight.w500,fontColor: HexColor.fromHex('#1D1D1D',).withOpacity(0.6),),),
+                                    child: Text(' Mobile Number',style: commonTextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontColor: blackFontColor),),
                                   ),
+                                  SizedBox(height: 4,),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 22.0,vertical: 0,),
                                     child: TextFormFieldWidget(
+                                      borderRadious: 14.0,
+                                      contentPadding: EdgeInsets.fromLTRB(12.0, 20.0, 20.0, 13.0),
                                       prefixIcon: Icon(Icons.phone_outlined,color: Colors.grey,),
                                       labelText: '(+91) 00000000000',
                                       textInputType: TextInputType.number,
@@ -135,11 +133,11 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                     loading: authController.isLoading.value,
                                     onPressed: () => onCheckValidation(),
                                     title: 'Continue with Phone',
-                                    icon: Icon(Icons.arrow_forward,color: Colors.white,),
-                                    borderRadius: BorderRadius.circular(14),
+                                    icon: Icon(Icons.arrow_forward,color: Colors.white,size: 20,),
+                                    borderRadius: BorderRadius.circular(12),
                                     height: 50,
                                   ),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 20),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 22.0,),
                                     child: Row(
@@ -148,9 +146,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                           child: Container(height: 1,color: HexColor.fromHex('#1d1d1d',).withOpacity(0.1),
                                           ),
                                         ),
-                                        const SizedBox(width: 18),
+                                        const SizedBox(width: 14),
                                         Text('Or continue with',style: commonTextStyle(fontSize: 14,fontWeight: FontWeight.w400,fontColor: HexColor.fromHex('#B0B0B0'),),),
-                                        const SizedBox(width: 18),
+                                        const SizedBox(width: 14),
                                         Expanded(child: Container(height: 1,color: HexColor.fromHex('#1d1d1d',).withOpacity(0.1),
                                         ),
                                       ),
@@ -173,7 +171,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                             child: Image.asset('Assets/Logos/apple_logo.png',height: 30,width: 30,fit: BoxFit.contain,),
                                           ),
                                         ),
-                                        const SizedBox(width: 4),
+                                        const SizedBox(width: 10),
                                         InkWell(
                                           onTap: () {
                                           },
@@ -225,11 +223,13 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
+                                  SizedBox(height: 10,),
                                 ],
                               ),
                             ),
                           ),
                         ),
+                        SizedBox(height: 20,),
                       ],
                     ),
                   ),

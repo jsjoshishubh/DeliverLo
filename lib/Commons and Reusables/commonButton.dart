@@ -39,7 +39,7 @@ class LoadingButtonState extends State<LoadingButton> {
   Widget build(BuildContext context) {
     return Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 10,horizontal:4),
+        padding: const EdgeInsets.symmetric(vertical: 10,horizontal:2),
         margin: const EdgeInsets.symmetric(horizontal: 20),
         child: Container(
           // ignore: sort_child_properties_last
@@ -64,7 +64,7 @@ class LoadingButtonState extends State<LoadingButton> {
                     children: [
                       Text(
                         widget.title.tr,
-                        style: TextStyle(fontSize: 18, color: widget.titleColor ?? Colors.white,fontWeight: FontWeight.w700),
+                        style: TextStyle(fontSize: 16, color: widget.titleColor ?? Colors.white,fontWeight: FontWeight.w700),
                         textAlign: TextAlign.center,
                       ),
                       if (widget.icon != null) ...[

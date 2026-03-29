@@ -1,91 +1,64 @@
+import 'package:deliverylo/Styles/app_colors.dart';
+import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../Routes/app_routes.dart';
 
 class MainHomeAddressAndProfileComponent extends StatefulWidget {
   const MainHomeAddressAndProfileComponent({super.key});
 
   @override
-  State<MainHomeAddressAndProfileComponent> createState() => MainHome_AddressAndProfileComponentState();
+  State<MainHomeAddressAndProfileComponent> createState() =>
+      MainHome_AddressAndProfileComponentState();
 }
 
-class MainHome_AddressAndProfileComponentState extends State<MainHomeAddressAndProfileComponent> {
+class MainHome_AddressAndProfileComponentState
+    extends State<MainHomeAddressAndProfileComponent> {
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFF2E2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.location_on_outlined,
-                      color: Color(0xFFE9A14B),
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'DELIVER TO',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF6F7682),
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: const [
-                            Text(
-                              '123 Maple St, San Francisco',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 22 / 1.6,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF151A2D),
-                              ),
-                            ),
-                            SizedBox(width: 6),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Color(0xFF98A1B0),
-                              size: 22,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: () => Get.toNamed(Routes.PROFILE),
-                    child: Container(
-                      width: 46,
-                      height: 46,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE9A14B),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(border: Border.all(color: orangeColor,width: 0.4),color: orangeColor.withValues(alpha: 0.14),shape: BoxShape.circle,),
+            child: const Icon(Icons.location_on_outlined,color: orangeColor,size: 24,),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'DELIVER TO',
+                  style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w600,fontColor: greyFontColor,),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('OTHER - 31, Bhatiyani Chohatta...',overflow: TextOverflow.ellipsis,style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w600,fontColor:blackFontColor,),),
+                    SizedBox(width: 6),
+                    Icon(Icons.keyboard_arrow_down_rounded,color: blackFontColor,size: 20,),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          InkWell(
+            onTap: () => Get.toNamed(Routes.PROFILE),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: const BoxDecoration(color: orangeColor,shape: BoxShape.circle,),
+              child: const Icon(Icons.person, color: Colors.white, size: 24),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -36,11 +36,9 @@ class AuthController extends GetxController {
       update();
       final url = 'auth/phone/send-otp';
       final reqObj = {'phone': "+91${loginForm['phone']}",};
-      log('re2 ---- ${reqObj}');
       final response = await dioClient.postRequest(url,context: context,showLoading: true,data: reqObj);
-      log('Response ---- ${response}');
       otpRequestObject.addAll(response.data['data']);
-      Get.toNamed(Routes.OTP, arguments: {'mobile': loginForm['phone_number']});
+      Get.toNamed(Routes.OTP, arguments: {'mobile': loginForm['phone']});
       changeLoading(false);
       update();
     } catch (e) {

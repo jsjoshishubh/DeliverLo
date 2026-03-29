@@ -18,9 +18,7 @@ class MainHomePage extends StatefulWidget {
 class _MainHomePageState extends State<MainHomePage> {
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> popularItems = categoryFoodResultsJson.values
-        .expand((items) => items)
-        .toList();
+    final List<Map<String, dynamic>> popularItems = categoryFoodResultsJson.values.expand((items) => items).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -31,19 +29,19 @@ class _MainHomePageState extends State<MainHomePage> {
             child: Column(
               children: [
                 const MainHomeAddressAndProfileComponent(),
-                const SizedBox(height: 38),
-                const MainHomeServicesCategoryComponent(),
-                const SizedBox(height: 8),
+                const SizedBox(height:20),
+                // const MainHomeServicesCategoryComponent(),
+                const SizedBox(height: 18),
                 const MainHomeCarouselOfferComponent(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 const MainHomeTopDealsComponent(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(' Popular Near You', style: commonTextStyle(fontSize: 20, fontColor: blackFontColor, fontWeight: FontWeight.w800)),  
-                      const SizedBox(height: 15),
+                      Text(' Popular Near You',style: commonTextStyle(fontColor: blackFontColor,fontSize: 18,fontWeight: FontWeight.w700,)),  
+                      const SizedBox(height: 20),
                       Container(
                         child: ListView.builder(
                           shrinkWrap: true,

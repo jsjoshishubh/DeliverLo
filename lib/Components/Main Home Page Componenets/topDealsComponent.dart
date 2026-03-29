@@ -35,22 +35,15 @@ class MainHomeTopDealsComponent extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.local_fire_department_outlined, color: orangeColor, size: 22),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               Expanded(
-                child: Text(
-                  'Top Deals for You',
-                  style: commonTextStyle(
-                    fontColor: blackFontColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+                child: Text('Top Deals for You',style: commonTextStyle(fontColor: blackFontColor,fontSize: 18,fontWeight: FontWeight.w700,),),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            height: 226,
+          Container(
+            height: 220,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: deals.length,
@@ -78,18 +71,14 @@ class _TopDealCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 200,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
+      decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(18),border: Border.all(color: const Color(0xFFE5E7EB)),),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 136,
+              height: 132,
               width: double.infinity,
               child: Stack(
                 children: [
@@ -100,15 +89,11 @@ class _TopDealCard extends StatelessWidget {
                     top: 12,
                     left: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal:10, vertical: 5),
                       decoration: BoxDecoration(color: item.badgeColor,borderRadius: BorderRadius.circular(12),),
                       child: Text(
                         item.badgeText,
-                        style: commonTextStyle(
-                          fontColor: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: commonTextStyle(fontColor: Colors.white,fontSize: 12,fontWeight: FontWeight.w700,),
                       ),
                     ),
                   ),
@@ -125,7 +110,7 @@ class _TopDealCard extends StatelessWidget {
                     style: commonTextStyle(
                       fontColor: orangeColor,
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -133,18 +118,14 @@ class _TopDealCard extends StatelessWidget {
                     item.description,
                     style: commonTextStyle(
                       fontColor: blackFontColor,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 2),
                   Text(
                     item.subtitle,
-                    style: commonTextStyle(
-                      fontColor: greyFontColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: commonTextStyle(fontColor: greyFontColor,fontSize: 12,fontWeight: FontWeight.w400,),
                   ),
                 ],
               ),

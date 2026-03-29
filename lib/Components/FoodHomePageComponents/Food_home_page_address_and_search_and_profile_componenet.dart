@@ -52,61 +52,56 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 70,left: 20,right: 20),
+      padding: EdgeInsets.only(top: 55,left: 20,right: 20),
       child: Column(
         children: [
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('10 minutes',style: commonTextStyle(fontSize:24,fontWeight: FontWeight.w700,fontColor: Colors.white),),
-                          SizedBox(width: 10,),
-                          _DistanceBadge(distance: widget.distance,),
-                        ],
-                      ),
-                      InkWell(
-                        onTap: () => widget.onAddressTap?.call(),
-                        child: Container(
-                          padding: EdgeInsets.only(top: 1),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.55,
-                                child: Text(
-                                  widget.addressLabel,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: commonTextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Icon(Icons.arrow_drop_down,color: Colors.white,size: 25,)
-                            ],
+          InkWell(
+            onTap: () => widget.onAddressTap?.call(),
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //  Row(
+                        //   crossAxisAlignment: CrossAxisAlignment.center,
+                        //   children: [
+                        //     Text('10 minutes',style: commonTextStyle(fontSize:18,fontWeight: FontWeight.w700,fontColor: Colors.white),),
+                        //     SizedBox(width: 10,),
+                        //     _DistanceBadge(distance: widget.distance,),
+                        //   ],
+                        // ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(widget.addressLabel.toString().split('-').first,style:  commonTextStyle(fontSize:18,fontWeight: FontWeight.w700,fontColor: Colors.white),),
+                            Icon(Icons.arrow_drop_down_rounded,color: Colors.white,size: 25,)
+                          ],
+                        ),
+                        SizedBox(height: 5,),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.78,
+                          child: Text(
+                            widget.addressLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: commonTextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              fontColor: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                // Padding(
-                //   padding: const EdgeInsets.only(top:2.0),
-                //   child: _ProfileIcon(),
-                // )
-              ],
+                ],
+              ),
+            
             ),
-
           ),
           Container(
             margin: EdgeInsets.only(top: 14),

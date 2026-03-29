@@ -317,7 +317,6 @@ class FoodItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final starColor = accentColor ?? HexColor.fromHex('#15803D');
     final isNetworkImage = item.imageUrl.startsWith('http');
-    log('item: ${item.imageUrl}');
     return GestureDetector(
       onTap: () => Get.toNamed(
             Routes.GROCERY_DETAIL_PAGE,

@@ -25,6 +25,7 @@ class TextFormFieldWidget extends StatefulWidget {
   String? textFieldTitle;
   String? textFIeldHint;
   EdgeInsetsGeometry? contentPadding;
+  double? borderRadious;
 
   TextFormFieldWidget({
     Key? key,
@@ -49,6 +50,7 @@ class TextFormFieldWidget extends StatefulWidget {
     this.textFIeldHint,
     this.textFieldTitle,
     this.contentPadding,
+    this.borderRadious = 18.0
   }) : super(key: key);
 
   @override
@@ -109,10 +111,10 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
               filled: true,
               fillColor: Colors.grey.shade50,
               hintStyle: TextStyle(fontSize: 14,color: Colors.grey),
-              errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 1),borderRadius: BorderRadius.circular(18.0),),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300, width: 1),borderRadius: BorderRadius.circular(18.0),),
-              border: OutlineInputBorder(borderSide: BorderSide(color: HexColor.fromHex('#D9D9D9')!, width: 1,),borderRadius: BorderRadius.circular(18.0),),
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: HexColor.fromHex('#D9D9D9')!,width: 1,),borderRadius: BorderRadius.circular(18.0),),
+              errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 1),borderRadius: BorderRadius.circular(widget.borderRadious!),),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300, width: 1),borderRadius: BorderRadius.circular(widget.borderRadious!),),
+              border: OutlineInputBorder(borderSide: BorderSide(color: HexColor.fromHex('#D9D9D9')!, width: 1,),borderRadius: BorderRadius.circular(widget.borderRadious!),),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: HexColor.fromHex('#D9D9D9')!,width: 1,),borderRadius: BorderRadius.circular(widget.borderRadious!),),
             ),
             textInputAction: widget.textInputAction,
             onFieldSubmitted: (v) => widget.onSubmitted != null ? widget.onSubmitted!(v) : null,

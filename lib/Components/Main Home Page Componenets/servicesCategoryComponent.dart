@@ -34,26 +34,26 @@ class MainHomeServicesCategoryComponent extends StatelessWidget {
       ),
     ];
 
-    return SizedBox(
-      height: 138,
+    return Container(
+      height: 118,
       child: ListView.builder(
         itemCount: serviceCategories.length,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           final item = serviceCategories[index];
           return Padding(
-            padding: EdgeInsets.only(right: index == serviceCategories.length - 1 ? 0 : 22,),
+            padding: EdgeInsets.only(right: index == serviceCategories.length - 1 ? 0 : 14,left:14),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(color: item.bgColor,borderRadius: BorderRadius.circular(20),),
-                  child: Icon(item.icon,size: 32,color: item.iconColor,),
+                  width: 62,
+                  height: 62,
+                  decoration: BoxDecoration(color: item.bgColor,borderRadius: BorderRadius.circular(12),),
+                  child: Icon(item.icon,size: 28,color: item.iconColor,),
                 ),
                 const SizedBox(height: 10),
-                Text(item.title,style: commonTextStyle(fontSize: 14,fontWeight: FontWeight.w700,fontColor: blackFontColor,),
+                Text(item.title,style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w700,fontColor: greyFontColor,),
                 ),
               ],
             ),

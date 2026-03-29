@@ -1,9 +1,8 @@
 import 'package:deliverylo/Commons and Reusables/common_bottom_bar.dart';
-import 'package:deliverylo/Views/Food%20Main%20Home/Food_Main_dashboard.dart';
+import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Views/Main%20Home/main_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../Routes/app_routes.dart';
 
 class MainDashBoardPage extends StatefulWidget {
@@ -81,6 +80,8 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
         items: _bottomBarItems,
+        selectedColor: orangeColor,
+        selectedBackgroundColor: orangeColor.withValues(alpha: 0.12),
       ),
     );
   }

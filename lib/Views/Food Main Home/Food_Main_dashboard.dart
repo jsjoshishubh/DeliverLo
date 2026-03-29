@@ -66,7 +66,7 @@ class _FoodMainDashboardState extends State<FoodMainDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HexColor.fromHex('#F8F8F8'),
+      // backgroundColor: HexColor.fromHex('#F8F8F8'),
       body: PageView.builder(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),

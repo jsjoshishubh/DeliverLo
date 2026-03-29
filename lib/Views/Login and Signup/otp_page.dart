@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:deliverylo/Commons and Reusables/commonButton.dart';
 import 'package:deliverylo/Controllers/Auth_Controller.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
@@ -22,9 +23,9 @@ class _OtpPageState extends State<OtpPage> {
   int _remainingSeconds = _resendSeconds;
   Timer? _resendTimer;
 
-  /// Mobile number passed from login/signup page via Get.arguments
   String get _mobileNumber {
     final args = Get.arguments;
+    log('_mobileNumber -- ${args}');
     if (args == null) return '';
     if (args is String) return args;
     if (args is Map && args['mobile'] != null) return args['mobile'].toString();
@@ -86,13 +87,8 @@ class _OtpPageState extends State<OtpPage> {
               return LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-                    ),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 16,),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minHeight: constraints.maxHeight),
                       child: Column(
@@ -114,7 +110,7 @@ class _OtpPageState extends State<OtpPage> {
                               );
                             },
                             blendMode: BlendMode.srcIn,
-                            child: Text('One app for food,\ngrocery, dining\nand more in mins!',textAlign: TextAlign.center,style: commonTextStyle(fontSize: 32,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25,),),
+                            child: Text('One app for food,\ngrocery, dining\nand more in mins!',textAlign: TextAlign.center,style: commonTextStyle(fontSize: 28,fontWeight: FontWeight.w600,fontColor: Colors.white,).copyWith(height: 1.25),),
                           ),
                           SizedBox(height: 20),
                           _buildVerificationCard(),
@@ -132,124 +128,99 @@ class _OtpPageState extends State<OtpPage> {
   Widget _buildVerificationCard() {
     const cardBg = Colors.white;
     const shadowColor = Color(0x1A000000);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 28),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Lock icon with halo
-           Image.asset('Assets/Logos/lock_logo.png',scale: 4,),
-            Text(
-              'Verification Code',
-              textAlign: TextAlign.center,
-              style: commonTextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                fontColor: HexColor.fromHex('#111827'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 18,),
+      child: Card(
+         elevation: 1,
+         shadowColor: HexColor.fromHex('#F8F8F8').withOpacity(0.9),
+         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),),
+         color: Colors.white,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+             SizedBox(height: 10,),
+             Image.asset('Assets/Logos/lock_logo.png',scale: 4.5,),
+              Text(
+                'Verification Code',
+                textAlign: TextAlign.center,
+                style: commonTextStyle(fontSize: 28,fontWeight: FontWeight.w600,fontColor: blackFontColor,),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _mobileNumber.isEmpty
-                  ? 'We have sent the verification code to\nyour mobile number'
-                  : 'We have sent the verification code to\nyour mobile number $_mobileNumber',
-              textAlign: TextAlign.center,
-              style: commonTextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontColor: HexColor.fromHex('#4B5563'),
-              ).copyWith(height: 1.4),
-            ),
-            const SizedBox(height: 24),
-            MaterialPinFormField(
-              length: 4,
-              pinController: _otpController,
-              theme: MaterialPinTheme(
-                shape: MaterialPinShape.outlined,
-                cellSize: const Size(54, 60),
-                spacing: 12,
-                borderRadius: BorderRadius.circular(14),
-                borderColor: const Color(0xFFE0E0E0),
-                focusedBorderColor: HexColor.fromHex('#FF5200'),
-                filledBorderColor: const Color(0xFF4CAF50),
-                fillColor: cardBg,
-                focusedFillColor: cardBg,
-                filledFillColor: cardBg,
-                completeFillColor: cardBg,
-                completeBorderColor: const Color(0xFF4CAF50),
-                textStyle: commonTextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontColor: const Color(0xFF1A1A1A),
-                ),
+              const SizedBox(height: 8),
+              Text(
+                _mobileNumber.isEmpty ? 'We have sent the verification code to\nyour mobile number' : 'We have sent the verification code to\nyour mobile number $_mobileNumber',
+                textAlign: TextAlign.center,
+                style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor,),
               ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.length < 4) {
-                  return 'Please enter the 4-digit code';
-                }
-                return null;
-              },
-              onCompleted: (v) {},
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Didn't receive the code? ",
-                  style: commonTextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    fontColor: HexColor.fromHex('#4B5563'),
+              const SizedBox(height: 30),
+              MaterialPinFormField(
+                length: 4,
+                pinController: _otpController,
+                theme: MaterialPinTheme(
+                  shape: MaterialPinShape.outlined,
+                  cellSize: const Size(54, 60),
+                  spacing: 12,
+                  borderRadius: BorderRadius.circular(12),
+                  borderColor: greyFontColor.withOpacity(0.28),
+                  focusedBorderColor: orangeColor,
+                  filledBorderColor: const Color(0xFF4CAF50),
+                  fillColor: cardBg,
+                  focusedFillColor: cardBg,
+                  filledFillColor: cardBg,
+                  completeFillColor: cardBg,
+                  completeBorderColor: const Color(0xFF4CAF50),
+                  textStyle: commonTextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontColor: const Color(0xFF1A1A1A),
                   ),
                 ),
-                GestureDetector(
-                  onTap: _remainingSeconds <= 0 ? ()async {
-                    _startResendTimer();
-                    await authController.onResendOtp(context, _mobileNumber);
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.length < 4) {
+                    return 'Please enter the 4-digit code';
                   }
-                  : null,
-                  child: Text('Resend Code', style: commonTextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontColor: _remainingSeconds <= 0 ? HexColor.fromHex('#FF5200'): const Color(0xFFAAAAAA),),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _formattedTimer,
-              style: commonTextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontColor: HexColor.fromHex('#4B5563'),
+                  return null;
+                },
+                onCompleted: (v) {},
               ),
-            ),
-            const SizedBox(height: 14),
-            LoadingButton(
-              title: 'Verify & Continue',
-              buttonColor: HexColor.fromHex('#F48C25'),
-              borderRadius: BorderRadius.circular(12),
-              height: 50,
-              loading: authController.isLoading.value,
-              onPressed:()=> onCheckOtpValidation(),
-            ),
-          ],
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Didn't receive the code? ",
+                    style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor,),
+                  ),
+                  GestureDetector(
+                    onTap: _remainingSeconds <= 0 ? ()async {
+                      _startResendTimer();
+                      await authController.onResendOtp(context, _mobileNumber);
+                    }
+                    : null,
+                    child: Text(' Resend Code', style: commonTextStyle(fontSize: 13, fontWeight: FontWeight.w600, fontColor: _remainingSeconds <= 0 ? HexColor.fromHex('#FF5200'): const Color(0xFFAAAAAA),),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Text(
+                _formattedTimer,
+                style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor,),
+              ),
+              const SizedBox(height: 20),
+              LoadingButton(
+                title: 'Verify & Continue',
+                buttonColor: HexColor.fromHex('#F48C25'),
+                borderRadius: BorderRadius.circular(12),
+                height: 50,
+                loading: authController.isLoading.value,
+                onPressed:()=> onCheckOtpValidation(),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

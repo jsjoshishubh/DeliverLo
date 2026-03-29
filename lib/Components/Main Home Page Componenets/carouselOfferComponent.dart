@@ -59,8 +59,8 @@ class _MainHomeCarouselOfferComponentState
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 208,
+    return Container(
+      height: 218,
       child: Column(
         children: [
           SizedBox(
@@ -79,7 +79,7 @@ class _MainHomeCarouselOfferComponentState
               },
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(_offers.length, (index) {
@@ -88,8 +88,8 @@ class _MainHomeCarouselOfferComponentState
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeInOut,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                height: 10,
-                width: isActive ? 40 : 10,
+                height: 8,
+                width: isActive ? 40 : 8,
                 decoration: BoxDecoration(
                   color: isActive
                       ? orangeColor
@@ -137,14 +137,14 @@ class _OfferBanner extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 20,
+              left: 15,
               top: 20,
               right: 24,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(item.tagLine,style: commonTextStyle(fontColor: Colors.white.withValues(alpha: 0.82),fontSize: 11,fontWeight: FontWeight.w800,).copyWith(letterSpacing: 2.2),),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   RichText(
                     text: TextSpan(
                       children: [
@@ -160,37 +160,31 @@ class _OfferBanner extends StatelessWidget {
                           text: item.titleSecondPart,
                           style: commonTextStyle(
                             fontColor: orangeColor,
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     item.subtitle,
                     style: commonTextStyle(
                       fontColor: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: orangeColor,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 10,),
+                    decoration: BoxDecoration(color: orangeColor,borderRadius: BorderRadius.circular(16),),
                     child: Text(
                       item.buttonText,
                       style: commonTextStyle(
                         fontColor: Colors.white,
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

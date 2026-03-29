@@ -156,18 +156,18 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
             child: CommonAppScreenBackground(
               scrollable: true,
               topColor: dynamicTopColor,
-              topHeight: 420,
+              topHeight: 375,
               topChild: Column(
                 children: [
                   HomePageAddressAndSearchAndProfileComponenet(
                     onAddressTap: _openSelectAddressBottomSheet,
                     addressLabel: _selectedAddressLabel,
                   ),
-                  HomePageCatagoryComponent(categories: apiCategories),
-                  const SizedBox(height: 6),
+                  // HomePageCatagoryComponent(categories: apiCategories),
+                  const SizedBox(height: 36),
                   CommonImageCarouselComponent(
                     imageUrls: bannerUrls,
-                    height: 145,
+                    height: 155,
                     borderRadius: 10,
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     fallbackWidget: Image.asset('Assets/Extras/cat_5.png', scale: 5),

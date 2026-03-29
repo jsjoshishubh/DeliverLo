@@ -45,6 +45,7 @@ dependencies:
   easy_stepper: ^1.0.1
   flash: ^3.1.1
   geolocator: ^13.0.2
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
