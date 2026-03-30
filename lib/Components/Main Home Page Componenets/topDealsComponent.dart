@@ -1,6 +1,8 @@
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MainHomeTopDealsComponent extends StatelessWidget {
   const MainHomeTopDealsComponent({super.key});
@@ -14,19 +16,25 @@ class MainHomeTopDealsComponent extends StatelessWidget {
         title: 'GROCERY',
         description: 'Starting at low price',
         subtitle: 'Limited time offer',
-        imageUrl:
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80',
+        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80',
       ),
       const _DealItem(
         badgeText: '20% OFF',
         badgeColor: Color(0xFF4B49D7),
-        title: 'ELECTRONICS',
-        description: 'Save big on latest tech',
+        title: 'Food',
+        description: 'Save big on food',
         subtitle: 'Ends in 2 days',
-        imageUrl:
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80',
+        imageUrl: 'https://t4.ftcdn.net/jpg/02/84/46/89/360_F_284468940_1bg6BwgOfjCnE3W0wkMVMVqddJgtMynE.jpg',
       ),
     ];
+
+    getNavigation({String? type}){
+      if(type == 'Food'){
+        Get.toNamed(Routes.FOOD_MAIN_DASHBOARD);
+      }else{
+        Get.toNamed(Routes.GROCERY_MAIN_DASHBOARD);
+      }
+    }
 
     return SizedBox(
       height: 270,
@@ -49,9 +57,12 @@ class MainHomeTopDealsComponent extends StatelessWidget {
               itemCount: deals.length,
               itemBuilder: (context, index) {
                 final item = deals[index];
-                return Padding(
-                  padding: EdgeInsets.only(right: index == deals.length - 1 ? 0 : 14),
-                  child: _TopDealCard(item: item),
+                return InkWell(
+                  onTap: () => getNavigation(type: item.title),
+                  child: Padding(
+                    padding: EdgeInsets.only(right: index == deals.length - 1 ? 0 : 14),
+                    child: _TopDealCard(item: item),
+                  ),
                 );
               },
             ),

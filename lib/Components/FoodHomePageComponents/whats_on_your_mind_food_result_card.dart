@@ -194,9 +194,11 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
   const WhatsOnYourMindFoodResultCard({
     super.key,
     required this.item,
+    this.onTap,
   });
 
   final Map<String, dynamic> item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -205,10 +207,11 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
     final offerText = item['offerText'] as String? ?? '';
 
     return GestureDetector(
-      onTap: () => Get.toNamed(
-            Routes.GROCERY_DETAIL_PAGE,
-            arguments: GroceryDetailPageArgs.fromWhatsOnMindMap(item),
-          ),
+      onTap: onTap ??
+          () => Get.toNamed(
+                Routes.GROCERY_DETAIL_PAGE,
+                arguments: GroceryDetailPageArgs.fromWhatsOnMindMap(item),
+              ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(

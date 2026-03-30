@@ -33,7 +33,7 @@ class SearchDetailsPage extends StatefulWidget {
 }
 
 class _SearchDetailsPageState extends State<SearchDetailsPage> {
-  late final FoodController _foodController =
+  final FoodController _foodController =
       Get.isRegistered<FoodController>() ? Get.find<FoodController>() : Get.put(FoodController());
 
   late final String _vendorId;
@@ -109,8 +109,6 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
               args != null ? _restaurantDetailsFromSearch(args) : Map<String, dynamic>.from(_defaultRestaurantDetails);
           menuTabs = List<String>.from(_defaultMenuTabs);
         }
-
-        final menuItems = args != null && args['menuItems'] != null ? List<Map<String, dynamic>>.from(args['menuItems'] as List) : [];
 
         final String? vendorIdForMenu =
             shouldFetch && c.searchedStoreDetails != null ? restaurantDetails['id']?.toString().trim() : null;

@@ -42,7 +42,7 @@ class SearchDetailsComponent extends StatefulWidget {
 }
 
 class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
-  late final FoodController _foodController =
+  final FoodController _foodController =
       Get.isRegistered<FoodController>() ? Get.find<FoodController>() : Get.put(FoodController());
 
   bool _pureVeg = false;
