@@ -18,6 +18,16 @@ String checkoutLineTitle(Map<String, dynamic> item) {
   return 'Item';
 }
 
+int checkoutLineInitialQuantity(Map<String, dynamic> item) {
+  final qc = item['quantityCount'];
+  if (qc is int && qc > 0) return qc;
+  if (qc is num && qc > 0) return qc.toInt();
+  final q = item['quantity'];
+  if (q is int && q > 0) return q;
+  if (q is num && q > 0) return q.toInt();
+  return 1;
+}
+
 String checkoutLineSubtitle(Map<String, dynamic> item) {
   final parts = <String>[];
 
@@ -116,12 +126,16 @@ class CheckoutOrderSumeryComponent extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
   final ValueChanged<int>? onSubtotalChanged;
   final ValueChanged<List<Map<String, dynamic>>>? onCartItemsChanged;
+  final Color? accentColor;
+  final Color? accentSurfaceColor;
 
   const CheckoutOrderSumeryComponent({
     super.key,
     required this.cartItems,
     this.onSubtotalChanged,
     this.onCartItemsChanged,
+    this.accentColor,
+    this.accentSurfaceColor,
   });
 
   @override
@@ -136,12 +150,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
   void initState() {
     super.initState();
     _items = widget.cartItems.map((e) => Map<String, dynamic>.from(e)).toList();
-    _quantities = _items.map((item) {
-      final q = item['quantity'];
-      if (q is int && q > 0) return q;
-      if (q is num && q > 0) return q.toInt();
-      return 1;
-    }).toList();
+    _quantities = _items.map(checkoutLineInitialQuantity).toList();
     WidgetsBinding.instance.addPostFrameCallback((_) => _emitSubtotal());
   }
 
@@ -150,12 +159,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cartItems.length != widget.cartItems.length) {
       _items = widget.cartItems.map((e) => Map<String, dynamic>.from(e)).toList();
-      _quantities = _items.map((item) {
-        final q = item['quantity'];
-        if (q is int && q > 0) return q;
-        if (q is num && q > 0) return q.toInt();
-        return 1;
-      }).toList();
+      _quantities = _items.map(checkoutLineInitialQuantity).toList();
       _emitSubtotal();
     }
   }
@@ -290,6 +294,8 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
                         key: ValueKey<String>('qty_${index}_$qty'),
                         initialValue: qty,
                         allowRemoveAtOne: true,
+                        accentColor: widget.accentColor,
+                        accentSurfaceColor: widget.accentSurfaceColor,
                         onChanged: (v) => _onQtyChanged(index, v),
                       ),
                       const SizedBox(height: 5),

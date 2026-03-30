@@ -1,13 +1,16 @@
 import 'package:deliverylo/Commons%20and%20Reusables/common_app_screen_background.dart';
+import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_TabBar_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_home_page_address_and_search_and_profile_componenet.dart';
 import 'package:deliverylo/Components/GroceryHomePageComponents/grocery_lowest_prices_section.dart';
+import 'package:deliverylo/Components/ProfilePageComponents/select_address_component.dart';
 import 'package:deliverylo/Components/GroceryHomePageComponents/grocery_snacks_drinks_section.dart';
 import 'package:deliverylo/Components/GroceryHomePageComponents/grocery_you_might_need_section.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
 class GroceryHomePage extends StatefulWidget {
   const GroceryHomePage({super.key});
@@ -17,7 +20,63 @@ class GroceryHomePage extends StatefulWidget {
 }
 
 class _GroceryHomePageState extends State<GroceryHomePage> {
+  static const String _selectedAddressStorageKey = 'food_selected_address';
+  final GetStorage _storage = GetStorage();
   int _selectedGroceryCategoryIndex = 0;
+  String _selectedAddressLabel = 'Please select address';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedAddressFromStorage();
+  }
+
+  String _buildAddressLabelFromSelection(Map selection) {
+    final String title = (selection['title'] ?? selection['label'] ?? 'Other').toString().trim();
+    final String directAddress = (selection['address'] ?? selection['fullAddress'] ?? selection['formattedAddress'] ?? '').toString().trim();
+    final String composedAddress = [
+      (selection['line1'] ?? selection['flat'] ?? '').toString().trim(),
+      (selection['line2'] ?? selection['area'] ?? '').toString().trim(),
+      (selection['landmark'] ?? '').toString().trim(),
+      (selection['city'] ?? '').toString().trim(),
+      (selection['state'] ?? '').toString().trim(),
+      (selection['pincode'] ?? selection['postalCode'] ?? '').toString().trim(),
+    ].where((part) => part.isNotEmpty).join(', ');
+    final String address = directAddress.isNotEmpty ? directAddress : composedAddress;
+    if (address.isEmpty) return title.toUpperCase();
+    return '${title.toUpperCase()} - $address';
+  }
+
+  void _loadSelectedAddressFromStorage() {
+    final dynamic storedAddress = _storage.read(_selectedAddressStorageKey);
+    if (storedAddress is! Map) return;
+    final label = _buildAddressLabelFromSelection(storedAddress);
+    if (label.trim().isEmpty) return;
+    setState(() {
+      _selectedAddressLabel = label;
+    });
+  }
+
+  Future<void> _openSelectAddressBottomSheet() async {
+    final dynamic selectedAddress = await showCommonBottomSheet<Map<String, dynamic>>(
+      context: context,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.76,
+        child: const SelectAddressComponent(),
+      ),
+    );
+
+    if (!mounted || selectedAddress is! Map) return;
+
+    await _storage.write(
+      _selectedAddressStorageKey,
+      Map<String, dynamic>.from(selectedAddress),
+    );
+
+    setState(() {
+      _selectedAddressLabel = _buildAddressLabelFromSelection(selectedAddress);
+    });
+  }
 
   final List<Map<String, dynamic>> _groceryCategories = const [
     {'title': 'All', 'icon': Icons.shopping_bag_outlined},
@@ -300,23 +359,26 @@ class _GroceryHomePageState extends State<GroceryHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: HexColor.fromHex('#EDF5F0'),
+      backgroundColor: HexColor.fromHex('#EDF5F0'),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
-        color: HexColor.fromHex('#BD0D0E'),
+        color: HexColor.fromHex('#15803D'),
         child: CommonAppScreenBackground(
           scrollable: true,
           topColor: HexColor.fromHex('#15803D'),
-          topHeight: 420,
+          topHeight: 380,
           topChild: Container(
             child: Column(
               children: [
                 HomePageAddressAndSearchAndProfileComponenet(
+                  onAddressTap: _openSelectAddressBottomSheet,
+                  addressLabel: _selectedAddressLabel,
+                  accentColor: HexColor.fromHex('#15803D'),
                   showVegMode: false,
                   searchPlaceholder: "Search 'Grocery'",
                 ),
-                _buildGroceryCategoryComponent(),
-                const SizedBox(height: 6),
+                // _buildGroceryCategoryComponent(),
+                const SizedBox(height: 76),
                 Image.asset('Assets/Extras/cat_5.png', scale: 5),
               ],
             ),
@@ -324,7 +386,7 @@ class _GroceryHomePageState extends State<GroceryHomePage> {
           bottomChild: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // const SizedBox(height: 10),
+             Container(height: 10,width: double.infinity,color: HexColor.fromHex('#EDF5F0'),),
               Container(
                 height: 296,
                 color: HexColor.fromHex('#EDF5F0'),
@@ -333,6 +395,7 @@ class _GroceryHomePageState extends State<GroceryHomePage> {
                   accentColor: HexColor.fromHex('#15803D'),
                   showFavoriteOnCards: false,
                   itemCardErrorIcon: Icons.local_grocery_store,
+                  useGroceryDetailPage: true,
                 ),
               ),
               // const SizedBox(height: 8),

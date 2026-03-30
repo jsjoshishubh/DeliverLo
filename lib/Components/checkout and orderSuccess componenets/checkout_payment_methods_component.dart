@@ -3,7 +3,10 @@ import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethodComponent extends StatefulWidget {
-  const PaymentMethodComponent({super.key});
+  final Color? accentColor;
+  final Color? accentSurfaceColor;
+
+  const PaymentMethodComponent({super.key, this.accentColor, this.accentSurfaceColor});
 
   @override
   State<PaymentMethodComponent> createState() => _PaymentMethodComponentState();
@@ -12,6 +15,9 @@ class PaymentMethodComponent extends StatefulWidget {
 class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
 
   int selectedIndex = 0;
+
+  Color get _accent => widget.accentColor ?? redColor;
+  Color get _surface => widget.accentSurfaceColor ?? lightRed;
 
   final List<Map<String, dynamic>> paymentMethods = [
     {
@@ -62,12 +68,12 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? lightRed
+                    ? _surface
                     : HexColor.fromHex('#FFFFFF'),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
-                      ? redColor
+                      ? _accent
                       : const Color(0xffD7DDE5),
                   width: 1,
                 ),
@@ -80,7 +86,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? redColor : Colors.grey.shade400,
+                        color: isSelected ? _accent : Colors.grey.shade400,
                         width: 2,
                       ),
                     ),
@@ -90,7 +96,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                               height: 10,
                               width: 10,
                               decoration: BoxDecoration(
-                                color: redColor,
+                                color: _accent,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -105,7 +111,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: isSelected? redColor :Colors.grey.shade200,
+                      color: isSelected? _accent :Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -147,7 +153,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                       "ADD NEW",
                       style: commonTextStyle(
                         fontSize: 12,
-                        fontColor: redColor,
+                        fontColor: _accent,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

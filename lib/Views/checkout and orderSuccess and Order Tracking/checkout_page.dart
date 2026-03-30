@@ -12,13 +12,21 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  /// Grocery checkout uses e.g. `#15803D`; omit for default food (red) theme.
+  final Color? accentColor;
+
+  const CheckoutPage({super.key, this.accentColor});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
+  Color get _accent => widget.accentColor ?? redColor;
+  Color get _accentLight => widget.accentColor != null
+      ? widget.accentColor!.withValues(alpha: 0.15)
+      : lightRed;
+
   static const int _deliveryFee = 20;
   static const int _taxes = 30;
   static const String _checkoutCartStorageKey = 'checkout_cart_items';
@@ -194,13 +202,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         height: 88,
                         width: 88,
                         decoration: BoxDecoration(
-                          color: lightRed,
+                          color: _accentLight,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.remove_shopping_cart_outlined,
                           size: 44,
-                          color: redColor,
+                          color: _accent,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -237,7 +245,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: redColor,
+                  color: _accent,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
@@ -300,7 +308,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 children: [
                   const SizedBox(height: 10),
                   ListTile(
-                    leading: Image.asset('Assets/Extras/address.png', scale: 4,color: redColor,),
+                    leading: Image.asset('Assets/Extras/address.png', scale: 4,color: _accent,),
                     title: Text(
                       _selectedAddressTitle,
                       style: commonTextStyle(
@@ -322,12 +330,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
-                          color: lightRed,
+                          color: _accentLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           'Change',
-                          style: commonTextStyle(fontColor:redColor),
+                          style: commonTextStyle(fontColor: _accent),
                         ),
                       ),
                     ),
@@ -378,6 +386,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     cartItems: _cartItems,
                     onSubtotalChanged: (s) => setState(() => _itemSubtotal = s),
                     onCartItemsChanged: _onCartItemsChanged,
+                    accentColor: widget.accentColor,
+                    accentSurfaceColor:
+                        widget.accentColor != null ? _accentLight : null,
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -388,12 +399,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
               margin: const EdgeInsets.only(top: 10),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: DashedBorder(
-                color: redColor,
+                color: _accent,
                 borderRadius: 12,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
-                    color: lightRed,
+                    color: _accentLight,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -402,7 +413,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         height: 32,
                         width: 32,
                         decoration: BoxDecoration(
-                          color:redColor,
+                          color: _accent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
@@ -424,7 +435,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Text(
                         'Save up to ₹100',
                         style: TextStyle(
-                          color:redColor,
+                          color: _accent,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -482,7 +493,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  const PaymentMethodComponent(),
+                  PaymentMethodComponent(
+                    accentColor: widget.accentColor,
+                    accentSurfaceColor:
+                        widget.accentColor != null ? _accentLight : null,
+                  ),
                 ],
               ),
             ),
@@ -502,7 +517,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: redColor,
+                  color: _accent,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(

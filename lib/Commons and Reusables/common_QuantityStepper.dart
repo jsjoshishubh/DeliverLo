@@ -5,12 +5,17 @@ class QuantityStepper extends StatefulWidget {
   final int initialValue;
   final Function(int)? onChanged;
   final bool allowRemoveAtOne;
+  /// When set (e.g. grocery checkout), replaces default red stepper styling.
+  final Color? accentColor;
+  final Color? accentSurfaceColor;
 
   const QuantityStepper({
     super.key,
     this.initialValue = 1,
     this.onChanged,
     this.allowRemoveAtOne = false,
+    this.accentColor,
+    this.accentSurfaceColor,
   });
 
   @override
@@ -48,14 +53,16 @@ class _QuantityStepperState extends State<QuantityStepper> {
 
   @override
   Widget build(BuildContext context) {
+    final border = widget.accentColor ?? redColor;
+    final surface = widget.accentSurfaceColor ?? lightRed;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       height: 25,
       decoration: BoxDecoration(
-        color: lightRed,
+        color: surface,
         borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color: redColor,
+          color: border,
           width: 1,
         ),
       ),
@@ -64,9 +71,9 @@ class _QuantityStepperState extends State<QuantityStepper> {
         children: [
           GestureDetector(
             onTap: decrement,
-            child: const Icon(
+            child: Icon(
               Icons.remove,
-              color: redColor,
+              color: border,
               size: 16,
             ),
           ),
@@ -85,9 +92,9 @@ class _QuantityStepperState extends State<QuantityStepper> {
 
           GestureDetector(
             onTap: increment,
-            child: const Icon(
+            child: Icon(
               Icons.add,
-              color: redColor,
+              color: border,
               size: 16,
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
+import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
@@ -11,6 +12,8 @@ class FoodTabBarComponent extends StatefulWidget {
   final Color? accentColor;
   final bool showFavoriteOnCards;
   final IconData itemCardErrorIcon;
+  /// When true (e.g. grocery home), item taps open [Routes.GROCERY_DETAIL_PAGE] instead of food search details.
+  final bool useGroceryDetailPage;
 
   const FoodTabBarComponent({
     super.key,
@@ -18,6 +21,7 @@ class FoodTabBarComponent extends StatefulWidget {
     this.accentColor,
     this.showFavoriteOnCards = true,
     this.itemCardErrorIcon = Icons.restaurant,
+    this.useGroceryDetailPage = false,
   });
 
   @override
@@ -89,7 +93,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
           Container(
             margin: const EdgeInsets.only(right: 20, left: 20,top: 8,bottom: 16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(30),
             ),
             child: TabBar(
@@ -119,6 +123,7 @@ class _FoodTabBarComponentState extends State<FoodTabBarComponent> {
                   accentColor: greenColor,
                   showFavoriteOnCard: widget.showFavoriteOnCards,
                   itemCardErrorIcon: widget.itemCardErrorIcon,
+                  useGroceryDetailPage: widget.useGroceryDetailPage,
                 ),
               ).toList(),
             ),
@@ -136,8 +141,18 @@ class FoodTabList extends StatefulWidget {
   final Color accentColor;
   final bool showFavoriteOnCard;
   final IconData itemCardErrorIcon;
+  final bool useGroceryDetailPage;
 
-  const FoodTabList({super.key, this.tabType, this.apiType, this.initialItems, this.accentColor = const Color(0xFFBD0D0E), this.showFavoriteOnCard = true, this.itemCardErrorIcon = Icons.restaurant,});
+  const FoodTabList({
+    super.key,
+    this.tabType,
+    this.apiType,
+    this.initialItems,
+    this.accentColor = const Color(0xFFBD0D0E),
+    this.showFavoriteOnCard = true,
+    this.itemCardErrorIcon = Icons.restaurant,
+    this.useGroceryDetailPage = false,
+  });
 
   @override
   State<FoodTabList> createState() => _FoodTabListState();
@@ -199,6 +214,7 @@ class _FoodTabListState extends State<FoodTabList> {
               accentColor: widget.accentColor,
               showFavorite: widget.showFavoriteOnCard,
               errorIcon: widget.itemCardErrorIcon,
+              useGroceryDetailPage: widget.useGroceryDetailPage,
             );
           },
         ),
@@ -248,6 +264,7 @@ class _FoodTabListState extends State<FoodTabList> {
                 accentColor: widget.accentColor,
                 showFavorite: widget.showFavoriteOnCard,
                 errorIcon: widget.itemCardErrorIcon,
+                useGroceryDetailPage: widget.useGroceryDetailPage,
               );
             },
           ),
@@ -264,12 +281,14 @@ class FoodItemCard extends StatelessWidget {
     this.accentColor,
     this.showFavorite = true,
     this.errorIcon = Icons.restaurant,
+    this.useGroceryDetailPage = false,
   });
 
   final FoodItemModel item;
   final Color? accentColor;
   final bool showFavorite;
   final IconData errorIcon;
+  final bool useGroceryDetailPage;
 
   Map<String, dynamic> _toSearchDetailsArgs() {
     final p = item.price ?? 0;
@@ -301,10 +320,19 @@ class FoodItemCard extends StatelessWidget {
     final starColor = accentColor ?? HexColor.fromHex('#15803D');
     final isNetworkImage = item.imageUrl.startsWith('http');
     return GestureDetector(
-      onTap: () => Get.toNamed(
-        Routes.SEARCHDETAILSPAGE,
-        arguments: _toSearchDetailsArgs(),
-      ),
+      onTap: () {
+        if (useGroceryDetailPage) {
+          Get.toNamed(
+            Routes.GROCERY_DETAIL_PAGE,
+            arguments: GroceryDetailPageArgs.fromFoodItem(item),
+          );
+        } else {
+          Get.toNamed(
+            Routes.SEARCHDETAILSPAGE,
+            arguments: _toSearchDetailsArgs(),
+          );
+        }
+      },
       child: Container(
         width: 180,
         margin: const EdgeInsets.only(right: 14),

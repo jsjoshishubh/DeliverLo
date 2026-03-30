@@ -1,11 +1,73 @@
+import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
+import 'package:deliverylo/Components/GroceryHomePageComponents/grocery_home_cart_utils.dart';
+import 'package:deliverylo/Components/GroceryHomePageComponents/grocery_item_detailed_bottom_bar.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/string_extensions.dart';
+import 'package:get_storage/get_storage.dart';
 
-class GroceryLowestPricesSection extends StatelessWidget {
+class GroceryLowestPricesSection extends StatefulWidget {
   const GroceryLowestPricesSection({super.key, required this.items});
 
   final List<Map<String, dynamic>> items;
+
+  @override
+  State<GroceryLowestPricesSection> createState() =>
+      _GroceryLowestPricesSectionState();
+}
+
+class _GroceryLowestPricesSectionState extends State<GroceryLowestPricesSection> {
+  final GetStorage _storage = GetStorage();
+  Set<String> _addedKeys = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _addedKeys = _keysInCartForSection();
+    _storage.listenKey(GroceryHomeCartUtils.checkoutCartStorageKey, (dynamic _) {
+      if (!mounted) return;
+      setState(() => _addedKeys = _keysInCartForSection());
+    });
+  }
+
+  Set<String> get _sectionKeySet =>
+      widget.items.map(GroceryHomeCartUtils.itemKey).toSet();
+
+  Set<String> _keysInCartForSection() {
+    return GroceryHomeCartUtils.keysInCartForSection(_storage, _sectionKeySet);
+  }
+
+  Future<void> _openItemDetailsBottomSheet(Map<String, dynamic> item) async {
+    await showCommonBottomSheet(
+      context: context,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.78,
+        child: GroceryItemDetailedBottomBarComponent(
+          item: item,
+          onAddToCart: (customizedItem) {
+            Navigator.of(context).pop();
+            GroceryHomeCartUtils.mergeOrAppendCartItem(_storage, customizedItem);
+            setState(() => _addedKeys = _keysInCartForSection());
+          },
+        ),
+      ),
+    );
+  }
+
+  void _quickAddFromCard(Map<String, dynamic> item) {
+    final key = GroceryHomeCartUtils.itemKey(item);
+    if (_addedKeys.contains(key)) return;
+
+    final unit = GroceryHomeCartUtils.parseRupee(item['price']);
+    final customized = Map<String, dynamic>.from(item)
+      ..['quantityCount'] = 1
+      ..['totalPrice'] = unit
+      ..['totalPriceFormatted'] = GroceryHomeCartUtils.formatRupee(unit);
+
+    GroceryHomeCartUtils.mergeOrAppendCartItem(_storage, customized);
+    setState(() => _addedKeys = _keysInCartForSection());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +79,13 @@ class GroceryLowestPricesSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [ 
+            children: [
               Expanded(
                 child: Text(
-                  'LOWEST PRICES ACROSS SURAT',
+                  'LOWEST PRICES ACROSS SURAT'.capitalizeFirst.toString(),
                   style: commonTextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontColor: blackFontColor,
                   ),
                 ),
@@ -32,11 +94,21 @@ class GroceryLowestPricesSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 248,
+            height: 255,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              itemBuilder: (context, index) => _LowestPriceCard(item: items[index]),
+              itemCount: widget.items.length,
+              itemBuilder: (context, index) {
+                final item = widget.items[index];
+                final key = GroceryHomeCartUtils.itemKey(item);
+                final isAdded = _addedKeys.contains(key);
+                return _LowestPriceCard(
+                  item: item,
+                  isAdded: isAdded,
+                  onCardTap: () => _openItemDetailsBottomSheet(item),
+                  onAddTap: isAdded ? null : () => _quickAddFromCard(item),
+                );
+              },
             ),
           ),
         ],
@@ -46,9 +118,17 @@ class GroceryLowestPricesSection extends StatelessWidget {
 }
 
 class _LowestPriceCard extends StatelessWidget {
-  const _LowestPriceCard({required this.item});
+  const _LowestPriceCard({
+    required this.item,
+    required this.isAdded,
+    required this.onCardTap,
+    required this.onAddTap,
+  });
 
   final Map<String, dynamic> item;
+  final bool isAdded;
+  final VoidCallback onCardTap;
+  final VoidCallback? onAddTap;
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +143,10 @@ class _LowestPriceCard extends StatelessWidget {
     final oldPrice = item['oldPrice'] as String? ?? '';
 
     return Container(
-      width: 168,
+      width: 175,
       margin: const EdgeInsets.only(right: 10),
       decoration: BoxDecoration(
-         color: Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: HexColor.fromHex('#E5E7EB')),
         boxShadow: [
@@ -80,148 +160,175 @@ class _LowestPriceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             height: 120,
             width: double.infinity,
-            padding: const EdgeInsets.all(8),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    imageUrl,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: Colors.grey.shade300,
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.local_grocery_store),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 10,
-                  bottom: -12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: HexColor.fromHex('#22C55E'), width: 1.4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.topCenter,
+                children: [
+                  GestureDetector(
+                    onTap: onCardTap,
+                    behavior: HitTestBehavior.opaque,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        imageUrl,
+                        width: double.infinity,
+                        height: 150,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                          height: 150,
+                          color: Colors.grey.shade300,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.local_grocery_store),
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      'ADD',
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        fontColor: HexColor.fromHex('#22C55E'),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    right: 10,
+                    bottom: -10,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onAddTap,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: isAdded ? HexColor.fromHex('#F0FDF4') : Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isAdded
+                                  ? HexColor.fromHex('#86EFAC')
+                                  : HexColor.fromHex('#22C55E'),
+                              width: 1.4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                            child: Text(
+                              isAdded ? 'ADDED' : 'ADD',
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                fontColor: isAdded
+                                    ? HexColor.fromHex('#166534')
+                                    : HexColor.fromHex('#22C55E'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  quantity,
-                  style: commonTextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    fontColor: greyFontColor,
+            child: GestureDetector(
+              onTap: onCardTap,
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    quantity,
+                    style: commonTextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      fontColor: greyFontColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: commonTextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    fontColor: blackFontColor,
+                  const SizedBox(height: 2),
+                  Text(
+                    name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: commonTextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontColor: blackFontColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(Icons.star, size: 13, color: HexColor.fromHex('#10B981')),
-                    const SizedBox(width: 2),
-                    Text(
-                      rating,
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        fontColor: HexColor.fromHex('#10B981'),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.star, size: 13, color: HexColor.fromHex('#10B981')),
+                      const SizedBox(width: 2),
+                      Text(
+                        rating,
+                        style: commonTextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          fontColor: HexColor.fromHex('#10B981'),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      '($ratingCount)',
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        fontColor: HexColor.fromHex('#98A2B3'),
+                      SizedBox(width: 5),
+                      Text(
+                        '($ratingCount)',
+                        style: commonTextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          fontColor: HexColor.fromHex('#98A2B3'),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      offText,
-                      style: commonTextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        fontColor: HexColor.fromHex('#10B981'),
+                      SizedBox(width: 5),
+                      Text(
+                        offText,
+                        style: commonTextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          fontColor: HexColor.fromHex('#10B981'),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 8),
-                Text(
-                  unitPrice,
-                  style: commonTextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    fontColor: HexColor.fromHex('#667085'),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      price,
-                      style: commonTextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        fontColor: HexColor.fromHex('#1D2939'),
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    unitPrice,
+                    style: commonTextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontColor: HexColor.fromHex('#667085'),
                     ),
-                    const SizedBox(width: 5),
-                    Text(
-                      oldPrice,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: HexColor.fromHex('#98A2B3'),
-                        decoration: TextDecoration.lineThrough,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(
+                        price,
+                        style: commonTextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          fontColor: HexColor.fromHex('#1D2939'),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 5),
+                      Text(
+                        oldPrice,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: HexColor.fromHex('#98A2B3'),
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
