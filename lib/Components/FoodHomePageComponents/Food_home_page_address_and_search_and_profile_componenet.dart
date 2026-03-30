@@ -1,8 +1,10 @@
+import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:deliverylo/Views/Food%20Main%20Home/Search_Deligate_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:get/get.dart';
 
 class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
   final VoidCallback? onAddressTap;
@@ -14,6 +16,7 @@ class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
   final String searchPlaceholder;
   final bool vegMode;
   final bool showVegMode;
+  final Color? accentColor;
 
   const HomePageAddressAndSearchAndProfileComponenet({
     super.key,
@@ -26,6 +29,7 @@ class HomePageAddressAndSearchAndProfileComponenet extends StatefulWidget {
     this.searchPlaceholder = "Search 'Biryani'",  
     this.vegMode = true,
     this.showVegMode = true,
+    this.accentColor,
   });
 
 
@@ -84,7 +88,7 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
                         ),
                         SizedBox(height: 5,),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.78,
+                          width: MediaQuery.of(context).size.width * 0.70,
                           child: Text(
                             widget.addressLabel,
                             maxLines: 1,
@@ -99,6 +103,16 @@ class _HomePageAddressAndSearchAndProfileComponenetState extends State<HomePageA
                       ],
                     ),
                   ),
+                  const SizedBox(width: 12),
+                    InkWell(
+                      onTap: () => Get.toNamed(Routes.PROFILE),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(color: Colors.white,shape: BoxShape.circle,),
+                        child: Icon(Icons.person, color: widget.accentColor, size: 24),
+                      ),
+                    ),
                 ],
               ),
             

@@ -1,9 +1,9 @@
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
+import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
+import 'package:deliverylo/Components/SearchPageComponents/search_details_tab_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:deliverylo/Models/grocery_detail_page_args.dart';
-import 'package:deliverylo/Routes/app_routes.dart';
-import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 
 
@@ -23,7 +23,39 @@ class KhanaKhajanaComponent extends StatefulWidget {
 }
 
 class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
+  static const String _checkoutCartStorageKey = 'checkout_cart_items';
+  final GetStorage _storage = GetStorage();
   List<Map<String, dynamic>> get _items => widget.items == null || widget.items!.isEmpty ? [] : widget.items!;
+
+  void _addItemToCheckoutCart(Map<String, dynamic> item) {
+    final dynamic raw = _storage.read(_checkoutCartStorageKey);
+    final List<Map<String, dynamic>> cart = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) cart.add(Map<String, dynamic>.from(e));
+      }
+    }
+    cart.add(Map<String, dynamic>.from(item));
+    _storage.write(_checkoutCartStorageKey, cart);
+    toastWidget('Item added to cart', false);
+  }
+
+  Future<void> _openItemDetailsBottomSheet(Map<String, dynamic> item) async {
+    await showCommonBottomSheet(
+      context: context,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.72,
+        child: SearchedItemDetailedBottomBarComponent(
+          productId: (item['id'] ?? '').toString(),
+          item: item,
+          onAddToCart: (customizedItem) {
+            Navigator.of(context).pop();
+            _addItemToCheckoutCart(customizedItem);
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +151,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
     final isNetworkImage = imagePath.startsWith('http');
 
     return GestureDetector(
-      onTap: () => Get.toNamed(Routes.SEARCHDETAILSPAGE),
+      onTap: () => _openItemDetailsBottomSheet(item),
       child: SizedBox(
         width: 140,
         child: Column(
@@ -157,7 +189,7 @@ class _KhanaKhajanaComponentState extends State<KhanaKhajanaComponent> {
                   bottom: 8,
                   right: 8,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () => _addItemToCheckoutCart(item),
                     child: Container(
                       width: 24,
                       height: 22,

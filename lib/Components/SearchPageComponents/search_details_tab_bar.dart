@@ -17,6 +17,7 @@ class SearchDetailsTabBar extends StatefulWidget {
   final bool vendorMenuMode;
   final List<Map<String, dynamic>> vendorMenuItems;
   final bool vendorMenuLoading;
+  final Set<String> addedItemIds;
 
   const SearchDetailsTabBar({
     super.key,
@@ -28,6 +29,7 @@ class SearchDetailsTabBar extends StatefulWidget {
     this.vendorMenuMode = false,
     this.vendorMenuItems = const <Map<String, dynamic>>[],
     this.vendorMenuLoading = false,
+    this.addedItemIds = const <String>{},
   });
 
   
@@ -79,7 +81,6 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
   static const double _dividerHeight = 1;
   static const double _indicatorHeight = 3;
   static const Color _dividerColor = Color(0xFFE5E7EB);
-  static const Color _unselectedColor = Color(0xFF6B7280);
 
   @override
   void initState() {
@@ -190,6 +191,9 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
                 (entry) => SearchDetailsMenuItemCard(
                   item: entry.value,
                   onAddTap: () => widget.onAddToCart(entry.value),
+                  isAdded: widget.addedItemIds.contains(
+                    (entry.value['id'] ?? '').toString().trim(),
+                  ),
                   topPadding: entry.key == 0 ? 4 : null,
                   showBottomDivider: entry.key < _currentTabItems.length - 1,
                 ),
@@ -203,12 +207,14 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
 class SearchDetailsMenuItemCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final VoidCallback onAddTap;
+  final bool isAdded;
   final double? topPadding;
   final bool showBottomDivider;
   const SearchDetailsMenuItemCard({
     super.key,
     required this.item,
     required this.onAddTap,
+    this.isAdded = false,
     this.topPadding,
     this.showBottomDivider = true,
   });
@@ -331,17 +337,19 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      right: 20,
-                      bottom: -12,
+                      right: isAdded ? 14: 20,
+                      bottom:  -12,
                       child: GestureDetector(
-                        onTap: onAddTap,
+                        onTap: isAdded ? null : onAddTap,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isAdded ? HexColor.fromHex('#ECFDF5') : Colors.white,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color:Colors.grey.shade300.withValues(alpha: 1),
+                              color: isAdded
+                                  ? HexColor.fromHex('#22C55E')
+                                  : Colors.grey.shade300.withValues(alpha: 1),
                               width: 1,
                             ),
                             boxShadow: [
@@ -354,10 +362,10 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              'ADD',
+                              isAdded ? 'ADDED' : 'ADD',
                               style: commonTextStyle(
                                 fontSize: 12,
-                                fontColor:redColor,
+                                fontColor: isAdded ? HexColor.fromHex('#16A34A') : redColor,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),

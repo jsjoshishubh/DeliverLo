@@ -115,11 +115,13 @@ Widget _checkoutImagePlaceholder(double size) {
 class CheckoutOrderSumeryComponent extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
   final ValueChanged<int>? onSubtotalChanged;
+  final ValueChanged<List<Map<String, dynamic>>>? onCartItemsChanged;
 
   const CheckoutOrderSumeryComponent({
     super.key,
     required this.cartItems,
     this.onSubtotalChanged,
+    this.onCartItemsChanged,
   });
 
   @override
@@ -127,12 +129,19 @@ class CheckoutOrderSumeryComponent extends StatefulWidget {
 }
 
 class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryComponent> {
-  late List<int> _quantities;
+  List<Map<String, dynamic>> _items = <Map<String, dynamic>>[];
+  List<int> _quantities = <int>[];
 
   @override
   void initState() {
     super.initState();
-    _quantities = List<int>.filled(widget.cartItems.length, 1);
+    _items = widget.cartItems.map((e) => Map<String, dynamic>.from(e)).toList();
+    _quantities = _items.map((item) {
+      final q = item['quantity'];
+      if (q is int && q > 0) return q;
+      if (q is num && q > 0) return q.toInt();
+      return 1;
+    }).toList();
     WidgetsBinding.instance.addPostFrameCallback((_) => _emitSubtotal());
   }
 
@@ -140,37 +149,67 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
   void didUpdateWidget(CheckoutOrderSumeryComponent oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cartItems.length != widget.cartItems.length) {
-      _quantities = List<int>.filled(widget.cartItems.length, 1);
+      _items = widget.cartItems.map((e) => Map<String, dynamic>.from(e)).toList();
+      _quantities = _items.map((item) {
+        final q = item['quantity'];
+        if (q is int && q > 0) return q;
+        if (q is num && q > 0) return q.toInt();
+        return 1;
+      }).toList();
       _emitSubtotal();
     }
   }
 
   int _computeSubtotal() {
     var s = 0;
-    for (var i = 0; i < widget.cartItems.length; i++) {
+    for (var i = 0; i < _items.length; i++) {
       final q = i < _quantities.length ? _quantities[i] : 1;
-      s += checkoutLineUnitRupees(widget.cartItems[i]) * q;
+      s += checkoutLineUnitRupees(_items[i]) * q;
     }
     return s;
   }
 
   void _emitSubtotal() {
-    widget.onSubtotalChanged?.call(_computeSubtotal());
+    final subtotal = _computeSubtotal();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.onSubtotalChanged?.call(subtotal);
+    });
+  }
+
+  void _emitCartItemsSnapshot() {
+    final snapshot = <Map<String, dynamic>>[];
+    for (var i = 0; i < _items.length; i++) {
+      final q = i < _quantities.length ? _quantities[i] : 1;
+      final m = Map<String, dynamic>.from(_items[i])..['quantity'] = q;
+      snapshot.add(m);
+    }
+    widget.onCartItemsChanged?.call(snapshot);
   }
 
   void _onQtyChanged(int index, int value) {
+    if (value <= 0) {
+      setState(() {
+        if (index >= 0 && index < _items.length) _items.removeAt(index);
+        if (index >= 0 && index < _quantities.length) _quantities.removeAt(index);
+      });
+      _emitCartItemsSnapshot();
+      _emitSubtotal();
+      return;
+    }
     setState(() {
       while (_quantities.length <= index) {
         _quantities.add(1);
       }
       _quantities[index] = value;
     });
+    _emitCartItemsSnapshot();
     _emitSubtotal();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.cartItems.isEmpty) {
+    if (_items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Text(
@@ -188,9 +227,9 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      itemCount: widget.cartItems.length,
+      itemCount: _items.length,
       itemBuilder: (context, index) {
-        final item = widget.cartItems[index];
+        final item = _items[index];
         final title = checkoutLineTitle(item);
         final subtitle = checkoutLineSubtitle(item);
         final unit = checkoutLineUnitRupees(item);
@@ -250,6 +289,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
                       QuantityStepper(
                         key: ValueKey<String>('qty_${index}_$qty'),
                         initialValue: qty,
+                        allowRemoveAtOne: true,
                         onChanged: (v) => _onQtyChanged(index, v),
                       ),
                       const SizedBox(height: 5),
@@ -266,7 +306,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
                 ],
               ),
             ),
-            if (widget.cartItems.length - 1 != index)
+            if (_items.length - 1 != index)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: CustomPaint(

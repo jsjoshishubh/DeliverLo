@@ -2,11 +2,14 @@ import 'package:deliverylo/Commons%20and%20Reusables/common_doted_divider.dart';
 import 'package:deliverylo/Components/checkout%20and%20orderSuccess%20componenets/checkout_build_details_component.dart';
 import 'package:deliverylo/Components/checkout%20and%20orderSuccess%20componenets/checkout_order_summery_component.dart';
 import 'package:deliverylo/Components/checkout%20and%20orderSuccess%20componenets/checkout_payment_methods_component.dart';
+import 'package:deliverylo/Components/ProfilePageComponents/select_address_component.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
+import 'package:deliverylo/Commons%20and%20Reusables/common_bottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -18,10 +21,15 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   static const int _deliveryFee = 20;
   static const int _taxes = 30;
+  static const String _checkoutCartStorageKey = 'checkout_cart_items';
+  static const String _selectedAddressStorageKey = 'food_selected_address';
+  final GetStorage _storage = GetStorage();
 
-  late final List<Map<String, dynamic>> _cartItems;
+  late List<Map<String, dynamic>> _cartItems;
   late final Map<String, dynamic> _restaurantDetails;
   int _itemSubtotal = 0;
+  String _selectedAddressTitle = 'Home';
+  String _selectedAddressText = '123 Main St, Apt 4B, New York, NY NY';
 
   @override
   void initState() {
@@ -45,10 +53,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
         _restaurantDetails = <String, dynamic>{};
       }
     } else {
-      _cartItems = <Map<String, dynamic>>[];
+      final dynamic storedCart = _storage.read(_checkoutCartStorageKey);
+      if (storedCart is List) {
+        _cartItems = storedCart.map<Map<String, dynamic>>((e) {
+          if (e is Map<String, dynamic>) return Map<String, dynamic>.from(e);
+          if (e is Map) return Map<String, dynamic>.from(e);
+          return <String, dynamic>{};
+        }).toList();
+      } else {
+        _cartItems = <Map<String, dynamic>>[];
+      }
       _restaurantDetails = <String, dynamic>{};
     }
     _itemSubtotal = _initialSubtotal(_cartItems);
+    _loadSelectedAddressFromStorage();
   }
 
   int _initialSubtotal(List<Map<String, dynamic>> items) {
@@ -57,17 +75,196 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   int get _grandTotal => _itemSubtotal + _deliveryFee + _taxes;
 
+  String _buildAddressLabelFromSelection(Map selection) {
+    final title = (selection['title'] ?? selection['label'] ?? 'Other').toString().trim();
+    final directAddress =
+        (selection['address'] ?? selection['fullAddress'] ?? selection['formattedAddress'] ?? '')
+            .toString()
+            .trim();
+    final composedAddress = [
+      (selection['line1'] ?? selection['flat'] ?? '').toString().trim(),
+      (selection['line2'] ?? selection['area'] ?? '').toString().trim(),
+      (selection['landmark'] ?? '').toString().trim(),
+      (selection['city'] ?? '').toString().trim(),
+      (selection['state'] ?? '').toString().trim(),
+      (selection['pincode'] ?? selection['postalCode'] ?? '').toString().trim(),
+    ].where((part) => part.isNotEmpty).join(', ');
+    final address = directAddress.isNotEmpty ? directAddress : composedAddress;
+    if (address.isEmpty) return title;
+    return '$title|$address';
+  }
+
+  void _loadSelectedAddressFromStorage() {
+    final dynamic storedAddress = _storage.read(_selectedAddressStorageKey);
+    if (storedAddress is! Map) return;
+    final label = _buildAddressLabelFromSelection(storedAddress);
+    final split = label.split('|');
+    if (split.isEmpty) return;
+    _selectedAddressTitle = split.first.trim().isEmpty ? 'Home' : split.first.trim();
+    if (split.length > 1 && split[1].trim().isNotEmpty) {
+      _selectedAddressText = split[1].trim();
+    }
+  }
+
+  Future<void> _openSelectAddressBottomSheet() async {
+    final dynamic selectedAddress = await showCommonBottomSheet<Map<String, dynamic>>(
+      context: context,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.76,
+        child: const SelectAddressComponent(),
+      ),
+    );
+    if (!mounted || selectedAddress is! Map) return;
+    await _storage.write(_selectedAddressStorageKey, Map<String, dynamic>.from(selectedAddress));
+    final label = _buildAddressLabelFromSelection(selectedAddress);
+    final split = label.split('|');
+    setState(() {
+      _selectedAddressTitle = split.first.trim().isEmpty ? 'Home' : split.first.trim();
+      _selectedAddressText =
+          split.length > 1 && split[1].trim().isNotEmpty ? split[1].trim() : _selectedAddressText;
+    });
+  }
+
+  void _onCartItemsChanged(List<Map<String, dynamic>> items) {
+    setState(() {
+      _cartItems = items;
+    });
+    _storage.write(_checkoutCartStorageKey, items);
+  }
+
   String get _deliveryTitle {
     final t = _restaurantDetails['deliveryTime']?.toString().trim();
     if (t != null && t.isNotEmpty) return 'Delivery in $t';
     return 'Delivery in 15-20 mins';
   }
 
+  Widget _buildEmptyCartBody() {
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 20),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                SizedBox(
+                  width: Get.width / 2.1,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Checkout',
+                      style: commonTextStyle(
+                        fontColor: blackFontColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 26),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(20, 30, 20, 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: HexColor.fromHex('#E2E8F0')),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 88,
+                        width: 88,
+                        decoration: BoxDecoration(
+                          color: lightRed,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.remove_shopping_cart_outlined,
+                          size: 44,
+                          color: redColor,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Your cart is waiting for something tasty!',
+                        textAlign: TextAlign.center,
+                        style: commonTextStyle(
+                          fontColor: HexColor.fromHex('#0F172A'),
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Looks like your cart is empty.\nAdd your favorite dishes and place your order in seconds.',
+                        textAlign: TextAlign.center,
+                        style: commonTextStyle(
+                          fontColor: greyFontColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: redColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: Text(
+                    'Browse Restaurants',
+                    style: commonTextStyle(
+                      fontColor: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HexColor.fromHex('#F8FAFC'),
-      body: SingleChildScrollView(
+      body: _cartItems.isEmpty
+          ? _buildEmptyCartBody()
+          : SingleChildScrollView(
         child: Column(
           children: [
             Container(
@@ -105,7 +302,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ListTile(
                     leading: Image.asset('Assets/Extras/address.png', scale: 4,color: redColor,),
                     title: Text(
-                      'Home',
+                      _selectedAddressTitle,
                       style: commonTextStyle(
                         fontColor: HexColor.fromHex('#0F172A'),
                         fontSize: 14,
@@ -113,22 +310,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ),
                     subtitle: Text(
-                      '123 Main St, Apt 4B, New York, NY NY',
+                      _selectedAddressText,
                       style: commonTextStyle(
                         fontColor: greyFontColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: lightRed,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Change',
-                        style: commonTextStyle(fontColor:redColor),
+                    trailing: InkWell(
+                      onTap: _openSelectAddressBottomSheet,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: lightRed,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Change',
+                          style: commonTextStyle(fontColor:redColor),
+                        ),
                       ),
                     ),
                   ),
@@ -177,6 +377,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   CheckoutOrderSumeryComponent(
                     cartItems: _cartItems,
                     onSubtotalChanged: (s) => setState(() => _itemSubtotal = s),
+                    onCartItemsChanged: _onCartItemsChanged,
                   ),
                   const SizedBox(height: 20),
                 ],

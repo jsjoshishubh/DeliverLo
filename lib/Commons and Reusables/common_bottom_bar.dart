@@ -1,4 +1,3 @@
-import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +13,6 @@ class CommonBottomBar extends StatelessWidget {
   static const double _contentHeight = 80;
   static const double _iconSize = 24;
   static const double _fontSize = 11.5;
-  static final Color _selectedBackgroundColor = HexColor.fromHex('#FFEFEF');
   static final Color _unselectedColor = Colors.grey.shade500;
 
   @override
@@ -38,6 +36,7 @@ class CommonBottomBar extends StatelessWidget {
               return _BottomBarTile(
                 icon: items[index].icon,
                 label: items[index].label,
+                badgeCount: items[index].badgeCount,
                 isSelected: currentIndex == index,
                 onTap: () => onTap(index),
                 selectedColor: selectedColor,
@@ -55,6 +54,7 @@ class CommonBottomBar extends StatelessWidget {
 class _BottomBarTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final int badgeCount;
   final bool isSelected;
   final VoidCallback onTap;
   final Color selectedColor;
@@ -63,6 +63,7 @@ class _BottomBarTile extends StatelessWidget {
   const _BottomBarTile({
     required this.icon,
     required this.label,
+    required this.badgeCount,
     required this.isSelected,
     required this.onTap,
     required this.selectedColor,
@@ -85,10 +86,41 @@ class _BottomBarTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    icon,
-                    size: CommonBottomBar._iconSize,
-                    color: isSelected ? selectedColor : CommonBottomBar._unselectedColor,
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        icon,
+                        size: CommonBottomBar._iconSize,
+                        color: isSelected ? selectedColor : CommonBottomBar._unselectedColor,
+                      ),
+                      if (badgeCount > 0)
+                        Positioned(
+                          right: -9,
+                          top: -7,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              color: selectedColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                badgeCount > 99 ? '99+' : '$badgeCount',
+                                style: commonTextStyle(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                  fontColor: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Padding(
@@ -132,10 +164,12 @@ class _BottomBarTile extends StatelessWidget {
 class CommonBottomBarItem {
   final IconData icon;
   final String label;
+  final int badgeCount;
   
 
   const CommonBottomBarItem({
     required this.icon,
     required this.label,
+    this.badgeCount = 0,
   });
 }

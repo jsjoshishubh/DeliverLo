@@ -2,7 +2,6 @@ import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:get/get.dart';
 
@@ -209,8 +208,8 @@ class WhatsOnYourMindFoodResultCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap ??
           () => Get.toNamed(
-                Routes.GROCERY_DETAIL_PAGE,
-                arguments: GroceryDetailPageArgs.fromWhatsOnMindMap(item),
+                Routes.SEARCHDETAILSPAGE,
+                arguments: item,
               ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),

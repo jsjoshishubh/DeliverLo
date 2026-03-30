@@ -1,6 +1,5 @@
 import 'package:deliverylo/Commons%20and%20Reusables/common_app_screen_background.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_home_page_address_and_search_and_profile_componenet.dart';
-import 'package:deliverylo/Components/FoodHomePageComponents/Food_home_page_catagory_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Food_TabBar_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/Khana_Khajana_component.dart';
 import 'package:deliverylo/Components/FoodHomePageComponents/whats_on_your_mind_component.dart';
@@ -95,7 +94,6 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
     return GetBuilder<FoodController>(
       init: _foodController,
       builder: (controller) {
-        final apiCategories = controller.categories.map((e) => <String, String>{'title': (e.name ?? '').trim().isEmpty ? 'Category' : (e.name ?? ''),'image': 'Assets/Extras/ct_2.png',}).toList();
         final bannersWithImages = controller.homeOfferBanners.where((e) => (e.imageUrl ?? '').trim().isNotEmpty).toList();
         final bannerUrls = bannersWithImages.map((e) => (e.imageUrl ?? '').trim()).toList();
         final safeBannerIndex = bannerUrls.isEmpty ? 0 : (_currentBannerIndex >= bannerUrls.length ? 0 : _currentBannerIndex);
@@ -162,6 +160,7 @@ class _FoodHomePageViewState extends State<FoodHomePageView> {
                   HomePageAddressAndSearchAndProfileComponenet(
                     onAddressTap: _openSelectAddressBottomSheet,
                     addressLabel: _selectedAddressLabel,
+                    accentColor: HexColor.fromHex(dynamicTopColorHex),
                   ),
                   // HomePageCatagoryComponent(categories: apiCategories),
                   const SizedBox(height: 36),

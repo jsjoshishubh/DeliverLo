@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class QuantityStepper extends StatefulWidget {
   final int initialValue;
   final Function(int)? onChanged;
+  final bool allowRemoveAtOne;
 
   const QuantityStepper({
     super.key,
     this.initialValue = 1,
     this.onChanged,
+    this.allowRemoveAtOne = false,
   });
 
   @override
@@ -37,6 +39,10 @@ class _QuantityStepperState extends State<QuantityStepper> {
         count--;
       });
       widget.onChanged?.call(count);
+      return;
+    }
+    if (count == 1 && widget.allowRemoveAtOne) {
+      widget.onChanged?.call(0);
     }
   }
 

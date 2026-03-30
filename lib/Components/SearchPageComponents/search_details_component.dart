@@ -50,6 +50,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   /// -1 = no chip; 0 = Bestseller (`hasOffers`); 1 = Top Rated (`ratingMin` + `sort`).
   int _selectedFilterChip = -1;
   final List<Map<String, dynamic>> _cartItems = [];
+  final Set<String> _addedItemIds = <String>{};
 
   bool _useVendorMenuApi() {
     final v = widget.vendorId?.trim() ?? '';
@@ -104,8 +105,11 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
   }
 
   void _addToCart(Map<String, dynamic> item) {
+    final itemId = (item['id'] ?? '').toString().trim();
+    if (itemId.isNotEmpty && _addedItemIds.contains(itemId)) return;
     setState(() {
       _cartItems.add(Map<String, dynamic>.from(item));
+      if (itemId.isNotEmpty) _addedItemIds.add(itemId);
     });
   }
 
@@ -140,6 +144,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
         onTabChanged: (i) => setState(() => _selectedTabIndex = i),
         menuItemsByTab: List.generate(widget.menuTabs.length, (_) => widget.menuItems),
         onAddToCart: _addToCart,
+        addedItemIds: _addedItemIds,
       );
     }
     return GetBuilder<FoodController>(
@@ -153,6 +158,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
           },
           menuItemsByTab: List.generate(widget.menuTabs.length, (_) => widget.menuItems),
           onAddToCart: _addToCart,
+          addedItemIds: _addedItemIds,
           vendorMenuMode: true,
           vendorMenuItems: c.vendorStoreMenuProducts,
           vendorMenuLoading: c.vendorStoreMenuProductsLoading,

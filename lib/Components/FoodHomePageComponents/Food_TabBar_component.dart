@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:deliverylo/Controllers/Food_Controller.dart';
 import 'package:deliverylo/Models/food_item_model.dart';
-import 'package:deliverylo/Models/grocery_detail_page_args.dart';
 import 'package:deliverylo/Routes/app_routes.dart';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
@@ -274,12 +271,40 @@ class FoodItemCard extends StatelessWidget {
   final bool showFavorite;
   final IconData errorIcon;
 
+  Map<String, dynamic> _toSearchDetailsArgs() {
+    final p = item.price ?? 0;
+    final priceForTwo = p <= 0
+        ? ''
+        : (p == p.roundToDouble()
+            ? '₹${p.toInt()} for two'
+            : '₹${p.toStringAsFixed(0)} for two');
+    return <String, dynamic>{
+      'id': item.id,
+      'vendorId': item.vendorId,
+      'name': item.name,
+      'cuisine': item.category,
+      'dish': item.dish.trim().isNotEmpty ? item.dish : item.name,
+      'location': item.location.trim(),
+      'imageUrl': item.imageUrl,
+      'rating': item.rating,
+      'deliveryTime': item.deliveryTime.trim(),
+      'price': item.price,
+      'priceForTwo': priceForTwo,
+      'deliveryFee': 'Free Fee',
+      'isPureVeg': item.isPureVeg,
+      'offerText': item.discount.trim(),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final starColor = accentColor ?? HexColor.fromHex('#15803D');
     final isNetworkImage = item.imageUrl.startsWith('http');
     return GestureDetector(
-      onTap: () => Get.toNamed(Routes.SEARCHDETAILSPAGE),
+      onTap: () => Get.toNamed(
+        Routes.SEARCHDETAILSPAGE,
+        arguments: _toSearchDetailsArgs(),
+      ),
       child: Container(
         width: 180,
         margin: const EdgeInsets.only(right: 14),
