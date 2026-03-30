@@ -92,8 +92,8 @@ class _MainHomeCarouselOfferComponentState
                 width: isActive ? 40 : 8,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? orangeColor
-                      : const Color(0xFFD1D5DB),
+                      ? redColor
+                      : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(20),
                 ),
               );
@@ -159,7 +159,7 @@ class _OfferBanner extends StatelessWidget {
                         TextSpan(
                           text: item.titleSecondPart,
                           style: commonTextStyle(
-                            fontColor: orangeColor,
+                            fontColor: redColor,
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
                           ),
@@ -171,7 +171,7 @@ class _OfferBanner extends StatelessWidget {
                   Text(
                     item.subtitle,
                     style: commonTextStyle(
-                      fontColor: Colors.white.withValues(alpha: 0.9),
+                      fontColor: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -179,11 +179,11 @@ class _OfferBanner extends StatelessWidget {
                   const SizedBox(height: 40),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 10,),
-                    decoration: BoxDecoration(color: orangeColor,borderRadius: BorderRadius.circular(16),),
+                    decoration: BoxDecoration(color: redColor,borderRadius: BorderRadius.circular(16),),
                     child: Text(
                       item.buttonText,
                       style: commonTextStyle(
-                        fontColor: Colors.white,
+                        fontColor: lightRed,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                       ),

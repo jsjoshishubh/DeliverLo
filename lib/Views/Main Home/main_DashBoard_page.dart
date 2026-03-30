@@ -17,9 +17,9 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
   int _currentIndex = 0;
 
   static const List<CommonBottomBarItem> _bottomBarItems = [
-    CommonBottomBarItem(icon: Icons.home, label: 'Home'),
-    CommonBottomBarItem(icon: Icons.fastfood, label: 'Food'),
-    CommonBottomBarItem(icon: Icons.shopping_basket, label: 'Grocery'),
+    CommonBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
+    CommonBottomBarItem(icon: Icons.fastfood_outlined, label: 'Food'),
+    CommonBottomBarItem(icon: Icons.shopping_basket_outlined, label: 'Grocery'),
     // CommonBottomBarItem(icon: Icons.headphones, label: 'Electronics'),
   ];
 
@@ -32,7 +32,6 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
   void _onItemTapped(int index) {
     if (index == 1) {
       Get.toNamed(Routes.FOOD_MAIN_DASHBOARD,);
-      // Navigator.push(context,MaterialPageRoute(builder: (context) => const FoodMainDashboard()),);
       return;
     }else if(index == 2){
       Get.toNamed(Routes.GROCERY_MAIN_DASHBOARD,);
@@ -80,8 +79,8 @@ class _MainDashBoardPageState extends State<MainDashBoardPage> {
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
         items: _bottomBarItems,
-        selectedColor: orangeColor,
-        selectedBackgroundColor: orangeColor.withValues(alpha: 0.12),
+        selectedColor: redColor,
+        selectedBackgroundColor: lightRed,
       ),
     );
   }

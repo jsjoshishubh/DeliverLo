@@ -82,8 +82,8 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                           Container(
                             child: Image.asset(
                               contents[i].image,
-                              scale: 2,
-                              // height: SizeConfig.blockV! * 46,
+                              // scale: 2,
+                              height: SizeConfig.blockV! * 46,
                             ),
                           ),
                           Container(
@@ -104,7 +104,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                               ),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.only(left: 16,right: 16,top: 32,bottom: 0),
+                              padding: EdgeInsets.only(left: 6,right: 6,top: 32,bottom: 0),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -112,7 +112,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: List.generate(contents.length,(int index) => buildDots(index: index),),
                                   ),
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: 20),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 16,
@@ -123,7 +123,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: commonTextStyle(
-                                          fontSize: 34,
+                                          fontSize: 24,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -138,7 +138,7 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
                                         style: commonTextStyle(
-                                          fontSize: 34,
+                                          fontSize: 24,
                                           fontWeight: FontWeight.w700,
                                           fontColor: contents[i].color,
                                         ),
@@ -146,22 +146,20 @@ class _OnBoardingMainPageState extends State<OnBoardingMainPage> {
                                     ),
                                     const SizedBox(height: 8),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 40,),
                                       child: Text(
                                         contents![i].subTitle,
                                         textAlign: TextAlign.center,
                                         maxLines: 6,
                                         overflow: TextOverflow.ellipsis,
                                         style: commonTextStyle(
-                                          fontSize: 16,
+                                          fontSize: 12.5,
                                           fontWeight: FontWeight.w400,
-                                          fontColor: HexColor.fromHex('#1D1D1D').withOpacity(0.6),
+                                          fontColor:greyFontColor.withOpacity(0.9),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height:  _currentPage + 1 == contents.length ? 14 : 24),
+                                    SizedBox(height:  _currentPage + 1 == contents.length ? 34 : 44),
                                     Column(
                                       children: [
                                         _currentPage + 1 == contents.length

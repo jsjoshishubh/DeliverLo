@@ -1,3 +1,4 @@
+import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class QuantityStepper extends StatefulWidget {
@@ -43,13 +44,13 @@ class _QuantityStepperState extends State<QuantityStepper> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2),
-      height: 30,
+      height: 25,
       decoration: BoxDecoration(
-        color: const Color(0xFFF6EDE7),
+        color: lightRed,
         borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color: Colors.orange,
-          width: 2,
+          color: redColor,
+          width: 1,
         ),
       ),
       child: Row(
@@ -59,8 +60,8 @@ class _QuantityStepperState extends State<QuantityStepper> {
             onTap: decrement,
             child: const Icon(
               Icons.remove,
-              color: Colors.orange,
-              size: 18,
+              color: redColor,
+              size: 16,
             ),
           ),
 
@@ -69,7 +70,7 @@ class _QuantityStepperState extends State<QuantityStepper> {
           Text(
             "$count",
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -80,8 +81,8 @@ class _QuantityStepperState extends State<QuantityStepper> {
             onTap: increment,
             child: const Icon(
               Icons.add,
-              color: Colors.orange,
-              size: 18,
+              color: redColor,
+              size: 16,
             ),
           ),
         ],

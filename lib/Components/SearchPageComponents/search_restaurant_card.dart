@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:deliverylo/Styles/app_colors.dart';
 import 'package:deliverylo/Utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
 
 class SearchRestaurantCard extends StatelessWidget {
   const SearchRestaurantCard({
@@ -54,66 +55,65 @@ class SearchRestaurantCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: imageUrl.isEmpty
-                        ? Container(
-                            width: 110,
-                            height: 110,
-                            color: greyFontColor.shade50.withValues(alpha: 0.2),
-                            child: Icon(Icons.restaurant,
-                                color: greyFontColor.shade50, size: 40),
-                          )
-                        : isNetwork
-                            ? Image.network(
-                                imageUrl,
-                                width: 110,
-                                height: 110,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  width: 110,
-                                  height: 110,
-                                  color: greyFontColor.shade50.withValues(alpha: 0.2),
-                                  child: Icon(Icons.restaurant,
-                                      color: greyFontColor.shade50, size: 40),
-                                ),
-                              )
-                            : Image.asset(
-                                imageUrl,
-                                width: 110,
-                                height: 110,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  width: 110,
-                                  height: 110,
-                                  color: greyFontColor.shade50.withValues(alpha: 0.2),
-                                  child: Icon(Icons.restaurant,
-                                      color: greyFontColor.shade50, size: 40),
-                                ),
-                              ),
+                    child: imageUrl.isEmpty ? Container(
+                      width: 110,
+                      height: 110,
+                      color: greyFontColor.shade50.withValues(alpha: 0.2),
+                      child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 40),
+                    )
+                    : isNetwork
+                      ? Image.network(
+                      imageUrl,
+                      width: 110,
+                      height: 110,
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 110,
+                        height: 110,
+                        color: greyFontColor.shade50.withValues(alpha: 0.2),
+                        child: Icon(Icons.restaurant,color: greyFontColor.shade50, size: 40),
+                        ),
+                      )
+                    : Image.asset(
+                      imageUrl,
+                      width: 110,
+                      height: 110,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 110,
+                        height: 110,
+                        color: greyFontColor.shade50.withValues(alpha: 0.2),
+                        child: Icon(Icons.restaurant, color: greyFontColor.shade50, size: 40),
+                      ),
+                    ),
+                    ),
                   ),
-                ),
                 if (offerBadge.isNotEmpty)
                   Positioned(
                     bottom: 0,
-                    left: 35,
+                    left: 30,
                     child: Container(
+                      width: 75,
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: HexColor.fromHex('#FFFFFF'),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 12,
-                            offset: const Offset(0, 4),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),  
-                      child: Text(
-                        "${offerBadge.toString().split('%').first} % OFF",
-                        style: commonTextStyle(
-                          fontSize: 12,
-                          fontColor: HexColor.fromHex('#FF5200'),
-                          fontWeight: FontWeight.w700,
+                      child: Center(
+                        child: Text(
+                          "${offerBadge.toString().split('%').first} % OFF".capitalizeFirst.toString(),
+                          style: commonTextStyle(
+                            fontSize: 12,
+                            fontColor: HexColor.fromHex('#FF5200'),
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
@@ -142,34 +142,51 @@ class SearchRestaurantCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * .3,
-                          child: Text(
-                            item['name'] as String? ?? '',
-                            style: commonTextStyle(
-                              fontSize: 16,
-                              fontColor: HexColor.fromHex('#111827'),
-                              fontWeight: FontWeight.w700,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * .4,
+                              child: Text(
+                                item['name'] as String? ?? '',
+                                style: commonTextStyle(
+                                  fontSize: 16,
+                                  fontColor: blackFontColor,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item['cuisine'] as String? ?? '',
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor:Colors.grey,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                          ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: HexColor.fromHex('#16A34A'),
+                            color: greenColor,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.star, size: 12, color: Colors.white),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 2),
                               Text(
-                                '$rating',
+                                '${rating}',
                                 style: commonTextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   fontColor: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -179,18 +196,8 @@ class SearchRestaurantCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item['cuisine'] as String? ?? '',
-                      style: commonTextStyle(
-                        fontSize: 12,
-                        fontColor: HexColor.fromHex('#6B7280'),
-                        fontWeight: FontWeight.w400,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
+                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -198,37 +205,33 @@ class SearchRestaurantCard extends StatelessWidget {
                           item['priceForTwo'] as String? ?? '',
                           style: commonTextStyle(
                             fontSize: 12,
-                            fontColor: HexColor.fromHex('#6B7280'),
+                            fontColor: greyFontColor,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         Row(
                           children: [
-                            Icon(Icons.timer_outlined,
-                                size: 13, color: HexColor.fromHex('#16A34A')),
-                            const SizedBox(width: 4),
+                            Icon(Icons.timer_outlined, size: 13, color: greenColor),
+                            const SizedBox(width: 2),
                             Text(
-                              (item['deliveryTime'] as String?)?.trim().isNotEmpty == true
-                                  ? item['deliveryTime'] as String
-                                  : '25 mins',
+                              (item['deliveryTime'] as String?)?.trim().isNotEmpty == true ? item['deliveryTime'] as String : '25 mins',
                               style: commonTextStyle(
                                 fontSize: 12,
-                                fontColor: HexColor.fromHex('#374151'),
+                                fontColor: greyFontColor,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Transform.rotate(
                               angle: pi / 3,
-                              child: Icon(Icons.navigation_outlined,
-                                  size: 14, color: HexColor.fromHex('#002A80')),
+                              child: Icon(Icons.navigation_outlined,size: 14, color: HexColor.fromHex('#002A80')),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 2),
                             Text(
                               distanceDisplay,
                               style: commonTextStyle(
                                 fontSize: 12,
-                                fontColor: HexColor.fromHex('#374151'),
+                                fontColor: greyFontColor,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -238,7 +241,7 @@ class SearchRestaurantCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      padding: const EdgeInsets.only(left: 4.0, right: 4.0),
                       child: Divider(
                           color: HexColor.fromHex('#E5E7EB'), height: 1, thickness: 1),
                     ),
@@ -248,15 +251,14 @@ class SearchRestaurantCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(Icons.local_offer_outlined,
-                              size: 14, color: HexColor.fromHex('#A855F7')),
+                          Icon(Icons.local_offer_outlined,size: 14, color: HexColor.fromHex('#A855F7')),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               offerText,
                               style: commonTextStyle(
                                 fontSize: 12,
-                                fontColor: HexColor.fromHex('#4B5563'),
+                                fontColor: greyFontColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               maxLines: 1,
@@ -265,7 +267,9 @@ class SearchRestaurantCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 5),
                     ],
+                    
                   ],
                 ),
               ),

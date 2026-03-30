@@ -106,9 +106,9 @@ class _SearchDeligatePageState extends State<SearchDeligatePage> {
     return Scaffold(
       body: CommonAppScreenBackground(
         scrollable: false,
-        topColor: HexColor.fromHex('#BD0D0E'),
-        bottomColor: HexColor.fromHex('#F8F8F8'),
-        topHeight: 180,
+        topColor: redColor,
+        bottomColor: HexColor.fromHex('#FFFFFF'),
+        topHeight: 190,
         topChild: SearchHeaderComponent(
           searchController: _searchController,
           searchFieldHint: _searchFieldHint,
@@ -131,8 +131,7 @@ class _SearchDeligatePageState extends State<SearchDeligatePage> {
               showViewCart: true,
               itemCount: 1,
               totalAmount: '₹210',
-              onRestaurantTap: (item) =>
-                  Get.toNamed(Routes.SEARCHDETAILSPAGE, arguments: item),
+              onRestaurantTap: (item) => Get.toNamed(Routes.SEARCHDETAILSPAGE, arguments: item),
               onViewCartTap: () {},
               onSortTap: () {},
             );

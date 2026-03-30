@@ -145,13 +145,13 @@ class _OtpPageState extends State<OtpPage> {
               Text(
                 'Verification Code',
                 textAlign: TextAlign.center,
-                style: commonTextStyle(fontSize: 28,fontWeight: FontWeight.w600,fontColor: blackFontColor,),
+                style: commonTextStyle(fontSize: 26,fontWeight: FontWeight.w600,fontColor: blackFontColor,),
               ),
               const SizedBox(height: 8),
               Text(
                 _mobileNumber.isEmpty ? 'We have sent the verification code to\nyour mobile number' : 'We have sent the verification code to\nyour mobile number $_mobileNumber',
                 textAlign: TextAlign.center,
-                style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor,),
+                style: commonTextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontColor: greyFontColor.withValues(alpha: 0.8),),
               ),
               const SizedBox(height: 30),
               MaterialPinFormField(

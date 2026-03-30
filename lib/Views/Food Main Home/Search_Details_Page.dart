@@ -23,32 +23,7 @@ final List<String> _defaultMenuTabs = [
   'Desserts',
 ];
 
-final List<Map<String, dynamic>> _defaultMenuItems = [
-  {
-    'name': 'Double Truffle Burger',
-    'price': '₹150',
-    'description': 'Double smashed patty, truffle mayo, aged cheddar,...',
-    'imageUrl': 'Assets/Extras/tb_1.png',
-    'isVeg': true,
-    'isBestseller': true,
-  },
-  {
-    'name': 'Double Truffle Burger',
-    'price': '₹150',
-    'description': 'Double smashed patty, truffle mayo, aged cheddar,...',
-    'imageUrl': 'Assets/Extras/tb_2.png',
-    'isVeg': true,
-    'isBestseller': true,
-  },
-  {
-    'name': 'Double Truffle Burger',
-    'price': '₹150',
-    'description': 'Double smashed patty, truffle mayo, aged cheddar,...',
-    'imageUrl': 'Assets/Extras/tb_3.png',
-    'isVeg': true,
-    'isBestseller': true,
-  },
-];
+
 
 class SearchDetailsPage extends StatefulWidget {
   const SearchDetailsPage({super.key});
@@ -82,7 +57,6 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
     }
   }
 
-  /// Ids from store `subcategories`, in the same order as tab labels.
   static List<String>? _subCategoryIdsFromDetails(Map<String, dynamic> d) {
     final raw = d['subcategories'];
     if (raw is! List) return null;
@@ -136,7 +110,7 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
           menuTabs = List<String>.from(_defaultMenuTabs);
         }
 
-        final menuItems = args != null && args['menuItems'] != null ? List<Map<String, dynamic>>.from(args['menuItems'] as List) : _defaultMenuItems;
+        final menuItems = args != null && args['menuItems'] != null ? List<Map<String, dynamic>>.from(args['menuItems'] as List) : [];
 
         final String? vendorIdForMenu =
             shouldFetch && c.searchedStoreDetails != null ? restaurantDetails['id']?.toString().trim() : null;
@@ -148,7 +122,7 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
           body: SearchDetailsComponent(
             restaurantDetails: restaurantDetails,
             menuTabs: menuTabs,
-            menuItems: menuItems,
+            menuItems: [],
             topImageUrl: restaurantDetails['heroImageUrl'] as String?,
             topColor: HexColor.fromHex('#1A1A1A'),
             topHeight: 340,

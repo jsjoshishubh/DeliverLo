@@ -1,5 +1,6 @@
 import 'package:deliverylo/Components/SearchPageComponents/search_restaurant_card.dart';
 import 'package:deliverylo/Components/SearchPageComponents/search_results_header_component.dart';
+import 'package:deliverylo/Components/SearchPageComponents/search_view_cart_button.dart';
 import 'package:deliverylo/Data/search_page_data.dart';
 import 'package:flutter/material.dart';
 
@@ -39,23 +40,19 @@ class SearchResultsListComponent extends StatelessWidget {
             resultCount: resultCount ?? list.length,
             onSortTap: onSortTap,
           ),
-          Transform.translate(
-            offset: const Offset(0, -20),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  return SearchRestaurantCard(
-                    item: list[index],
-                    onTap: onRestaurantTap != null
-                        ? () => onRestaurantTap!(list[index])
-                        : null,
-                  );
-                },
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+            child: ListView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                return SearchRestaurantCard(
+                  item: list[index],
+                  onTap: onRestaurantTap != null ? () => onRestaurantTap!(list[index]) : null,
+                );
+              },
             ),
           ),
           // if (showViewCart)

@@ -531,10 +531,10 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
       onTap: _cartItemCount > 0 ? _openCheckout : null,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(190, 0, 14, 30),
+        margin: const EdgeInsets.fromLTRB(210, 0, 14, 0),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: _cartItemCount > 0 ? HexColor.fromHex('#E88A2D') : HexColor.fromHex('#9CA3AF'),
+          color: _cartItemCount > 0 ? redColor : HexColor.fromHex('#9CA3AF'),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -553,7 +553,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
                 Text(
                   '$_cartItemCount  ITEM${_cartItemCount != 1 ? 'S' : ''}',
                   style: commonTextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontColor: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
@@ -562,7 +562,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
                 Text(
                   _cartItemCount > 0 ? _cartTotalFormatted : '₹0',
                   style: commonTextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontColor: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
@@ -583,7 +583,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
                   Text(
                     'VIEW CART',
                     style: commonTextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontColor: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
@@ -592,7 +592,7 @@ class _SearchDetailsComponentState extends State<SearchDetailsComponent> {
                   Icon(
                     Icons.shopping_bag_outlined,
                     color: Colors.white,
-                    size: 19,
+                    size: 16,
                   ),
                 ],
               ),

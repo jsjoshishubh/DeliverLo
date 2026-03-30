@@ -57,8 +57,8 @@ class BillDetails extends StatelessWidget {
                         Text(
                           item['title'] as String,
                           style: commonTextStyle(
-                            fontSize: 14,
-                            fontColor: HexColor.fromHex('#475569'),
+                            fontSize: 12,
+                            fontColor: greyFontColor,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -67,8 +67,8 @@ class BillDetails extends StatelessWidget {
                             padding: EdgeInsets.only(left: 6),
                             child: Icon(
                               Icons.info_outline,
-                              size: 14,
-                              color: Colors.grey,
+                              size: 12,
+                              color: greyFontColor,
                             ),
                           ),
                       ],
@@ -77,9 +77,9 @@ class BillDetails extends StatelessWidget {
                     Text(
                       '₹ ${item['amount']}',
                       style: commonTextStyle(
-                        fontSize: 14,
-                        fontColor: HexColor.fromHex('#0F172A'),
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                        fontColor:greyFontColor,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
@@ -93,7 +93,7 @@ class BillDetails extends StatelessWidget {
               Text(
                 'Grand Total',
                 style: commonTextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontColor: HexColor.fromHex('#0F172A'),
                   fontWeight: FontWeight.w700,
                 ),
@@ -102,8 +102,8 @@ class BillDetails extends StatelessWidget {
               Text(
                 '₹ $grandTotal',
                 style: commonTextStyle(
-                  fontSize: 18,
-                  fontColor: HexColor.fromHex('#0F172A'),
+                  fontSize: 16,
+                  fontColor: blackFontColor,
                   fontWeight: FontWeight.w700,
                 ),
               ),

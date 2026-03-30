@@ -62,12 +62,12 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? HexColor.fromHex('#F48C25').withValues(alpha: 0.1)
+                    ? lightRed
                     : HexColor.fromHex('#FFFFFF'),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
-                      ? HexColor.fromHex('#F48C25')
+                      ? redColor
                       : const Color(0xffD7DDE5),
                   width: 1,
                 ),
@@ -80,7 +80,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? Colors.orange : Colors.grey.shade400,
+                        color: isSelected ? redColor : Colors.grey.shade400,
                         width: 2,
                       ),
                     ),
@@ -90,7 +90,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                               height: 10,
                               width: 10,
                               decoration: BoxDecoration(
-                                color: HexColor.fromHex('#F48C25'),
+                                color: redColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -105,7 +105,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: isSelected? HexColor.fromHex('#F48C25') :Colors.grey.shade200,
+                      color: isSelected? redColor :Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -125,7 +125,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
       
                         Text(
                           item["title"],
-                          style:commonTextStyle(fontColor: HexColor.fromHex('#0F172A'),fontWeight:FontWeight.w500,fontSize: 16 )
+                          style:commonTextStyle(fontColor:blackFontColor,fontWeight:FontWeight.w600,fontSize: 14)
                         ),
       
                         if (item["subtitle"].toString().isNotEmpty)
@@ -134,7 +134,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                             style: commonTextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
-                              fontColor: HexColor.fromHex('#64748B'),
+                              fontColor: greyFontColor,
                             ),
                           ),
                       ],
@@ -147,7 +147,7 @@ class _PaymentMethodComponentState extends State<PaymentMethodComponent> {
                       "ADD NEW",
                       style: commonTextStyle(
                         fontSize: 12,
-                        fontColor: Colors.orange,
+                        fontColor: redColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

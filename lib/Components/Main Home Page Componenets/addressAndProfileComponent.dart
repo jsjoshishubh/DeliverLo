@@ -22,8 +22,8 @@ class MainHome_AddressAndProfileComponentState
           Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(border: Border.all(color: orangeColor,width: 0.4),color: orangeColor.withValues(alpha: 0.14),shape: BoxShape.circle,),
-            child: const Icon(Icons.location_on_outlined,color: orangeColor,size: 24,),
+            decoration: BoxDecoration(border: Border.all(color: redColor,width: 0.4),color: lightRed,shape: BoxShape.circle,),
+            child: const Icon(Icons.location_on_outlined,color: redColor,size: 24,),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -53,7 +53,7 @@ class MainHome_AddressAndProfileComponentState
             child: Container(
               width: 42,
               height: 42,
-              decoration: const BoxDecoration(color: orangeColor,shape: BoxShape.circle,),
+              decoration: const BoxDecoration(color: redColor,shape: BoxShape.circle,),
               child: const Icon(Icons.person, color: Colors.white, size: 24),
             ),
           ),

@@ -9,7 +9,8 @@ const int _blackFontColorValue = 0xFF111827;
 const int _greyFontColorValue = 0xFF64748B;
 const int _yellowColorValues = 0xFFFEC42E;
 const int _greenColorValues = 0xFF0E8345;
-const int _redColorValues = 0xFFDE1135;
+const int _redColorValues = 0xFFBD0D0E;
+const int _lightRedColorValues = 0xFFFFEFEF;
 const int _orangeColorValues = 0xFFF48C25;
 
 
@@ -131,18 +132,36 @@ const MaterialColor greenColor = MaterialColor(
 const MaterialColor redColor = MaterialColor(
   _redColorValues,
   <int, Color>{
-    50: Color(0xFFFFAB90),
-    100: Color(0xFFFFAB90),
-    200: Color(0xFFFFAB90),
-    300: Color(0xFFFFAB90),
-    400: Color(0xFFFFAB90),
-    500: Color(0xFFFFAB90),
-    600: Color(0xFFFFAB90),
-    700: Color(0xFFFFAB90),
-    800: Color(0xFFBA1B1B),
-    900: Color(0xFFDE1135),
+    50: Color(0xFFBD0D0E),
+    100: Color(0xFFBD0D0E),
+    200: Color(0xFFBD0D0E),
+    300: Color(0xFFBD0D0E),
+    400: Color(0xFFBD0D0E),
+    500: Color(0xFFBD0D0E),
+    600: Color(0xFFBD0D0E),
+    700: Color(0xFFBD0D0E),
+    800: Color(0xFFBD0D0E),
+    900: Color(0xFFBD0D0E),
   },
 );
+
+const MaterialColor lightRed = MaterialColor(
+  _lightRedColorValues,
+  <int,Color>{
+    50 : Color(0xFFFFEFEF),
+    100: Color(0xFFFFEFEF),
+    200: Color(0xFFFFEFEF),
+    300: Color(0xFFFFEFEF),
+    400: Color(0xFFFFEFEF),
+    500: Color(0xFFFFEFEF),
+    600: Color(0xFFFFEFEF),
+    700: Color(0xFFFFEFEF),
+    800: Color(0xFFFFEFEF),
+    900: Color(0xFFFFEFEF),
+  }
+  );
+
+
 extension HexColor on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {

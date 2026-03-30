@@ -34,7 +34,7 @@ class MainHomeTopDealsComponent extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.local_fire_department_outlined, color: orangeColor, size: 22),
+              Icon(Icons.local_fire_department_outlined, color: redColor, size: 22),
               const SizedBox(width: 4),
               Expanded(
                 child: Text('Top Deals for You',style: commonTextStyle(fontColor: blackFontColor,fontSize: 18,fontWeight: FontWeight.w700,),),
@@ -108,7 +108,7 @@ class _TopDealCard extends StatelessWidget {
                   Text(
                     item.title,
                     style: commonTextStyle(
-                      fontColor: orangeColor,
+                      fontColor: redColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),

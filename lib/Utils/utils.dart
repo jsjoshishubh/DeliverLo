@@ -253,7 +253,7 @@ int parsePrice(String? priceStr) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,style: commonTextStyle(fontColor: HexColor.fromHex('#1F2937'),fontSize: 14,fontWeight: FontWeight.w400,),),
+                Text(title,style: commonTextStyle(fontColor: HexColor.fromHex('#1F2937'),fontSize: 14,fontWeight: FontWeight.w800,),),
                 const SizedBox(height: 4),
                 Text(subtitle,style: commonTextStyle(fontColor: HexColor.fromHex('#6B7280'),fontSize: 12,fontWeight: FontWeight.w400,),),
               ],
@@ -267,14 +267,14 @@ int parsePrice(String? priceStr) {
 
   Widget buildPortionChip({required String label,required String value,required Function onTap,required Color activeColor,required  String selectedPortion}) {
     final bool isSelected = selectedPortion == value;
-    final Color activeColor = HexColor.fromHex('#FF5200');
+    final Color activeColor = redColor;
 
     return GestureDetector(
       onTap: () => onTap(value),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 40),
+        padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 30),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withOpacity(0.1) : Colors.white,
+          color: isSelected ? lightRed : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? activeColor : HexColor.fromHex('#E5E7EB'),
@@ -287,7 +287,7 @@ int parsePrice(String? priceStr) {
           textAlign: TextAlign.center,
           style: commonTextStyle(
             fontColor: isSelected ? activeColor : HexColor.fromHex('#4B5563'),
-            fontSize: 14,
+            fontSize: 12,
           
             fontWeight: FontWeight.w600,
           ),

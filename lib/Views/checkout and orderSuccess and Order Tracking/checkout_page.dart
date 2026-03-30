@@ -85,7 +85,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: Text(
                         'Checkout',
                         style: commonTextStyle(
-                          fontColor: HexColor.fromHex('#0F172A'),
+                          fontColor: blackFontColor,
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                         ),
@@ -103,53 +103,51 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 children: [
                   const SizedBox(height: 10),
                   ListTile(
-                    leading: Image.asset('Assets/Extras/address.png', scale: 3),
+                    leading: Image.asset('Assets/Extras/address.png', scale: 4,color: redColor,),
                     title: Text(
                       'Home',
                       style: commonTextStyle(
                         fontColor: HexColor.fromHex('#0F172A'),
-                        fontSize: 18,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     subtitle: Text(
-                      '123 Main St, Apt 4B, New York, NY',
+                      '123 Main St, Apt 4B, New York, NY NY',
                       style: commonTextStyle(
-                        fontColor: HexColor.fromHex('#64748B'),
-                        fontSize: 14,
+                        fontColor: greyFontColor,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
-                        color: HexColor.fromHex('#F48C25').withValues(alpha: 0.23),
-                        borderRadius: BorderRadius.circular(16),
+                        color: lightRed,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         'Change',
-                        style: commonTextStyle(fontColor: HexColor.fromHex('#F48C25')),
+                        style: commonTextStyle(fontColor:redColor),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   ListTile(
-                    leading: Image.asset('Assets/Extras/time.png', scale: 3),
+                    leading: Image.asset('Assets/Extras/time.png', scale: 4),
                     title: Text(
                       _deliveryTitle,
                       style: commonTextStyle(
-                        fontColor: HexColor.fromHex('#0F172A'),
-                        fontSize: 18,
+                        fontColor: blackFontColor,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     subtitle: Text(
-                      _restaurantDetails['deliveryFee']?.toString().trim().isNotEmpty == true
-                          ? _restaurantDetails['deliveryFee'].toString()
-                          : 'Standard delivery',
+                      _restaurantDetails['deliveryFee']?.toString().trim().isNotEmpty == true ? _restaurantDetails['deliveryFee'].toString() : 'Standard delivery',
                       style: commonTextStyle(
-                        fontColor: HexColor.fromHex('#64748B'),
-                        fontSize: 14,
+                        fontColor: greyFontColor,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -169,9 +167,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     child: Text(
                       'Order Summery',
                       style: commonTextStyle(
-                        fontColor: HexColor.fromHex('#1D1D1D'),
+                        fontColor: blackFontColor,
                         fontWeight: FontWeight.w700,
-                        fontSize: 20,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -189,10 +187,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
               margin: const EdgeInsets.only(top: 10),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: DashedBorder(
+                color: redColor,
+                borderRadius: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
-                    color: HexColor.fromHex('#F48C25').withValues(alpha: 0.1),
+                    color: lightRed,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -201,7 +201,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         height: 32,
                         width: 32,
                         decoration: BoxDecoration(
-                          color: Colors.orange,
+                          color:redColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
@@ -214,8 +214,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Text(
                         'Apply Coupon',
                         style: commonTextStyle(
-                          fontSize: 16,
-                          fontColor: HexColor.fromHex('#0F172A'),
+                          fontSize: 14,
+                          fontColor: blackFontColor,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -223,13 +223,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Text(
                         'Save up to ₹100',
                         style: TextStyle(
-                          color: HexColor.fromHex('#F48C25'),
-                          fontSize: 14,
+                          color:redColor,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(Icons.chevron_right, color: Colors.grey),
+                      const Icon(Icons.chevron_right, color: blackFontColor),
                     ],
                   ),
                 ),
@@ -249,7 +249,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       style: commonTextStyle(
                         fontColor: HexColor.fromHex('#1D1D1D'),
                         fontWeight: FontWeight.w700,
-                        fontSize: 20,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -274,9 +274,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     child: Text(
                       'Payment Method',
                       style: commonTextStyle(
-                        fontColor: HexColor.fromHex('#1D1D1D'),
+                        fontColor: blackFontColor,
                         fontWeight: FontWeight.w700,
-                        fontSize: 20,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -297,12 +297,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
               margin: const EdgeInsets.only(top: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF28C1B),
-                  borderRadius: BorderRadius.circular(20),
+                  color: redColor,
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
@@ -313,8 +313,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           'TOTAL TO PAY',
                           style: commonTextStyle(
                             fontColor: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -322,7 +322,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           '₹$_grandTotal',
                           style: commonTextStyle(
                             fontColor: Colors.white,
-                            fontSize: 20,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -333,10 +333,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       // onTap: () => Get.toNamed(Routes.ORDERCONFIRMATION),
                       onTap: () => Get.toNamed(Routes.ORDERSUCCESSDELIVER),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.08),
@@ -350,13 +350,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             Text(
                               'Pay Now',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
                               ),
                             ),
                             SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, size: 18),
+                            Icon(Icons.arrow_forward, size: 16),
                           ],
                         ),
                       ),

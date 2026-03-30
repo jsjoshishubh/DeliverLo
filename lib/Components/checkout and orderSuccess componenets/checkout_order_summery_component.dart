@@ -200,7 +200,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
         return Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+              padding: const EdgeInsets.only(left: 20, right: 20,top: 10,bottom: 5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -214,13 +214,14 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 4),
                               Text(
                                 title,
                                 style: commonTextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
                                   fontColor: HexColor.fromHex('#1D1D1D'),
                                 ),
                               ),
@@ -255,9 +256,9 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
                       Text(
                         '₹ $lineTotal',
                         style: commonTextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          fontColor: HexColor.fromHex('#0F172A'),
+                          fontColor: blackFontColor,
                         ),
                       ),
                     ],
@@ -267,7 +268,7 @@ class _CheckoutOrderSumeryComponentState extends State<CheckoutOrderSumeryCompon
             ),
             if (widget.cartItems.length - 1 != index)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: CustomPaint(
                   size: const Size(double.infinity, 1),
                   painter: DottedLinePainter(color: Colors.grey.shade300),

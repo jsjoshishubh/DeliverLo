@@ -28,11 +28,11 @@ class CommonFilterChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
-            color: isActive ? HexColor.fromHex('#FFF4E6') : HexColor.fromHex('#F9FAFB'),
+            color: isActive ?lightRed : HexColor.fromHex('#F9FAFB'),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isActive
-                  ? HexColor.fromHex('#E88A2E').withValues(alpha: 0.4)
+                  ? redColor
                   : HexColor.fromHex('#E5E7EB'),
               width: 1,
             ),
@@ -44,7 +44,7 @@ class CommonFilterChip extends StatelessWidget {
                 Icon(
                   icon!,
                   size: 18,
-                  color: isActive ? HexColor.fromHex('#E88A2E') : HexColor.fromHex('#6B7280'),
+                  color: isActive ? redColor : HexColor.fromHex('#6B7280'),
                 ),
                 const SizedBox(width: 6),
               ],
@@ -52,7 +52,7 @@ class CommonFilterChip extends StatelessWidget {
                 label,
                 style: commonTextStyle(
                   fontSize: 12,
-                  fontColor: isActive ? HexColor.fromHex('#E88A2E') : HexColor.fromHex('#374151'),
+                  fontColor: isActive ? redColor : HexColor.fromHex('#374151'),
                   fontWeight: FontWeight.w500,
                 ),
               ),

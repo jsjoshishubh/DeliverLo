@@ -151,13 +151,13 @@ class _SearchDetailsTabBarState extends State<SearchDetailsTabBar> with SingleTi
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
                 indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(color: HexColor.fromHex('#E88A2E'),width: _indicatorHeight,),),
+                borderSide: BorderSide(color: redColor, width: _indicatorHeight,),),
                 indicatorSize: TabBarIndicatorSize.label,
                 indicatorPadding: EdgeInsets.zero,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 dividerColor: Colors.transparent,
-                labelColor: HexColor.fromHex('#E88A2E'),
-                unselectedLabelColor: _unselectedColor,
+                labelColor: redColor,
+                unselectedLabelColor: greyFontColor.withValues(alpha: 0.5),
                 labelStyle: commonTextStyle(fontSize: 15,fontColor: HexColor.fromHex('#F48C25'),fontWeight: FontWeight.w700,),
                 unselectedLabelStyle: commonTextStyle(fontSize: 14,fontColor: HexColor.fromHex('#64748B'),fontWeight: FontWeight.w500,),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -267,16 +267,16 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                           if (isVeg && isBestseller) const SizedBox(width: 8),
                           if (isBestseller)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4.5),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4.5),
                               decoration: BoxDecoration(
-                                color: HexColor.fromHex('#F48C25').withOpacity(0.3),
+                                color:lightRed,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 'BESTSELLER',
                                 style: commonTextStyle(
-                                  fontSize: 11,
-                                  fontColor: HexColor.fromHex('#F48C25'),
+                                  fontSize: 10,
+                                  fontColor: redColor,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -287,9 +287,9 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       Text(
                         titleDish,
                         style: commonTextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontColor: HexColor.fromHex('#1E293B'),
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w800,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -298,7 +298,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       Text(
                         item['price'] is String ? item['price'] as String : '${item['price']}',
                         style: commonTextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontColor: HexColor.fromHex('#0F172A'),
                           fontWeight: FontWeight.w600,
                         ),
@@ -307,7 +307,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                       Text(
                         descText,
                         style: commonTextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontColor: HexColor.fromHex('#64748B'),
                           fontWeight: FontWeight.w400,
                         ),
@@ -323,23 +323,23 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                   alignment: Alignment.bottomRight,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(12),
                       child: _menuItemImage(
                         item['imageUrl'] as String? ?? '',
-                        width: 130,
-                        height: 130,
+                        width: 110,
+                        height: 110,
                       ),
                     ),
                     Positioned(
-                      right: 24,
+                      right: 20,
                       bottom: -12,
                       child: GestureDetector(
                         onTap: onAddTap,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4.5),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color:Colors.grey.shade300.withValues(alpha: 1),
                               width: 1,
@@ -352,12 +352,14 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: Text(
-                            'ADD',
-                            style: commonTextStyle(
-                              fontSize: 14,
-                              fontColor: HexColor.fromHex('#F48C25'),
-                              fontWeight: FontWeight.w700,
+                          child: Center(
+                            child: Text(
+                              'ADD',
+                              style: commonTextStyle(
+                                fontSize: 12,
+                                fontColor:redColor,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ),
@@ -371,7 +373,7 @@ class SearchDetailsMenuItemCard extends StatelessWidget {
         ),
         if (showBottomDivider)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 5),
             child: CustomPaint(
               size: const Size(double.infinity, 1),
               painter: DottedLinePainter(color: HexColor.fromHex('#E5E7EB')),
@@ -708,12 +710,12 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
         name,
         style: commonTextStyle(
           fontColor: HexColor.fromHex('#111827'),
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
       ),
       if (hint.isNotEmpty) ...[
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           hint,
           style: commonTextStyle(
@@ -824,7 +826,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
         'Portion Size',
         style: commonTextStyle(
           fontColor: HexColor.fromHex('#111827'),
-          fontSize: 18,
+          fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -876,24 +878,24 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
       mainAxisSize: MainAxisSize.max,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 15),
-          height: 8,
+          margin: const EdgeInsets.only(top: 20, bottom: 15),
+          height: 6,
           width: 60,
           decoration: BoxDecoration(
             color: HexColor.fromHex('#D1D5DB'),
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        Text(itemName, style: commonTextStyle(fontColor: HexColor.fromHex('#111827'),fontSize: 24,fontWeight: FontWeight.w700,),),
+        Text(itemName, style: commonTextStyle(fontColor: blackFontColor,fontSize: 20,fontWeight: FontWeight.w700,),),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               children: [
-                Icon(Icons.star_border,color: HexColor.fromHex('#16A34A'),size: 18,),
+                Icon(Icons.star_border,color: HexColor.fromHex('#16A34A'),size: 16,),
                 const SizedBox(width: 5),
-                Text(_ratingLabel,style: commonTextStyle(fontColor: HexColor.fromHex('#16A34A'),fontSize: 14,fontWeight: FontWeight.w700,),),
+                Text(_ratingLabel,style: commonTextStyle(fontColor: HexColor.fromHex('#16A34A'),fontSize: 12,fontWeight: FontWeight.w700,),),
               ],
             ),
             const SizedBox(width: 10),
@@ -903,7 +905,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
               decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.grey.shade400,),
             ),
             const SizedBox(width: 10),
-            Text('1.2k Reviews',style: commonTextStyle(fontColor: HexColor.fromHex('#A6A6A6'),fontSize: 14,fontWeight: FontWeight.w500,),
+            Text('1.2k Reviews',style: commonTextStyle(fontColor: HexColor.fromHex('#A6A6A6'),fontSize: 12,fontWeight: FontWeight.w500,),
             ),
             const SizedBox(width: 10),
             Container(
@@ -912,7 +914,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
               decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.grey.shade400,),
             ),
             const SizedBox(width: 10),
-            Text(_traitsLabel,style: commonTextStyle(fontColor: HexColor.fromHex('#F48C25'),fontSize: 14,fontWeight: FontWeight.w500,),),
+            Text(_traitsLabel,style: commonTextStyle(fontColor: redColor,fontSize: 12,fontWeight: FontWeight.w500,),),
           ],
         ),
         Padding(
@@ -971,7 +973,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
                     _formatPrice(_totalPrice),
                     style: commonTextStyle(
                       fontColor: HexColor.fromHex('#111827'),
-                      fontSize: 22,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -994,7 +996,7 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
                 child: Container(
                   padding: EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: HexColor.fromHex('#E88A2D').withValues(
+                    color: redColor.withValues(
                       alpha: _canAddToCart ? 1 : 0.45,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -1004,14 +1006,14 @@ class _SearchedItemDetailedBottomBarComponentState extends State<SearchedItemDet
                       Icon(
                           Icons.shopping_cart_outlined,
                           color: Colors.white,
-                          size: 20,
+                          size: 18,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         Text(
                           'Add to Cart',
                           style: commonTextStyle(
                             fontColor: Colors.white,
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

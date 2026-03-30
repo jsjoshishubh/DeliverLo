@@ -15,7 +15,7 @@ class CommonBottomBar extends StatelessWidget {
   static const double _iconSize = 24;
   static const double _fontSize = 11.5;
   static final Color _selectedBackgroundColor = HexColor.fromHex('#FFEFEF');
-  static final Color _unselectedColor = greyFontColor;
+  static final Color _unselectedColor = Colors.grey.shade500;
 
   @override
   Widget build(BuildContext context) {
