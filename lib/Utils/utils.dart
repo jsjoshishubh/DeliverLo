@@ -13,6 +13,17 @@ import 'package:geolocator/geolocator.dart';
 String isLOGGEDIN = "isLOGGEDIN";
 String googleMpaKey = 'AIzaSyD3lX02gdxFt6W3qFPfr0HGqQvAH9-m79M';
 
+/// First route after the splash screen (same rules as `MyApp.renderInitialRoute`).
+String resolvePostSplashRoute() {
+  final storage = GetStorage();
+  final isLoggedIn = storage.read(isLOGGEDIN) ?? false;
+  final shownOnboard = storage.read('onBorderDone') ?? false;
+  if (isLoggedIn) {
+    return Routes.MAIN_DASHBOARD;
+  }
+  return shownOnboard ? Routes.SIGNUPAMDLOGIN : Routes.ONBOARDING;
+}
+
 Future<Map<String, dynamic>> fetchCurrentFormattedAddress() async {
   final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!isServiceEnabled) {

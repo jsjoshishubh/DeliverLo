@@ -20,6 +20,7 @@ import 'package:deliverylo/Views/Grocery mainHome/Grocery_Detail_page.dart';
 import 'package:deliverylo/Views/Grocery mainHome/Grocery_home_page.dart';
 import 'package:deliverylo/Views/Grocery mainHome/Grocery_main_dashboard.dart';
 import 'package:deliverylo/Views/onBoarding/onBoarding_main_page.dart';
+import 'package:deliverylo/Views/Splash_screen_page.dart';
 import 'package:get/get.dart';
 
 abstract class Routes{
@@ -51,6 +52,7 @@ abstract class Routes{
 
 abstract class AppPages{
   static final pages =  [
+     GetPage(name: Routes.SPLASHSCREEN, page: () => const SplashScreenPage(), transition: Transition.fadeIn),
      GetPage(name: Routes.ONBOARDING, page: () => OnBoardingMainPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.SIGNUPAMDLOGIN, page: () => LoginSignUpPage(),transition: Transition.fadeIn),
      GetPage(name: Routes.OTP, page: () => OtpPage(),transition: Transition.fadeIn),
